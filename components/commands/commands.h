@@ -1,0 +1,26 @@
+#ifndef COMMANDS_H
+#define COMMANDS_H
+
+#define N20_VALVE_CLOSE 0x00
+#define N20_VALVE_OPEN  0x01
+#define ETH_VALVE_CLOSE 0x02
+#define ETH_VALVE_OPEN  0x03
+#define N2_VALVE_CLOSE  0x04
+#define N2_VALVE_OPEN   0x05
+
+#define N20_SOL_CLOSE   0x10
+#define N20_SOL_OPEN    0x11
+#define ETH_SOL_CLOSE   0x12
+#define ETH_SOL_OPEN    0x13
+#define N2_SOL_CLOSE    0x14
+#define N2_SOL_OPEN     0x15
+
+// VENT CONFIG
+#define VALVE_AUTOPRESS_TIME 0x13
+#define VALVE_AUTOPRESS_LIMIT 0x14
+
+// MAIN BENCH TESTING
+#define VALVE_ANGLE_OPEN 0x03
+#define VALVE_CALIBRATE 0x04
+
+#endif  // COMMANDS_H

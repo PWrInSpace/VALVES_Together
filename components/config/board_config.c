@@ -22,6 +22,9 @@
 #include "console_config.h"
 #include "mcu_spi_config.h"
 #include "timers_config.h"
+#include "now.h"
+#include "solenoid_config.h"
+#include "servo_config.h"
 
 #define TAG "BOARD_CONFIG"
 
@@ -57,6 +60,33 @@ esp_err_t board_config_init(void) {
         return ESP_FAIL;
     }
 
+    if(nowInit())
+    {
+        nowAddPeer(adressObc, 1);
+        uint8_t mac[6];
+        esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
+        ESP_LOGI("MAC address", "MAC address: %02x:%02x:%02x:%02x:%02x:%02x", 
+                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]); 
+    }
+    else
+    {
+        ESP_LOGE(TAG, "ESP-NOW initialization failed");
+        return ESP_FAIL;
+    }
+
+    err = valves_init();
+    if (err!=ESP_OK)
+    {
+        ESP_LOGE(TAG, "Valves initialization failed");
+        return err;
+    }
+
+    err = init_multiple_servos();
+    if(err!=ESP_OK)
+    {
+        ESP_LOGE(TAG, "Servo configuration failed");
+        vTaskDelete(NULL);
+    }
 
     return ESP_OK;
 
