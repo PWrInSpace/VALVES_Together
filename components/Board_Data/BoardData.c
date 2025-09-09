@@ -1,11 +1,12 @@
 #include "BoardData.h"
 #include <esp_err.h>
 
-BoardData_t BoardData;
+volatile BoardData_t boardData;
 SemaphoreHandle_t BoardDataSemaphore;
 volatile ModuleData moduleData = {
     .dataFromObc = {0, 0},
-    .inServiceMode = false
+    .inServiceMode = false,
+    .dataToObc = {0, 0, 0, 0}
 };
 esp_err_t board_data_init(void) {
     // Initialize semaphore

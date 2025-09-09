@@ -25,6 +25,7 @@
 #include "now.h"
 #include "solenoid_config.h"
 #include "servo_config.h"
+#include "pressure_sensor.h"
 
 #define TAG "BOARD_CONFIG"
 
@@ -86,6 +87,11 @@ esp_err_t board_config_init(void) {
     {
         ESP_LOGE(TAG, "Servo configuration failed");
         vTaskDelete(NULL);
+    }
+    
+    if(!pressure_sensors_init()) {
+        ESP_LOGE(TAG, "Pressure sensors initialization failed");
+        return ESP_FAIL;
     }
 
     return ESP_OK;

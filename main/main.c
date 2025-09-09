@@ -8,7 +8,7 @@
 #include "setup_task.h"
 #include "app_task.h"
 #include "timers_config.h"
-#include "pressure_driver.h"
+#include "pressure_sensor.h"
 
 
 #define TAG "APP"

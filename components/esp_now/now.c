@@ -3,6 +3,7 @@
 #include "commands.h"
 #include "servo_control.h"
 #include "Solenoid.h"
+#include "BoardData.h"
 /**************************  PRIVATE INCLUDES  ********************************/
 
 #include <string.h>
@@ -101,6 +102,9 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SERVO_N20_CONFIG
             if((moduleData.dataFromObc.commandArg != 0) && open_servo(N2O_FILL_SERVO, moduleData.dataFromObc.commandArg) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to open N2O_FILL_SERVO");
+                moduleData.dataToObc.valve1_state = 0;
+            } else {
+                moduleData.dataToObc.valve1_state = 1;
             }
             #endif
             break;
@@ -108,6 +112,10 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SERVO_N20_CONFIG
             if(close_servo(N2O_FILL_SERVO) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to close N2O_FILL_SERVO");
+                moduleData.dataToObc.valve1_state = 1;
+
+            } else {
+                moduleData.dataToObc.valve1_state = 0;
             }
             #endif
             break;
@@ -115,6 +123,10 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SERVO_ETH_N2_CONFIG
             if((moduleData.dataFromObc.commandArg != 0) && open_servo(ETH_FILL_SERVO, moduleData.dataFromObc.commandArg) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to open ETH_FILL_SERVO");
+                moduleData.dataToObc.valve1_state = 0;
+            }
+            else {
+                moduleData.dataToObc.valve1_state = 1;
             }
             #endif
             break;
@@ -122,6 +134,10 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SERVO_ETH_N2_CONFIG
             if(close_servo(ETH_FILL_SERVO) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to close ETH_FILL_SERVO");
+                moduleData.dataToObc.valve1_state = 1;
+            }
+            else {
+                moduleData.dataToObc.valve1_state = 0;
             }
             #endif
             break;
@@ -129,6 +145,10 @@ void obc_command_handler(const uint8_t *data, int len) {
              #ifdef SERVO_ETH_N2_CONFIG
             if((moduleData.dataFromObc.commandArg != 0) && open_servo(N2_FILL_SERVO, moduleData.dataFromObc.commandArg) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to open N2_FILL_SERVO");
+                moduleData.dataToObc.valve2_state = 0;
+            }
+            else {
+                moduleData.dataToObc.valve2_state = 1;
             }
             #endif
             break;
@@ -136,6 +156,10 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SERVO_ETH_N2_CONFIG
             if(close_servo(N2_FILL_SERVO) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to close N2_FILL_SERVO");
+                moduleData.dataToObc.valve2_state = 1;
+            }
+            else {
+                moduleData.dataToObc.valve2_state = 0;
             }
             #endif
             break;
@@ -143,12 +167,19 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SOL_N2O_N2_CONFIG
             if(set_valve_state(&valves[N20_FILL_SOL], VALVE_OPEN) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to open N20_FILL_SOL");
+                moduleData.dataToObc.valve1_state = 0;
+            } else {
+                moduleData.dataToObc.valve1_state = 1;
             }
             #endif
         case N20_SOL_CLOSE:
             #ifdef SOL_N2O_N2_CONFIG
             if(set_valve_state(&valves[N20_FILL_SOL], VALVE_CLOSED) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to close N20_FILL_SOL");
+                moduleData.dataToObc.valve1_state = 1;
+            }
+            else {
+                moduleData.dataToObc.valve1_state = 0;
             }
             #endif
             break;
@@ -156,6 +187,10 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SOL_ETH_CONFIG
             if(set_valve_state(&valves[ETH_FILL_SOL], VALVE_OPEN) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to open ETH_FILL_SOL");
+                moduleData.dataToObc.valve1_state = 0;
+            }
+            else {
+                moduleData.dataToObc.valve1_state = 1;
             }
             #endif
             break;
@@ -163,6 +198,10 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SOL_ETH_CONFIG
             if(set_valve_state(&valves[ETH_FILL_SOL], VALVE_CLOSED) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to close ETH_FILL_SOL");
+                moduleData.dataToObc.valve1_state = 1;
+            }
+            else {
+                moduleData.dataToObc.valve1_state = 0;
             }
             #endif
             break;
@@ -170,6 +209,10 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SOL_N2O_N2_CONFIG
             if(set_valve_state(&valves[N2_FILL_SOL], VALVE_OPEN) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to open N2_FILL_SOL");
+                moduleData.dataToObc.valve2_state = 0;
+            }
+            else {
+                moduleData.dataToObc.valve2_state = 1;
             }
             #endif
             break;
@@ -177,8 +220,30 @@ void obc_command_handler(const uint8_t *data, int len) {
             #ifdef SOL_N2O_N2_CONFIG
             if(set_valve_state(&valves[N2_FILL_SOL], VALVE_CLOSED) != ESP_OK) {
                 ESP_LOGE("NOW", "Failed to close N2_FILL_SOL");
+                moduleData.dataToObc.valve2_state = 1;
+            }
+            else {
+                moduleData.dataToObc.valve2_state = 0;
             }
             #endif
+            break;
+        case GET_DATA:
+            if(xSemaphoreTake(BoardDataSemaphore, 100) == pdTRUE) {
+                moduleData.dataToObc.pressure1 = boardData.pressure[0];
+                moduleData.dataToObc.pressure2 = boardData.pressure[1];
+                xSemaphoreGive(BoardDataSemaphore);
+            } else {
+                ESP_LOGE("NOW", "Failed to take BoardData semaphore");
+                moduleData.dataToObc.pressure1 = 0;
+                moduleData.dataToObc.pressure2 = 0;
+            }
+
+            ESP_LOGI("NOW", "Sending data to OBC: valve1_state=%d, valve2_state=%d, pressure1=%lu, pressure2=%lu",
+                     moduleData.dataToObc.valve1_state, moduleData.dataToObc.valve2_state,
+                     moduleData.dataToObc.pressure1, moduleData.dataToObc.pressure2);
+            if (esp_now_send(adressObc, (uint8_t*)&moduleData.dataToObc, sizeof(DataToObc)) != ESP_OK) {
+                ESP_LOGE("NOW", "Failed to send data to OBC");
+            }
             break;
         default:
             ESP_LOGW("NOW", "Unknown command from OBC: %lu", moduleData.dataFromObc.commandNum);

@@ -15,6 +15,8 @@
 #include "freertos/task.h"
 
 #include "esp_log.h"
+#include "pressure_sensor.h"
+#include "BoardData.h"
 
 
 #define APP_TASK_STACK_SIZE 4096
@@ -47,6 +49,19 @@ esp_err_t app_task_deinit(void) {
 void app_task(void *arg) {
 
     while(1) {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        // Read pressures
+        if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+            if(pressure_manager.Initialized) {
+                boardData.pressure[0] = get_pressure(&pressure_manager.mPressure1);
+                boardData.pressure[1] = get_pressure(&pressure_manager.mPressure2);
+            } else {
+                ESP_LOGW("APP_TASK", "Pressure manager not initialized");
+            }
+            xSemaphoreGive(BoardDataSemaphore);
+        } else {
+            ESP_LOGE("APP_TASK", "Failed to take BoardData semaphore");
+        }
+        
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
