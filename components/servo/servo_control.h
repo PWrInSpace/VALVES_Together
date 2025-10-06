@@ -49,18 +49,18 @@ typedef enum {
     N2O_FILL_SERVO,
     SERVO_COUNT // Number of servos
 } ServoId_t;
-#elif SERVO_ETH_N2_CONFIG
+#elif defined(SERVO_ETH_N2_CONFIG)
 typedef enum {
     ETH_FILL_SERVO,
     N2_FILL_SERVO,
     SERVO_COUNT // Number of servos
 } ServoId_t;
-#elif SOL_ETH_CONFIG
+#elif defined(SOL_ETH_CONFIG)
 typedef enum {
     SERVO_COUNT // Number of servos
 } ServoId_t;
 
-#elif SOL_N2O_N2_CONFIG
+#elif defined(SOL_N2O_N2_CONFIG)
 typedef enum {
     SERVO_COUNT // Number of servos
 } ServoId_t;

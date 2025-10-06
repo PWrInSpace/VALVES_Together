@@ -29,7 +29,7 @@
 #define PRESSURE2_ADC_CHANNEL 5U
 
 // ADC channel attenuation - can be changed
-#define ADC_ATTEN_PRESSURE ADC_ATTEN_DB_11
+#define ADC_ATTEN_PRESSURE ADC_ATTEN_DB_12
 
 #define PRESSURE_SENSOR_INIT(X, Y, Z, Q)                            \
   {                                                                 \

@@ -26,11 +26,13 @@ void app_main(void) {
         return;
     }
 
-    start_test_timer();
+    ESP_LOGI(TAG, "Setup task initialized");
 
-    while(1) {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
+    // start_test_timer();
+
+    // while(1) {
+    //     vTaskDelay(1000 / portTICK_PERIOD_MS);
+    // }
 }
 
 /* main.c - ESP-NOW SLAVE (odbiorca) */

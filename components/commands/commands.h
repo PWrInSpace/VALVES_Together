@@ -15,6 +15,8 @@
 #define N2_SOL_CLOSE    0x14
 #define N2_SOL_OPEN     0x15
 
-#define GET_DATA    0x20
+#define GET_DATA    0x20 //????
+
+#define VALVE_DZIDA 0x69
 
 #endif  // COMMANDS_H

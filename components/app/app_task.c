@@ -17,9 +17,10 @@
 #include "esp_log.h"
 #include "pressure_sensor.h"
 #include "BoardData.h"
+#include "voltage_measure.h"
 
 
-#define APP_TASK_STACK_SIZE 4096
+#define APP_TASK_STACK_SIZE 8192
 #define APP_TASK_PRIORITY 5
 #define APP_TASK_CORE_ID 0
 
@@ -50,18 +51,20 @@ void app_task(void *arg) {
 
     while(1) {
         // Read pressures
-        if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-            if(pressure_manager.Initialized) {
-                boardData.pressure[0] = get_pressure(&pressure_manager.mPressure1);
-                boardData.pressure[1] = get_pressure(&pressure_manager.mPressure2);
-            } else {
-                ESP_LOGW("APP_TASK", "Pressure manager not initialized");
-            }
-            xSemaphoreGive(BoardDataSemaphore);
-        } else {
-            ESP_LOGE("APP_TASK", "Failed to take BoardData semaphore");
-        }
-        
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        // if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+        //     if(pressure_manager.Initialized) {
+                // get_pressure(&pressure_manager.mPressure1);
+                // get_pressure(&pressure_manager.mPressure2);
+                // boardData.pressure[0] = get_pressure(&pressure_manager.mPressure1);
+                    // boardData.pressure[1] = get_pressure(&pressure_manager.mPressure2);
+            // } else {
+                // ESP_LOGW("APP_TASK", "Pressure manager not initialized");
+        //     }
+        //     xSemaphoreGive(BoardDataSemaphore);
+        // } else {
+        //     ESP_LOGE("APP_TASK", "Failed to take BoardData semaphore");
+        // }
+        // get_voltage(&mVoltage);
+        vTaskDelay(1000/portTICK_PERIOD_MS);
     }
 }

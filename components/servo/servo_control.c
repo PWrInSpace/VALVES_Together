@@ -41,6 +41,10 @@ static void close_servo_callback(TimerHandle_t xTimer) {
   } else {
     servo_ptr->state.state = SERVO_CLOSED;
     servo_ptr->state.angle = VALVE_CLOSE_POSITION;
+    if(servo_id == 0)
+      moduleData.dataToObc.valve1_state = 0;
+    else if(servo_id == 1)
+      moduleData.dataToObc.valve2_state = 0;
     // ESP_LOGI(TAG, "Servo %d closed after timeout", servo_id);
   }
 }

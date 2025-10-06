@@ -20,7 +20,7 @@
 #include "app_task.h"
 // #include "timers_config.h"
 
-#define SETUP_TASK_STACK_SIZE 4096
+#define SETUP_TASK_STACK_SIZE 8000
 #define SETUP_TASK_PRIORITY 9
 #define SETUP_TASK_CORE_ID 0
 

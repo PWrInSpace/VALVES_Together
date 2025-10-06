@@ -5,10 +5,10 @@ esp_err_t console_init(void) {
 
     esp_console_repl_t *repl = NULL;
     esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
-    repl_config.prompt = "🔥>";
+    repl_config.prompt = "skibidi> ";
 
-    esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
-    ret = esp_console_new_repl_uart(&hw_config, &repl_config, &repl);
+    esp_console_dev_usb_cdc_config_t hw_config = ESP_CONSOLE_DEV_CDC_CONFIG_DEFAULT();
+    ret = esp_console_new_repl_usb_cdc(&hw_config, &repl_config, &repl);
     if (ret != ESP_OK) {
         return ret;
     }

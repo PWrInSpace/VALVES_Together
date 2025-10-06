@@ -26,6 +26,9 @@
 #include "solenoid_config.h"
 #include "servo_config.h"
 #include "pressure_sensor.h"
+#include "BoardData.h"
+#include "voltage_measure.h"
+
 
 #define TAG "BOARD_CONFIG"
 
@@ -41,19 +44,26 @@ esp_err_t board_config_init(void) {
 
     esp_err_t err;
     
-    err = console_config_init();
+    // err = console_config_init();
 
+    // if (err != ESP_OK) {
+    //     ESP_LOGE(TAG, "Console initialization failed");
+    //     return err;
+    // }
+
+    // Initialize board data structure and semaphore
+    err = board_data_init();
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Console initialization failed");
+        ESP_LOGE(TAG, "Board data initialization failed");
         return err;
     }
 
-    err = mcu_spi_init();
+    // err = mcu_spi_init();
 
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "SPI initialization failed");
-        return err;
-    }
+    // if (err != ESP_OK) {
+    //     ESP_LOGE(TAG, "SPI initialization failed");
+    //     return err;
+    // }
 
     if(!timers_init())
     {
@@ -93,6 +103,13 @@ esp_err_t board_config_init(void) {
         ESP_LOGE(TAG, "Pressure sensors initialization failed");
         return ESP_FAIL;
     }
+
+    if(!vol_mes_init()) {
+        ESP_LOGE(TAG, "Voltage measurement initialization failed");
+        return ESP_FAIL;
+    }
+
+    createNowSendTask();
 
     return ESP_OK;
 
