@@ -36,6 +36,25 @@ static void close_servo_callback(TimerHandle_t xTimer) {
   ServoId_t servo_id = (ServoId_t)pvTimerGetTimerID(xTimer);
   Servo_t *servo_ptr = &servos[servo_id];
 
+  #ifdef SERVO_ETH_N2_CONFIG
+    if(servo_id == 0 && mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION)) != ESP_OK) {
+      // ESP_LOGE(TAG, "Failed to close servo %d", servo_id);
+    } else if(servo_id == 1 && mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION2)) != ESP_OK) {
+      // ESP_LOGE(TAG, "Failed to close servo %d", servo_id);
+    } else {
+      servo_ptr->state.state = SERVO_CLOSED;
+      if(servo_id == 0) {
+        servo_ptr->state.angle = VALVE_CLOSE_POSITION;
+        moduleData.dataToObc.valve1_state = 0;
+      }
+      else if(servo_id == 1) {
+        servo_ptr->state.angle = VALVE_CLOSE_POSITION2;
+        moduleData.dataToObc.valve2_state = 0;
+      }
+      // ESP_LOGI(TAG, "Servo %d closed after timeout", servo_id);
+    }
+
+  #else
   if (mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION)) != ESP_OK) {
     // ESP_LOGE(TAG, "Failed to close servo %d", servo_id);
   } else {
@@ -47,6 +66,7 @@ static void close_servo_callback(TimerHandle_t xTimer) {
       moduleData.dataToObc.valve2_state = 0;
     // ESP_LOGI(TAG, "Servo %d closed after timeout", servo_id);
   }
+  #endif
 }
 /************************** CODE *********************************************/
 
@@ -170,15 +190,33 @@ esp_err_t open_servo(ServoId_t servo_id, uint16_t open_time)
     return ESP_LOG_ERROR;
   }
 
+  #ifdef SERVO_ETH_N2_CONFIG
+
+  if (servo_id == 0) {
+    if (move_servo(servo_id, VALVE_OPEN_POSITION, open_time) != ESP_OK) {
+      return ESP_LOG_ERROR;
+    }
+    servos[servo_id].state.angle = VALVE_OPEN_POSITION;
+    moduleData.dataToObc.valve1_state = 1;
+  } else if (servo_id == 1) {
+    if (move_servo(servo_id, VALVE_OPEN_POSITION2, open_time) != ESP_OK) {
+      return ESP_LOG_ERROR;
+    }
+    servos[servo_id].state.angle = VALVE_OPEN_POSITION2;
+    moduleData.dataToObc.valve2_state = 1;
+  }
+
+  #else
   ESP_LOGI(TAG, "OPENING servo[%d] to angle: %d", servo_id, VALVE_OPEN_POSITION);
 
   if(move_servo(servo_id, VALVE_OPEN_POSITION, open_time)!=ESP_OK)
   {
     return ESP_LOG_ERROR;
   }
+  
   ESP_LOGI(TAG, "OPENED servo[%d] to angle: %d for time ms: %d", servo_id, VALVE_OPEN_POSITION, open_time);
 
-  
+  #endif
 
   return ESP_OK;
 }
@@ -190,12 +228,36 @@ esp_err_t close_servo(ServoId_t servo_id)
     return ESP_LOG_ERROR;
   }
 
+  #ifdef SERVO_ETH_N2_CONFIG
+
+  if (servo_id == 0) {
+    ESP_LOGI(TAG, "CLOSING servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION);
+    if(move_servo(servo_id, VALVE_CLOSE_POSITION, MOVE_WITHOUT_TIMER)!=ESP_OK)
+    {
+      return ESP_LOG_ERROR;
+    }
+    servos[servo_id].state.angle = VALVE_CLOSE_POSITION;
+    moduleData.dataToObc.valve1_state = 0;
+    ESP_LOGI(TAG, "CLOSED servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION);
+  } else if (servo_id == 1) {
+    ESP_LOGI(TAG, "CLOSING servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION2);
+    if(move_servo(servo_id, VALVE_CLOSE_POSITION2, MOVE_WITHOUT_TIMER)!=ESP_OK)
+    {
+      return ESP_LOG_ERROR;
+    }
+    servos[servo_id].state.angle = VALVE_CLOSE_POSITION2;
+    moduleData.dataToObc.valve2_state = 0;
+    ESP_LOGI(TAG, "CLOSED servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION2);
+  }
+
+  #else
   ESP_LOGI(TAG, "CLOSING servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION);
   if(move_servo(servo_id, VALVE_CLOSE_POSITION, MOVE_WITHOUT_TIMER)!=ESP_OK)
   {
     return ESP_LOG_ERROR;
   }
   ESP_LOGI(TAG, "CLOSED servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION);
+  #endif
 
   return ESP_OK;
 }

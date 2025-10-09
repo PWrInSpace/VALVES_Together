@@ -3,6 +3,7 @@
  /**************************  PRIVATE INCLUDES  ********************************/
  #include "esp_log.h"
  #include <stdint.h>
+ #include "valve_board_config.h"
  
  /**************************  PRIVATE VARIABLES  *******************************/
  static const char *TAG = "PRESSURE_SENSOR";
@@ -74,22 +75,23 @@ if (adc_cali_create_scheme_curve_fitting(&cali_config1, &pressure_manager.mADC_1
                                       sensor_ptr->adc_channel,
                                       (int *)&sensor_ptr->adc_raw));
  
-     ESP_LOGI(TAG, "PRESSURE_SENSOR Raw Data: %d", sensor_ptr->adc_raw);
+    //  ESP_LOGI(TAG, "PRESSURE_SENSOR Raw Data: %d", sensor_ptr->adc_raw);
  
-     if (sensor_ptr->cali_enable) {
-         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(*(sensor_ptr->adc_cali_handle),
-                                                 sensor_ptr->adc_raw,
-                                                 (int *)&sensor_ptr->voltage));
-         ESP_LOGI(TAG, "PRESSURE_SENSOR Voltage: %d mV", sensor_ptr->voltage);
-     }
- 
-     // Prosta mapka surowego odczytu do 0–100%
-     if(sensor_ptr->adc_raw < 430){
-         return 0;
-     } else if(sensor_ptr->adc_raw > 1850){
-         return 100;
-     } else {
-         return map(sensor_ptr->adc_raw, 430, 1850, 0, 100);
-     }
+    //  if (sensor_ptr->cali_enable) {
+    //      ESP_ERROR_CHECK(adc_cali_raw_to_voltage(*(sensor_ptr->adc_cali_handle),
+    //                                              sensor_ptr->adc_raw,
+    //                                              (int *)&sensor_ptr->voltage));
+    //     //  ESP_LOGI(TAG, "PRESSURE_SENSOR Voltage: %d mV", sensor_ptr->voltage);
+    //  }
+     float pressure;
+    #ifdef PRESSURE_SENSOR_300kPa
+    pressure = (sensor_ptr->adc_raw * 0.1523) - 37.05;
+    #elif defined(PRESSURE_SENSOR_70kPa)
+    pressure = (sensor_ptr->adc_raw * 0.0324) - 8.92;
+    #else
+    pressure = 0;
+    #endif
+
+     return (uint32_t)(pressure * 100);
  }
  

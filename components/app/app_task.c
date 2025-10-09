@@ -50,21 +50,37 @@ esp_err_t app_task_deinit(void) {
 void app_task(void *arg) {
 
     while(1) {
+        #if (defined(PRESSURE_SENSOR_70kPa) || defined(PRESSURE_SENSOR_300kPa)) 
         // Read pressures
-        // if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-        //     if(pressure_manager.Initialized) {
-                // get_pressure(&pressure_manager.mPressure1);
-                // get_pressure(&pressure_manager.mPressure2);
-                // boardData.pressure[0] = get_pressure(&pressure_manager.mPressure1);
-                    // boardData.pressure[1] = get_pressure(&pressure_manager.mPressure2);
-            // } else {
-                // ESP_LOGW("APP_TASK", "Pressure manager not initialized");
-        //     }
-        //     xSemaphoreGive(BoardDataSemaphore);
-        // } else {
-        //     ESP_LOGE("APP_TASK", "Failed to take BoardData semaphore");
-        // }
+        uint32_t pressure1 = 0;
+
+        if(pressure_manager.Initialized) {
+            for(int counter = 0; counter < 3; counter++) {
+                pressure1 += get_pressure(&pressure_manager.mPressure1);
+                vTaskDelay(20/portTICK_PERIOD_MS);
+            }
+            pressure1 /= 3;
+        } else {
+            vTaskDelay(50/portTICK_PERIOD_MS);
+            pressure1 = 0;
+        }
+
+        
+        if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+            if(pressure_manager.Initialized) {
+                boardData.pressure[0] = pressure1;
+                ESP_LOGI("APP_TASK", "Pressure1: %d", boardData.pressure[0]);
+            } else {
+                ESP_LOGW("APP_TASK", "Pressure manager not initialized");
+            }
+            xSemaphoreGive(BoardDataSemaphore);
+        } else {
+            ESP_LOGE("APP_TASK", "Failed to take BoardData semaphore");
+        }
         // get_voltage(&mVoltage);
+        #else
         vTaskDelay(1000/portTICK_PERIOD_MS);
+        #endif
+        // vTaskDelay(1000/portTICK_PERIOD_MS);
     }
 }

@@ -147,6 +147,71 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
             }
             #endif
             break;
+        case VALVE_DZIDA:
+            ESP_LOGI("VALVES_CONTROL", "DZIDA COMMAND RECEIVED");
+            #ifdef SERVO_N20_CONFIG
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+                chandle_valve_cmd(N20_VALVE_OPEN, 0);
+            #endif
+
+            #ifdef SERVO_ETH_N2_CONFIG
+                vTaskDelay(220 / portTICK_PERIOD_MS);
+                chandle_valve_cmd(ETH_VALVE_OPEN, 0);
+
+                // vTaskDelay(100 / portTICK_PERIOD_MS);
+                // chandle_valve_cmd(N2_VALVE_OPEN, 0);
+                // vTaskDelay(120 / portTICK_PERIOD_MS);
+                // chandle_valve_cmd(ETH_VALVE_OPEN, 0);
+                
+            #endif
+
+            break;
+        default:
+            ESP_LOGW("VALVES_CONTROL", "Unknown command: %lu", moduleData.dataFromObc.commandNum);
+            break;
+    }
+}
+
+void chandle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle) {
+
+    ESP_LOGI("VALVES_CONTROL", "Handling valve command: %d with time: %d ms and angle: %d", cmd, time_ms, angle);
+
+    uint8_t clamped_angle = (uint8_t)angle;
+
+
+    switch (cmd) {
+        case N20_VALVE_OPEN:
+            #ifdef SERVO_N20_CONFIG
+            if( move_servo(N2O_FILL_SERVO, angle, time_ms) != ESP_OK) {
+                ESP_LOGE("VALVES_CONTROL", "Failed to open N2O_FILL_SERVO");
+                moduleData.dataToObc.valve1_state = 0;
+            } else {
+                moduleData.dataToObc.valve1_state = 1;
+            }
+            #endif
+            break;
+        case ETH_VALVE_OPEN:
+            #ifdef SERVO_ETH_N2_CONFIG
+            if( move_servo(ETH_FILL_SERVO, angle, time_ms) != ESP_OK) {
+                ESP_LOGE("VALVES_CONTROL", "Failed to open ETH_FILL_SERVO");
+                moduleData.dataToObc.valve1_state = 0;
+            }
+            else {
+                moduleData.dataToObc.valve1_state = 1;
+            }
+            #endif
+            break;
+        case N2_VALVE_OPEN:
+             #ifdef SERVO_ETH_N2_CONFIG
+            if( move_servo(N2_FILL_SERVO, angle, time_ms) != ESP_OK) {
+                ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SERVO");
+                moduleData.dataToObc.valve2_state = 0;
+            }
+            else {
+                moduleData.dataToObc.valve2_state = 1;
+            }
+            #endif
+            break;
         default:
             ESP_LOGW("VALVES_CONTROL", "Unknown command: %lu", moduleData.dataFromObc.commandNum);
             break;

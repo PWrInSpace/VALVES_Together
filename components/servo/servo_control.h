@@ -11,6 +11,7 @@
 
 #ifndef SERVO_CONTROL_HH
 #define SERVO_CONTROL_HH
+#include "valve_board_config.h"
 
 /************************** SERVO SETTINGS ***********************************/
 
@@ -23,8 +24,15 @@
 
 #define DEFAULT_POS_ANGLE 90  // Angle of the default position for servos
 
-#define VALVE_CLOSE_POSITION 115U
-#define VALVE_OPEN_POSITION 1U
+#ifdef SERVO_ETH_N2_CONFIG
+#define VALVE_CLOSE_POSITION 143U
+#define VALVE_OPEN_POSITION 50U
+#define VALVE_CLOSE_POSITION2 0U
+#define VALVE_OPEN_POSITION2 105U
+#else
+#define VALVE_CLOSE_POSITION 140U
+#define VALVE_OPEN_POSITION 40U
+#endif
 #define MOVE_WITHOUT_TIMER (uint16_t)0
 
 #include "valve_board_config.h"

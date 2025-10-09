@@ -13,8 +13,8 @@ typedef enum {
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-    [N20_FILL_SOL] = GPIO_NUM_12,
-    [N2_FILL_SOL]  = GPIO_NUM_14,
+    [N20_FILL_SOL] = GPIO_NUM_15,
+    [N2_FILL_SOL]  = GPIO_NUM_16,
 };
 
 #elif defined(SOL_ETH_CONFIG)
@@ -25,7 +25,7 @@ typedef enum {
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-    [ETH_FILL_SOL] = GPIO_NUM_12,
+    [ETH_FILL_SOL] = GPIO_NUM_15,
 };
 
 #elif defined(SERVO_N20_CONFIG)

@@ -27,6 +27,12 @@ typedef struct {
     int32_t commandArg;
 } DataFromObc;
 
+typedef struct {
+    uint32_t commandNum;
+    int32_t arg1;
+    int32_t arg2;
+} DataFromObc2;
+
 typedef enum {
     INIT_PERIOD = 4000,
     IDLE_PERIOD = 4000,

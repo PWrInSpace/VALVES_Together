@@ -79,6 +79,7 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData, in
     //          info->src_addr[0], info->src_addr[1], info->src_addr[2], 
     //          info->src_addr[3], info->src_addr[4], info->src_addr[5]);
 
+    ESP_LOGI("NOW", "Received data from OBC");
 
 
     if (adressCompare(info->src_addr, adressObc)) {
@@ -93,12 +94,13 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData, in
         }
 
 
+
         if (len == sizeof(moduleData.obcState))
         {
             memcpy((void*) &moduleData.obcState, (uint16_t *)incomingData, sizeof(moduleData.obcState));
             // ESP_LOGI("NOW", "OBC State updated to: %d", moduleData.obcState);
         }
-        else if(len == sizeof(DataFromObc))  {
+        else if(len == sizeof(DataFromObc) || len == sizeof(DataFromObc2)){ // +1 for alignment{
             ESP_LOGI("NOW", "Data received from OBC");
 
             obc_command_handler(incomingData, len);
@@ -125,18 +127,43 @@ bool adressCompare(const uint8_t *addr1, const uint8_t *addr2) {
 
 void obc_command_handler(const uint8_t *data, int len) {
     DataFromObc rxData;
-    if (len != sizeof(DataFromObc)) {
+    DataFromObc2 rxData2;
+    if (len != sizeof(DataFromObc) && len != sizeof(DataFromObc2)) {
         ESP_LOGE("NOW", "Invalid data length from OBC: %d", len);
         return;
     }
-    memcpy(&rxData, data, sizeof(DataFromObc));
-    moduleData.dataFromObc = rxData;
-    ESP_LOGI("ESP-NOW", "Received command: %lu", moduleData.dataFromObc.commandNum);
-    chandle_valve_cmd(moduleData.dataFromObc.commandNum, moduleData.dataFromObc.commandArg);
+    if(sizeof(DataFromObc) == len) {
+        ESP_LOGI("NOW", "Received DataFromObc structure");
+    } else if(sizeof(DataFromObc2) == len) {
+        ESP_LOGI("NOW", "Received DataFromObc2 structure");
+    }
+    if(sizeof(DataFromObc) == len)
+    {
+        memcpy(&rxData, data, sizeof(DataFromObc));
+        moduleData.dataFromObc = rxData;
+        ESP_LOGI("ESP-NOW", "Received command: %lu with arg: %ld", moduleData.dataFromObc.commandNum, moduleData.dataFromObc.commandArg);
+        chandle_valve_cmd(moduleData.dataFromObc.commandNum, moduleData.dataFromObc.commandArg);
+        return;
+    }
+
+    if(sizeof(DataFromObc2) == len)
+    {
+        memcpy(&rxData2, data, sizeof(DataFromObc2));
+        moduleData.dataFromObc.commandNum = rxData2.commandNum;
+        moduleData.dataFromObc.commandArg = ( ( (uint32_t)(rxData2.arg1) << 16 ) & 0xFFFF0000 ) | ( ( (uint32_t)(rxData2.arg2) ) & 0x0000FFFF );
+        ESP_LOGI("ESP-NOW", "Received command: %lu with arg1: %d and arg2: %d", moduleData.dataFromObc.commandNum, rxData2.arg1, rxData2.arg2);
+        chandle_valve_cmd_angle(moduleData.dataFromObc.commandNum, rxData2.arg1, rxData2.arg2);
+        return;
+    }
 }
 
 void now_send_data_to_obc(void *arg) {
     while (1) {
+        moduleData.dataToObc.pressure1 = boardData.pressure[0];
+        moduleData.dataToObc.pressure2 = boardData.pressure[1];
+        moduleData.dataToObc.temperature1 = boardData.temperature[0];
+        moduleData.dataToObc.temperature2 = boardData.temperature[1];
+        moduleData.dataToObc.temperature3 = 0; // No third temperature sensor
         if (esp_now_send(adressObc, (uint8_t *)&moduleData.dataToObc, sizeof(DataToObc)) != ESP_OK) {
             ESP_LOGE("NOW", "Error sending data to OBC");
         }
