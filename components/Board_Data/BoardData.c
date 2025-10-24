@@ -8,7 +8,7 @@ volatile ModuleData moduleData = {
     .dataFromObc = {0, 0},
     .dataToObc = {true, 0, 0, 0, 0, 0, 0, 0, 0.0f},
     .obcState = 0,
-    .stateTimes = {0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    .stateTimes = {0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 esp_err_t board_data_init(void) {
     // Initialize semaphore``````````````````
@@ -19,6 +19,7 @@ esp_err_t board_data_init(void) {
     }
 
     uint16_t stateTimes[16] = {
+        INIT_PERIOD,
         IDLE_PERIOD,
         RECOVERY_ARM_PERIOD,
         FUELING_PERIOD,

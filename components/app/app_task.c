@@ -18,6 +18,8 @@
 #include "pressure_sensor.h"
 #include "BoardData.h"
 #include "voltage_measure.h"
+#include "valves_control.h"
+#include "commands.h"
 
 
 #define APP_TASK_STACK_SIZE 8192
@@ -49,10 +51,26 @@ esp_err_t app_task_deinit(void) {
 
 void app_task(void *arg) {
 
+    #ifdef SERVO_N20_CONFIG
+    ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
+    chandle_valve_cmd(N20_VALVE_CLOSE, 0);
+    #elif defined(SERVO_ETH_N2_CONFIG)
+    ESP_LOGI("APP_TASK", "SERVO_ETH_N2_CONFIG defined");
+    chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
+    chandle_valve_cmd(N2_VALVE_CLOSE, 0);
+    #elif defined(SOL_ETH_CONFIG)
+    ESP_LOGI("APP_TASK", "SOL_ETH_CONFIG defined");
+    chandle_valve_cmd(ETH_SOL_CLOSE, 0);
+    #elif defined(SOL_N2O_N2_CONFIG)
+        chandle_valve_cmd(N20_SOL_OPEN, 0);
+        chandle_valve_cmd(N2_SOL_CLOSE, 0);
+    ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
+    #endif
+
     while(1) {
         #if (defined(PRESSURE_SENSOR_70kPa) || defined(PRESSURE_SENSOR_300kPa)) 
         // Read pressures
-        uint32_t pressure1 = 0;
+        float pressure1 = 0;
 
         if(pressure_manager.Initialized) {
             for(int counter = 0; counter < 3; counter++) {
@@ -69,7 +87,7 @@ void app_task(void *arg) {
         if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
             if(pressure_manager.Initialized) {
                 boardData.pressure[0] = pressure1;
-                ESP_LOGI("APP_TASK", "Pressure1: %d", boardData.pressure[0]);
+                // ESP_LOGI("APP_TASK", "Pressure1: %.2f kPa", boardData.pressure[0]);
             } else {
                 ESP_LOGW("APP_TASK", "Pressure manager not initialized");
             }

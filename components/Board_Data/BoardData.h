@@ -9,7 +9,7 @@
 
 typedef struct {
     float temperature[2];
-    uint32_t pressure[2];
+    float pressure[2];
     Servo_work_state_t servo_states[SERVO_COUNT];
     ValveState solenoid_states[NUM_OF_SOLENOIDS];
 
@@ -79,8 +79,8 @@ typedef struct DataToObc {
     int16_t temperature1;
     int16_t temperature2;
     int16_t temperature3;
-    uint16_t pressure1;
-    uint16_t pressure2;
+    float pressure1;
+    float pressure2;
     float battery_voltage;
 
 } DataToObc;

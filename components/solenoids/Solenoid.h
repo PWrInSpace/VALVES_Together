@@ -18,5 +18,6 @@ esp_err_t valve_init(Valve *valve);
 esp_err_t set_valve_state(int name, ValveState state);
 esp_err_t open_solenoid(int name, uint16_t time_ms);
 esp_err_t close_sol(int name);
+esp_err_t close_sol_time(int name, uint16_t time_ms);
 
 #endif // SOLENOID_H

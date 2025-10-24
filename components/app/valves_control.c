@@ -83,23 +83,23 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
             break;
         case N20_SOL_OPEN:
             #ifdef SOL_N2O_N2_CONFIG
-            if(open_solenoid(valves[N20_FILL_SOL].name, time_ms) != ESP_OK) {
+            if(close_sol_time(valves[N20_FILL_SOL].name, time_ms) != ESP_OK) {
                 ESP_LOGE("VALVES_CONTROL", "Failed to open N20_FILL_SOL");
-                moduleData.dataToObc.valve1_state = 0;
-            } else {
                 moduleData.dataToObc.valve1_state = 1;
+            } else {
+                moduleData.dataToObc.valve1_state = 0;
             }
             #endif
             ESP_LOGI("VALVES_CONTROL", "Handled N20_SOL_OPEN command DUPA");
             break;
         case N20_SOL_CLOSE:
             #ifdef SOL_N2O_N2_CONFIG
-            if(close_sol(valves[N20_FILL_SOL].name) != ESP_OK) {
+            if(open_solenoid(valves[N20_FILL_SOL].name, time_ms) != ESP_OK) {
                 ESP_LOGE("VALVES_CONTROL", "Failed to close N20_FILL_SOL");
-                moduleData.dataToObc.valve1_state = 1;
+                moduleData.dataToObc.valve1_state = 0;
             }
             else {
-                moduleData.dataToObc.valve1_state = 0;
+                moduleData.dataToObc.valve1_state = 1;
             }
             #endif
             break;

@@ -67,7 +67,7 @@ typedef struct {
 
 bool pressure_sensors_init();
 
-uint32_t get_pressure(Pressure_Sensor_t *sensor_ptr);
+float get_pressure(Pressure_Sensor_t *sensor_ptr);
 
 extern Pressure_Manager_t pressure_manager;
 #endif  // PRESSURE_H

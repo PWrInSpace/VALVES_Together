@@ -169,7 +169,7 @@ void now_send_data_to_obc(void *arg) {
         }
 
         ESP_LOGI("NOW", "OBC state: %d", moduleData.obcState);
-        ESP_LOGI("NOW", "Data sent to OBC: valve1_state=%d, valve2_state=%d, temp1=%d, temp2=%d, temp3=%d, pres1=%d, pres2=%d, batt=%.2f",
+        ESP_LOGI("NOW", "Data sent to OBC: valve1_state=%d, valve2_state=%d, temp1=%d, temp2=%d, temp3=%d, pres1=%.2f, pres2=%.2f, batt=%.2f",
                  moduleData.dataToObc.valve1_state,
                  moduleData.dataToObc.valve2_state,
                  moduleData.dataToObc.temperature1,

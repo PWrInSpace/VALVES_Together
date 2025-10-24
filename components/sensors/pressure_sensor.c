@@ -70,7 +70,7 @@ if (adc_cali_create_scheme_curve_fitting(&cali_config1, &pressure_manager.mADC_1
      return true;
  }
  
- uint32_t get_pressure(Pressure_Sensor_t *sensor_ptr) {
+ float get_pressure(Pressure_Sensor_t *sensor_ptr) {
      ESP_ERROR_CHECK(adc_oneshot_read(*(sensor_ptr->adc_handle),
                                       sensor_ptr->adc_channel,
                                       (int *)&sensor_ptr->adc_raw));
@@ -84,14 +84,25 @@ if (adc_cali_create_scheme_curve_fitting(&cali_config1, &pressure_manager.mADC_1
     //     //  ESP_LOGI(TAG, "PRESSURE_SENSOR Voltage: %d mV", sensor_ptr->voltage);
     //  }
      float pressure;
-    #ifdef PRESSURE_SENSOR_300kPa
-    pressure = (sensor_ptr->adc_raw * 0.1523) - 37.05;
-    #elif defined(PRESSURE_SENSOR_70kPa)
-    pressure = (sensor_ptr->adc_raw * 0.0324) - 8.92;
-    #else
-    pressure = 0;
-    #endif
+     float zero_offset = 0; // not zero exactly but this is przesuniecie xd
+     float multiplier = 0;
+     #ifdef SERVO_N20_CONFIG //channel 1
+        zero_offset = 10.1053; //70bar
+        multiplier = 0.0316;
+        #elif defined(SERVO_ETH_N2_CONFIG)
+        zero_offset = 37.05;; // 300bar
+        multiplier = 0.1523;
+            #elif defined(SOL_ETH_CONFIG)  //240 raw zero 1375 na 50 bar (70bar sens)
+        zero_offset = 7.7; //70bar
+        multiplier = 0.028;
+        #elif defined(SOL_N2O_N2_CONFIG)
+        zero_offset = 7.05; //70bar
+        multiplier = 0.042;
+        #endif
 
-     return (uint32_t)(pressure * 100);
+    pressure = ((sensor_ptr->adc_raw * multiplier) - zero_offset);
+    // ESP_LOGI(TAG, "PRESSURE_SENSOR Pressure: %.2f kPa", pressure);
+
+     return pressure;
  }
  
