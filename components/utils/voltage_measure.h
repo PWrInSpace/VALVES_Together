@@ -9,8 +9,8 @@
 #include "esp_adc/adc_oneshot.h"
 #include "pressure_sensor.h"
 
-#define DIV_MULTIPLIER_VOL 5.1216
-#define VOLTAGE_ADC_CHANNEL 6U
+#define DIV_MULTIPLIER_VOL 8.5034
+#define VOLTAGE_ADC_CHANNEL 7U //TODO zmmienic na 1 gdy bedzie plytka
 
 /**************************  INIT *********************************************/
 
@@ -41,6 +41,6 @@ uint16_t voltage_measure_init(Voltage_Measure_t *voltage_ptr);
 
 void voltage_measure_deinit(Voltage_Measure_t *voltage_ptr);
 
-uint32_t get_voltage(Voltage_Measure_t *voltage_ptr);
+float get_voltage(Voltage_Measure_t *voltage_ptr);
 
 #endif  // VOLTAGE_MEASURE_HH

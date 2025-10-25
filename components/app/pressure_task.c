@@ -69,7 +69,7 @@ void pressure_task(void *arg) {
             ESP_LOGE("PRESSURE_TASK", "Failed to take BoardData semaphore");
         }
 
-        vTaskDelay(10);
+        vTaskDelay(pdMS_TO_TICKS(10));
 
     }
 }

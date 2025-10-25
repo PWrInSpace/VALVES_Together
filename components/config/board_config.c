@@ -30,6 +30,8 @@
 #include "voltage_measure.h"
 #include "pressure_task.h"
 #include "sd_task.h"
+#include "voltage_measure_task.h"
+#include "adc_manager.h"
 
 
 #define TAG "BOARD_CONFIG"
@@ -58,6 +60,11 @@ esp_err_t board_config_init(void) {
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Board data initialization failed");
         return err;
+    }
+
+    if(!adc_manager_init()) {
+        ESP_LOGE(TAG, "ADC Manager initialization failed");
+        return ESP_FAIL;
     }
 
     err = mcu_spi_init();
@@ -120,6 +127,7 @@ esp_err_t board_config_init(void) {
 
     createNowSendTask();
     pressure_task_init();
+    voltage_task_init();
 
     return ESP_OK;
 

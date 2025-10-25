@@ -1,8 +1,9 @@
 #include "BoardData.h"
 #include <esp_err.h>
 #include <string.h>
+#include "valve_board_config.h"
 
-volatile BoardData_t boardData;
+BoardData_t boardData;
 SemaphoreHandle_t BoardDataSemaphore;
 volatile ModuleData moduleData = {
     .dataFromObc = {0, 0},
@@ -10,6 +11,15 @@ volatile ModuleData moduleData = {
     .obcState = 0,
     .stateTimes = {0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
+
+#ifdef SOL_N2O_N2_CONFIG
+volatile uint8_t valve1_state = 1; // N2O valve
+#else
+volatile uint8_t valve1_state = 0;
+#endif
+
+volatile uint8_t valve2_state = 0;
+
 esp_err_t board_data_init(void) {
     // Initialize semaphore``````````````````
 
@@ -42,16 +52,3 @@ esp_err_t board_data_init(void) {
     return ESP_OK;
 }
 
-void set_valve1_state(uint8_t state) {
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-        moduleData.dataToObc.valve1_state = state;
-        xSemaphoreGive(BoardDataSemaphore);
-    }
-}
-
-void set_valve2_state(uint8_t state) {
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-        moduleData.dataToObc.valve2_state = state;
-        xSemaphoreGive(BoardDataSemaphore);
-    }
-}

@@ -1,8 +1,8 @@
 #include "voltage_measure.h"
 #include "esp_log.h"
 #include <stdint.h>
+#include "adc_manager.h"
 
-/**************************  PRIVATE VARIABLES  *******************************/
 static const char *TAG = "VOL_MEA";
 
 adc_oneshot_unit_handle_t adc1_handle = NULL;
@@ -11,64 +11,63 @@ bool adc1_cali_enabled = false;
 
 Voltage_Measure_t mVoltage;
 
-    /////////ESP32s3 version
+bool vol_mes_init(void)
+{
+    mVoltage.adc_channel = 4U; 
+    mVoltage.adc_handle  = &adc_manager.adc_handle;
+    mVoltage.adc_cali_handle = &adc_manager.cali_handle;
+    mVoltage.cali_enable = adc_manager.cali_enabled;
 
-/**************************  PUBLIC FUNCTIONS  *******************************/
-// bool vol_mes_init(void) {
-
-//     //-------------ADC1 Calibration Init---------------//
-//     adc_cali_curve_fitting_config_t cali_config = {
-//         .atten    = ADC_ATTEN_DB_12,
-//         .bitwidth = ADC_BITWIDTH_DEFAULT,
-//     };
-
-//     if (adc_cali_create_scheme_curve_fitting(&cali_config, &adc1_cali_handle) == ESP_OK) {
-//         adc1_cali_enabled = true;
-//         ESP_LOGI(TAG, "Calibration scheme for ADC1: Curve Fitting");
-//     } else {
-//         adc1_cali_enabled = false;
-//         ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
-//     }
-
-//     return adc1_cali_enabled;
-// }
-    /////////ESP32s3 version
-
-bool vol_mes_init(void) {
-
-    //-------------ADC1 Calibration Init---------------//
-    adc_cali_line_fitting_config_t cali_config = {
-        .unit_id  = ADC_UNIT_1,
-        .atten    = ADC_ATTEN_DB_11,
+    adc_oneshot_chan_cfg_t config_vol = {
         .bitwidth = ADC_BITWIDTH_12,
+        .atten = ADC_ATTEN_DB_12,
     };
 
-    if (adc_cali_create_scheme_line_fitting(&cali_config, &adc1_cali_handle) == ESP_OK) {
-        adc1_cali_enabled = true;
-        ESP_LOGI(TAG, "Calibration scheme for ADC1: Line Fitting");
-    } else {
-        adc1_cali_enabled = false;
-        ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_manager.adc_handle,
+                                               mVoltage.adc_channel,
+                                               &config_vol));
+
+    return true;
+}
+    
+
+
+float get_voltage(Voltage_Measure_t *voltage_ptr) {
+    if (voltage_ptr == NULL) {
+        ESP_LOGE(TAG, "Voltage pointer is NULL!");
+        return 0;
     }
 
-    return adc1_cali_enabled;
-}
+    if (voltage_ptr->adc_handle == NULL) {
+        ESP_LOGE(TAG, "ADC handle is NULL!");
+        return 0;
+    }
 
+    if (voltage_ptr->cali_enable && voltage_ptr->adc_cali_handle == NULL) {
+        ESP_LOGE(TAG, "ADC calibration handle is NULL!");
+        return 0;
+    }
 
-uint32_t get_voltage(Voltage_Measure_t *voltage_ptr) {
-    ESP_ERROR_CHECK(adc_oneshot_read(*(voltage_ptr->adc_handle),
-                                     voltage_ptr->adc_channel,
-                                     (int *)&voltage_ptr->adc_raw));
+    int raw = 0;
+    esp_err_t err = adc_oneshot_read(*(voltage_ptr->adc_handle),
+    voltage_ptr->adc_channel,
+        (int *)&raw);
+    if (err != ESP_OK) {
+    ESP_LOGE(TAG, "ADC read failed! err=%d", err);
+    return 0;
+    }
 
-    ESP_LOGI(TAG, "Raw ADC: %d", voltage_ptr->adc_raw);
-
+    int voltage = raw;
     if (voltage_ptr->cali_enable) {
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(*(voltage_ptr->adc_cali_handle),
-                                                voltage_ptr->adc_raw,
-                                                (int *)&voltage_ptr->voltage));
-        ESP_LOGI(TAG, "Calibrated Voltage: %d mV", voltage_ptr->voltage);
+                                                raw,
+                                                &voltage));
     }
 
-    uint32_t bat_voltage = voltage_ptr->voltage * DIV_MULTIPLIER_VOL;
-    return bat_voltage;
+    float bat_voltage = voltage * DIV_MULTIPLIER_VOL;
+    voltage_ptr->adc_raw = raw;
+    voltage_ptr->voltage = (uint32_t)bat_voltage;
+
+    return bat_voltage/1000.0;
 }
+    

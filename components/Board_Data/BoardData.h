@@ -12,14 +12,14 @@ typedef struct {
     float temperature[3];
     float pressure[2];
     float battery_voltage;
+    uint8_t valve_state[2];
 } BoardData_t;
 
-extern volatile BoardData_t boardData;
+extern BoardData_t boardData;
+extern volatile uint8_t valve1_state;
+extern volatile uint8_t valve2_state;
 extern SemaphoreHandle_t BoardDataSemaphore;
 
-
-void set_valve1_state(uint8_t state);
-void set_valve2_state(uint8_t state);
 
 typedef struct {
     uint32_t commandNum;

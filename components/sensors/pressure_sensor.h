@@ -23,8 +23,6 @@
 #include "esp_adc/adc_oneshot.h"
 
 
-#define PRESSURE_R1 15000.0
-#define PRESSURE_R2 30000.0
 #define PRESSURE1_ADC_CHANNEL 3U
 #define PRESSURE2_ADC_CHANNEL 4U
 

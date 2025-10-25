@@ -4,6 +4,7 @@
  #include "esp_log.h"
  #include <stdint.h>
  #include "valve_board_config.h"
+ #include "adc_manager.h"
  
  /**************************  PRIVATE VARIABLES  *******************************/
  static const char *TAG = "PRESSURE_SENSOR";
@@ -22,6 +23,11 @@
          .bitwidth = ADC_BITWIDTH_DEFAULT,
          .atten = ADC_ATTEN_DB_12,   // zamiast DB_11
      };
+
+     sensor_ptr->adc_handle = &adc_manager.adc_handle;
+     sensor_ptr->adc_cali_handle = &adc_manager.cali_handle;
+     sensor_ptr->cali_enable = adc_manager.cali_enabled;
+
      ESP_ERROR_CHECK(adc_oneshot_config_channel(*(sensor_ptr->adc_handle),
                                                 sensor_ptr->adc_channel, &config));
      return true;
@@ -29,74 +35,24 @@
  
  bool pressure_sensors_init()
  {
-    /////////ESP32s3 version
-//      pressure_manager.Initialized = 0;
+     pressure_manager.Initialized = 0;
  
-//      //-------------ADC1 Config---------------//
-//      adc_oneshot_unit_init_cfg_t init_config1 = {
-//          .unit_id = ADC_UNIT_1,
-//          .ulp_mode = ADC_ULP_MODE_DISABLE,
-//      };
-//      ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &pressure_manager.mADC_1));
- 
-//      //-------------ADC1 Calibration Init---------------//
-// //-------------ADC1 Calibration Init---------------//
-// adc_cali_curve_fitting_config_t cali_config1 = {
-//     .atten    = ADC_ATTEN_DB_12,
-//     .bitwidth = ADC_BITWIDTH_DEFAULT,
-// };
-
-// if (adc_cali_create_scheme_curve_fitting(&cali_config1, &pressure_manager.mADC_1_cali) == ESP_OK) {
-//     pressure_manager.mADC_1_cali_enabled = true;
-//     ESP_LOGI(TAG, "Calibration scheme for ADC1: Curve Fitting");
-// } else {
-//     pressure_manager.mADC_1_cali_enabled = false;
-//     ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
-// }
-    /////////ESP32s3 version
-
-    pressure_manager.Initialized = 0;
-
-    //-------------ADC1 Config---------------//
-    adc_oneshot_unit_init_cfg_t init_config1 = {
-        .unit_id = ADC_UNIT_1,
-    };
-    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &pressure_manager.mADC_1));
-
-    // Konfiguracja kanału – dopasuj do swojego wejścia!
-    adc_oneshot_chan_cfg_t config = {
-        .bitwidth = ADC_BITWIDTH_12,
-        .atten = ADC_ATTEN_DB_11,
-    };
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(pressure_manager.mADC_1, ADC_CHANNEL_6, &config));
-
-    //-------------ADC Calibration Init (ESP32)---------------//
-    // ESP32 używa schematu „Line Fitting”
-    adc_cali_line_fitting_config_t cali_config1 = {
-        .unit_id = ADC_UNIT_1,
-        .atten = ADC_ATTEN_DB_11,
-        .bitwidth = ADC_BITWIDTH_12,
-    };
-
-    if (adc_cali_create_scheme_line_fitting(&cali_config1, &pressure_manager.mADC_1_cali) == ESP_OK) {
-        pressure_manager.mADC_1_cali_enabled = true;
-        ESP_LOGI(TAG, "Calibration scheme for ADC1: Line Fitting");
-    } else {
-        pressure_manager.mADC_1_cali_enabled = false;
-        ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
-    }
-
- 
-     //-------------Pressure Sensor 1 Init---------------//
+     // Pressure 1
      pressure_manager.mPressure1 = (Pressure_Sensor_t)PRESSURE_SENSOR_INIT(
-         PRESSURE1_ADC_CHANNEL, &pressure_manager.mADC_1, &pressure_manager.mADC_1_cali,
-         pressure_manager.mADC_1_cali_enabled);
+         PRESSURE1_ADC_CHANNEL,
+         &adc_manager.adc_handle,
+         &adc_manager.cali_handle,
+         adc_manager.cali_enabled
+     );
      pressure_sensor_init(&pressure_manager.mPressure1);
  
-     //-------------Pressure Sensor 2 Init---------------//
+     // Pressure 2
      pressure_manager.mPressure2 = (Pressure_Sensor_t)PRESSURE_SENSOR_INIT(
-         PRESSURE2_ADC_CHANNEL, &pressure_manager.mADC_1, &pressure_manager.mADC_1_cali,
-         pressure_manager.mADC_1_cali_enabled);
+         PRESSURE2_ADC_CHANNEL,
+         &adc_manager.adc_handle,
+         &adc_manager.cali_handle,
+         adc_manager.cali_enabled
+     );
      pressure_sensor_init(&pressure_manager.mPressure2);
  
      pressure_manager.Initialized = 1;

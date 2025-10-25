@@ -114,14 +114,16 @@ bool save_text(const char* path, BoardData_t* data) {
     }
 
     for (uint32_t i = 0; i < BUFFER_SAMPLES; i++) {
-        fprintf(f, "%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+        fprintf(f, "%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%u,%u\n",
                 data[i].time_ms,
                 data[i].temperature[0],
                 data[i].temperature[1],
                 data[i].temperature[2],
                 data[i].pressure[0],
                 data[i].pressure[1],
-                data[i].battery_voltage);
+                data[i].battery_voltage,
+                data[i].valve_state[0],
+                data[i].valve_state[1]);
     }
 
     fclose(f);
@@ -134,8 +136,17 @@ bool add_header(const char* path) {
         ESP_LOGE("SDCARD", "Failed to open %s for writing", path);
         return false;
     }
-
-    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [mV]\n");
+    #ifdef SOL_N2O_N2_CONFIG
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], N2O_SOL_STATE, N2_SOL_STATE\n");
+    #elif defined(SOL_ETH_CONFIG)
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], ETH_SOL_STATE, ignore\n");
+    #elif defined(SERVO_N20_CONFIG)
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], N2O_VALVE_STATE, ignore\n");
+    #elif defined(SERVO_ETH_N2_CONFIG)
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], ETH_VALVE_STATE, N2_VALVE_STATE\n");
+    #else
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], Valve1_State, Valve2_State\n");
+    #endif
 
     fclose(f);
     ESP_LOGI("SDCARD", "Header added to %s", path);
@@ -193,7 +204,7 @@ void update_data_task(void *arg)
             }
         } // end if take current_mutex
 
-        vTaskDelay(1000/SD_SAMPLE_RATE / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

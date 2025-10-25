@@ -159,12 +159,23 @@ void obc_command_handler(const uint8_t *data, int len) {
 
 void now_send_data_to_obc(void *arg) {
     while (1) {
-        moduleData.dataToObc.pressure1 = boardData.pressure[0];
-        moduleData.dataToObc.pressure2 = boardData.pressure[1];
-        moduleData.dataToObc.temperature1 = boardData.temperature[0];
-        moduleData.dataToObc.temperature2 = boardData.temperature[1];
-        moduleData.dataToObc.temperature3 = boardData.temperature[2];
-        moduleData.dataToObc.battery_voltage = boardData.battery_voltage;
+        BoardData_t board_data_copy;
+        if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+            memcpy(&board_data_copy, (const void*)&boardData, sizeof(BoardData_t));
+            xSemaphoreGive(BoardDataSemaphore);
+        } else {
+            ESP_LOGE("NOW", "Failed to take BoardData semaphore");
+            continue;
+        }
+        moduleData.dataToObc.temperature1 = board_data_copy.temperature[0];
+        moduleData.dataToObc.temperature2 = board_data_copy.temperature[1];
+        moduleData.dataToObc.temperature3 = board_data_copy.temperature[2];
+        moduleData.dataToObc.pressure1 = board_data_copy.pressure[0];
+        moduleData.dataToObc.pressure2 = board_data_copy.pressure[1];
+        moduleData.dataToObc.battery_voltage = board_data_copy.battery_voltage;
+        moduleData.dataToObc.valve1_state = valve1_state;
+        moduleData.dataToObc.valve2_state = valve2_state;
+            
         if (esp_now_send(adressObc, (uint8_t *)&moduleData.dataToObc, sizeof(DataToObc)) != ESP_OK) {
             ESP_LOGE("NOW", "Error sending data to OBC");
         }

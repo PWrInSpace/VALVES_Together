@@ -45,11 +45,11 @@ static void close_servo_callback(TimerHandle_t xTimer) {
       servo_ptr->state.state = SERVO_CLOSED;
       if(servo_id == 0) {
         servo_ptr->state.angle = VALVE_CLOSE_POSITION;
-        moduleData.dataToObc.valve1_state = 0;
+        valve1_state = 0;
       }
       else if(servo_id == 1) {
         servo_ptr->state.angle = VALVE_CLOSE_POSITION2;
-        moduleData.dataToObc.valve2_state = 0;
+        valve2_state = 0;
       }
       // ESP_LOGI(TAG, "Servo %d closed after timeout", servo_id);
     }
@@ -61,9 +61,9 @@ static void close_servo_callback(TimerHandle_t xTimer) {
     servo_ptr->state.state = SERVO_CLOSED;
     servo_ptr->state.angle = VALVE_CLOSE_POSITION;
     if(servo_id == 0)
-      moduleData.dataToObc.valve1_state = 0;
+      valve1_state = 0;
     else if(servo_id == 1)
-      moduleData.dataToObc.valve2_state = 0;
+      valve2_state = 0;
     // ESP_LOGI(TAG, "Servo %d closed after timeout", servo_id);
   }
   #endif
@@ -197,13 +197,13 @@ esp_err_t open_servo(ServoId_t servo_id, uint16_t open_time)
       return ESP_LOG_ERROR;
     }
     servos[servo_id].state.angle = VALVE_OPEN_POSITION;
-    moduleData.dataToObc.valve1_state = 1;
+    valve1_state = 1;
   } else if (servo_id == 1) {
     if (move_servo(servo_id, VALVE_OPEN_POSITION2, open_time) != ESP_OK) {
       return ESP_LOG_ERROR;
     }
     servos[servo_id].state.angle = VALVE_OPEN_POSITION2;
-    moduleData.dataToObc.valve2_state = 1;
+    valve2_state = 1;
   }
 
   #else
@@ -237,7 +237,7 @@ esp_err_t close_servo(ServoId_t servo_id)
       return ESP_LOG_ERROR;
     }
     servos[servo_id].state.angle = VALVE_CLOSE_POSITION;
-    moduleData.dataToObc.valve1_state = 0;
+    valve1_state = 0;
     ESP_LOGI(TAG, "CLOSED servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION);
   } else if (servo_id == 1) {
     ESP_LOGI(TAG, "CLOSING servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION2);
@@ -246,7 +246,7 @@ esp_err_t close_servo(ServoId_t servo_id)
       return ESP_LOG_ERROR;
     }
     servos[servo_id].state.angle = VALVE_CLOSE_POSITION2;
-    moduleData.dataToObc.valve2_state = 0;
+    valve2_state = 0;
     ESP_LOGI(TAG, "CLOSED servo[%d] to angle: %d", servo_id, VALVE_CLOSE_POSITION2);
   }
 
