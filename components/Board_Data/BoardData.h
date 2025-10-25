@@ -8,11 +8,10 @@
 
 
 typedef struct {
-    float temperature[2];
+    uint32_t time_ms;
+    float temperature[3];
     float pressure[2];
-    Servo_work_state_t servo_states[SERVO_COUNT];
-    ValveState solenoid_states[NUM_OF_SOLENOIDS];
-
+    float battery_voltage;
 } BoardData_t;
 
 extern volatile BoardData_t boardData;
@@ -31,7 +30,7 @@ typedef struct {
     uint32_t commandNum;
     int32_t arg1;
     int32_t arg2;
-} DataFromObc2;
+} DataFromObc2; //to test purposes
 
 typedef enum {
     INIT_PERIOD = 4000,
@@ -82,7 +81,6 @@ typedef struct DataToObc {
     float pressure1;
     float pressure2;
     float battery_voltage;
-
 } DataToObc;
 
 

@@ -29,29 +29,62 @@
  
  bool pressure_sensors_init()
  {
-     pressure_manager.Initialized = 0;
+    /////////ESP32s3 version
+//      pressure_manager.Initialized = 0;
  
-     //-------------ADC1 Config---------------//
-     adc_oneshot_unit_init_cfg_t init_config1 = {
-         .unit_id = ADC_UNIT_1,
-         .ulp_mode = ADC_ULP_MODE_DISABLE,
-     };
-     ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &pressure_manager.mADC_1));
+//      //-------------ADC1 Config---------------//
+//      adc_oneshot_unit_init_cfg_t init_config1 = {
+//          .unit_id = ADC_UNIT_1,
+//          .ulp_mode = ADC_ULP_MODE_DISABLE,
+//      };
+//      ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &pressure_manager.mADC_1));
  
-     //-------------ADC1 Calibration Init---------------//
-//-------------ADC1 Calibration Init---------------//
-adc_cali_curve_fitting_config_t cali_config1 = {
-    .atten    = ADC_ATTEN_DB_12,
-    .bitwidth = ADC_BITWIDTH_DEFAULT,
-};
+//      //-------------ADC1 Calibration Init---------------//
+// //-------------ADC1 Calibration Init---------------//
+// adc_cali_curve_fitting_config_t cali_config1 = {
+//     .atten    = ADC_ATTEN_DB_12,
+//     .bitwidth = ADC_BITWIDTH_DEFAULT,
+// };
 
-if (adc_cali_create_scheme_curve_fitting(&cali_config1, &pressure_manager.mADC_1_cali) == ESP_OK) {
-    pressure_manager.mADC_1_cali_enabled = true;
-    ESP_LOGI(TAG, "Calibration scheme for ADC1: Curve Fitting");
-} else {
-    pressure_manager.mADC_1_cali_enabled = false;
-    ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
-}
+// if (adc_cali_create_scheme_curve_fitting(&cali_config1, &pressure_manager.mADC_1_cali) == ESP_OK) {
+//     pressure_manager.mADC_1_cali_enabled = true;
+//     ESP_LOGI(TAG, "Calibration scheme for ADC1: Curve Fitting");
+// } else {
+//     pressure_manager.mADC_1_cali_enabled = false;
+//     ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
+// }
+    /////////ESP32s3 version
+
+    pressure_manager.Initialized = 0;
+
+    //-------------ADC1 Config---------------//
+    adc_oneshot_unit_init_cfg_t init_config1 = {
+        .unit_id = ADC_UNIT_1,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &pressure_manager.mADC_1));
+
+    // Konfiguracja kanału – dopasuj do swojego wejścia!
+    adc_oneshot_chan_cfg_t config = {
+        .bitwidth = ADC_BITWIDTH_12,
+        .atten = ADC_ATTEN_DB_11,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(pressure_manager.mADC_1, ADC_CHANNEL_6, &config));
+
+    //-------------ADC Calibration Init (ESP32)---------------//
+    // ESP32 używa schematu „Line Fitting”
+    adc_cali_line_fitting_config_t cali_config1 = {
+        .unit_id = ADC_UNIT_1,
+        .atten = ADC_ATTEN_DB_11,
+        .bitwidth = ADC_BITWIDTH_12,
+    };
+
+    if (adc_cali_create_scheme_line_fitting(&cali_config1, &pressure_manager.mADC_1_cali) == ESP_OK) {
+        pressure_manager.mADC_1_cali_enabled = true;
+        ESP_LOGI(TAG, "Calibration scheme for ADC1: Line Fitting");
+    } else {
+        pressure_manager.mADC_1_cali_enabled = false;
+        ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
+    }
 
  
      //-------------Pressure Sensor 1 Init---------------//
@@ -71,6 +104,20 @@ if (adc_cali_create_scheme_curve_fitting(&cali_config1, &pressure_manager.mADC_1
  }
  
  float get_pressure(Pressure_Sensor_t *sensor_ptr) {
+    #ifdef PRESSURE_CALIBRATION
+    double adc_sum = 0;
+    const int samples = 100;
+    for(int i = 0; i < samples; i++) {
+        ESP_ERROR_CHECK(adc_oneshot_read(*(sensor_ptr->adc_handle),
+                                         sensor_ptr->adc_channel,
+                                         (int *)&sensor_ptr->adc_raw));
+        adc_sum += sensor_ptr->adc_raw;
+        vTaskDelay(pdMS_TO_TICKS(25)); // small delay between samples
+    }
+    ESP_LOGI(TAG, "PRESSURE_SENSOR Calibrated Raw Data: %.2f", adc_sum / (double)samples);
+    return 99999.99; // return dummy pressure value during calibration
+    #endif
+
      ESP_ERROR_CHECK(adc_oneshot_read(*(sensor_ptr->adc_handle),
                                       sensor_ptr->adc_channel,
                                       (int *)&sensor_ptr->adc_raw));

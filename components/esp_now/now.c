@@ -163,7 +163,8 @@ void now_send_data_to_obc(void *arg) {
         moduleData.dataToObc.pressure2 = boardData.pressure[1];
         moduleData.dataToObc.temperature1 = boardData.temperature[0];
         moduleData.dataToObc.temperature2 = boardData.temperature[1];
-        moduleData.dataToObc.temperature3 = 0; // No third temperature sensor
+        moduleData.dataToObc.temperature3 = boardData.temperature[2];
+        moduleData.dataToObc.battery_voltage = boardData.battery_voltage;
         if (esp_now_send(adressObc, (uint8_t *)&moduleData.dataToObc, sizeof(DataToObc)) != ESP_OK) {
             ESP_LOGE("NOW", "Error sending data to OBC");
         }

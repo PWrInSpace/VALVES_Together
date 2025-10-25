@@ -176,9 +176,6 @@ void chandle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle) {
 
     ESP_LOGI("VALVES_CONTROL", "Handling valve command: %d with time: %d ms and angle: %d", cmd, time_ms, angle);
 
-    uint8_t clamped_angle = (uint8_t)angle;
-
-
     switch (cmd) {
         case N20_VALVE_OPEN:
             #ifdef SERVO_N20_CONFIG

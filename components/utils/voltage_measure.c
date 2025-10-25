@@ -11,19 +11,41 @@ bool adc1_cali_enabled = false;
 
 Voltage_Measure_t mVoltage;
 
+    /////////ESP32s3 version
 
 /**************************  PUBLIC FUNCTIONS  *******************************/
+// bool vol_mes_init(void) {
+
+//     //-------------ADC1 Calibration Init---------------//
+//     adc_cali_curve_fitting_config_t cali_config = {
+//         .atten    = ADC_ATTEN_DB_12,
+//         .bitwidth = ADC_BITWIDTH_DEFAULT,
+//     };
+
+//     if (adc_cali_create_scheme_curve_fitting(&cali_config, &adc1_cali_handle) == ESP_OK) {
+//         adc1_cali_enabled = true;
+//         ESP_LOGI(TAG, "Calibration scheme for ADC1: Curve Fitting");
+//     } else {
+//         adc1_cali_enabled = false;
+//         ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
+//     }
+
+//     return adc1_cali_enabled;
+// }
+    /////////ESP32s3 version
+
 bool vol_mes_init(void) {
 
     //-------------ADC1 Calibration Init---------------//
-    adc_cali_curve_fitting_config_t cali_config = {
-        .atten    = ADC_ATTEN_DB_12,
-        .bitwidth = ADC_BITWIDTH_DEFAULT,
+    adc_cali_line_fitting_config_t cali_config = {
+        .unit_id  = ADC_UNIT_1,
+        .atten    = ADC_ATTEN_DB_11,
+        .bitwidth = ADC_BITWIDTH_12,
     };
 
-    if (adc_cali_create_scheme_curve_fitting(&cali_config, &adc1_cali_handle) == ESP_OK) {
+    if (adc_cali_create_scheme_line_fitting(&cali_config, &adc1_cali_handle) == ESP_OK) {
         adc1_cali_enabled = true;
-        ESP_LOGI(TAG, "Calibration scheme for ADC1: Curve Fitting");
+        ESP_LOGI(TAG, "Calibration scheme for ADC1: Line Fitting");
     } else {
         adc1_cali_enabled = false;
         ESP_LOGW(TAG, "eFuse not burnt, skip software calibration for ADC1");
@@ -31,6 +53,7 @@ bool vol_mes_init(void) {
 
     return adc1_cali_enabled;
 }
+
 
 uint32_t get_voltage(Voltage_Measure_t *voltage_ptr) {
     ESP_ERROR_CHECK(adc_oneshot_read(*(voltage_ptr->adc_handle),

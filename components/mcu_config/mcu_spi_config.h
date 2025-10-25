@@ -25,13 +25,13 @@
 #include "rom/gpio.h"
 #include "sdkconfig.h"
 #include "soc/gpio_struct.h"
-
+//TODO: zmienic pingy gdy bedize plytka
 #define MCU_SPI_DEFAULT_CONFIG()                   \
   {                                                \
     .host_id = SDSPI_DEFAULT_HOST,                          \
-    .bus_config = {.miso_io_num = CONFIG_SPI_MISO, \
-                   .mosi_io_num = CONFIG_SPI_MOSI, \
-                   .sclk_io_num = CONFIG_SPI_SCK,  \
+    .bus_config = {.miso_io_num = 19, \
+                   .mosi_io_num = 23, \
+                   .sclk_io_num = 18,  \
                    .quadwp_io_num = -1,            \
                    .quadhd_io_num = -1,            \
                    .max_transfer_sz = 4000},       \
@@ -43,8 +43,6 @@
                    .pre_cb = NULL},                \
     .spi_init_flag = false,                        \
   }
-
-extern SemaphoreHandle_t mutex_spi;
 
 typedef struct {
   spi_host_device_t host_id;
@@ -68,25 +66,4 @@ esp_err_t mcu_spi_init(void);
 */
 esp_err_t mcu_spi_deinit(void);
 
-
-
-// bool _ads1256_add_device(void);  
-
-// typedef struct ads1256_spi_transmit_t
-// {
-//   const uint8_t* tx_data;  
-//   size_t tx_len;            
-//   uint8_t cs_pin; 
-//   bool rx_enabled;
-// } ads1256_spi_transmit_t;
-
-// /**
-//  * \brief SPI transmit function for ADS1256
-//  * \param[in] ads1256_spi_transmit_t structure
-//  * \param[out] rx_data output buffer
-//  * \param[in] rx_len length of output buffer
-//  */
-// bool _ads1256_spi_transmit(ads1256_spi_transmit_t* ads_transmit, uint8_t* rx_data, size_t rx_len);
-
-// bool _ads1256_spi_transmit_queued(const uint8_t* tx_data, size_t tx_len, uint8_t* rx_data, size_t rx_len);
 #endif /* PWRINSPACE_MCU_SPI_CONFIG_H_ */

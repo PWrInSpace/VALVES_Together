@@ -20,6 +20,7 @@
 #include "voltage_measure.h"
 #include "valves_control.h"
 #include "commands.h"
+#include "esp_timer.h"
 
 
 #define APP_TASK_STACK_SIZE 8192
@@ -50,6 +51,7 @@ esp_err_t app_task_deinit(void) {
 }
 
 void app_task(void *arg) {
+    uint32_t start_time_us = esp_timer_get_time();
 
     #ifdef SERVO_N20_CONFIG
     ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
@@ -68,37 +70,12 @@ void app_task(void *arg) {
     #endif
 
     while(1) {
-        #if (defined(PRESSURE_SENSOR_70kPa) || defined(PRESSURE_SENSOR_300kPa)) 
-        // Read pressures
-        float pressure1 = 0;
-
-        if(pressure_manager.Initialized) {
-            for(int counter = 0; counter < 3; counter++) {
-                pressure1 += get_pressure(&pressure_manager.mPressure1);
-                vTaskDelay(20/portTICK_PERIOD_MS);
-            }
-            pressure1 /= 3;
-        } else {
-            vTaskDelay(50/portTICK_PERIOD_MS);
-            pressure1 = 0;
-        }
-
-        
         if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-            if(pressure_manager.Initialized) {
-                boardData.pressure[0] = pressure1;
-                // ESP_LOGI("APP_TASK", "Pressure1: %.2f kPa", boardData.pressure[0]);
-            } else {
-                ESP_LOGW("APP_TASK", "Pressure manager not initialized");
-            }
+            boardData.time_ms = (uint32_t)(esp_timer_get_time() - start_time_us) / 1000;
             xSemaphoreGive(BoardDataSemaphore);
-        } else {
-            ESP_LOGE("APP_TASK", "Failed to take BoardData semaphore");
         }
-        // get_voltage(&mVoltage);
-        #else
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-        #endif
-        // vTaskDelay(1000/portTICK_PERIOD_MS);
+        
+
+        vTaskDelay(1000/TIMESTAMPS_MEASURE_SPS/portTICK_PERIOD_MS);
     }
 }
