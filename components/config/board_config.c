@@ -32,6 +32,7 @@
 #include "sd_task.h"
 #include "voltage_measure_task.h"
 #include "adc_manager.h"
+#include "temperature_task.h"
 
 
 #define TAG "BOARD_CONFIG"
@@ -128,6 +129,8 @@ esp_err_t board_config_init(void) {
     createNowSendTask();
     pressure_task_init();
     voltage_task_init();
+    temperature_task_init();
+
 
     return ESP_OK;
 

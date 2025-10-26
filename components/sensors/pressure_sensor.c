@@ -70,7 +70,7 @@
         adc_sum += sensor_ptr->adc_raw;
         vTaskDelay(pdMS_TO_TICKS(25)); // small delay between samples
     }
-    ESP_LOGI(TAG, "PRESSURE_SENSOR Calibrated Raw Data: %.2f", adc_sum / (double)samples);
+    ESP_LOGI(TAG, "PRESSURE_SENSOR Calibrated Raw Data: %.5f", adc_sum / (double)samples);
     return 99999.99; // return dummy pressure value during calibration
     #endif
 
@@ -104,7 +104,7 @@
         #endif
 
     pressure = ((sensor_ptr->adc_raw * multiplier) - zero_offset);
-    // ESP_LOGI(TAG, "PRESSURE_SENSOR Pressure: %.2f kPa", pressure);
+    // ESP_LOGI(TAG, "PRESSURE_SENSOR Pressure: %.5f kPa", pressure);
 
      return pressure;
  }

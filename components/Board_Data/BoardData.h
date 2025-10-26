@@ -12,6 +12,7 @@ typedef struct {
     float temperature[3];
     float pressure[2];
     float battery_voltage;
+    float thermistor_temp[2];
     uint8_t valve_state[2];
 } BoardData_t;
 

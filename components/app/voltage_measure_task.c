@@ -38,7 +38,7 @@ esp_err_t voltage_task_deinit(void) {
 void voltage_task(void *arg) {
     while(1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
-        float battery_voltage = get_voltage(&mVoltage);
+        float battery_voltage = get_voltage(0);
         if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
             boardData.battery_voltage = battery_voltage;
             xSemaphoreGive(BoardDataSemaphore);

@@ -114,7 +114,7 @@ bool save_text(const char* path, BoardData_t* data) {
     }
 
     for (uint32_t i = 0; i < BUFFER_SAMPLES; i++) {
-        fprintf(f, "%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%u,%u\n",
+        fprintf(f, "%u,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%u,%u\n",
                 data[i].time_ms,
                 data[i].temperature[0],
                 data[i].temperature[1],
@@ -122,6 +122,8 @@ bool save_text(const char* path, BoardData_t* data) {
                 data[i].pressure[0],
                 data[i].pressure[1],
                 data[i].battery_voltage,
+                data[i].thermistor_temp[0],
+                data[i].thermistor_temp[1],
                 data[i].valve_state[0],
                 data[i].valve_state[1]);
     }
@@ -137,15 +139,15 @@ bool add_header(const char* path) {
         return false;
     }
     #ifdef SOL_N2O_N2_CONFIG
-    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], N2O_SOL_STATE, N2_SOL_STATE\n");
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], Thermistor1 [C], Thermistor2 [C], N2O_SOL_STATE, N2_SOL_STATE\n");
     #elif defined(SOL_ETH_CONFIG)
-    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], ETH_SOL_STATE, ignore\n");
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], Thermistor1 [C], Thermistor2 [C], ETH_SOL_STATE, ignore\n");
     #elif defined(SERVO_N20_CONFIG)
-    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], N2O_VALVE_STATE, ignore\n");
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], Thermistor1 [C], Thermistor2 [C], N2O_VALVE_STATE, ignore\n");
     #elif defined(SERVO_ETH_N2_CONFIG)
-    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], ETH_VALVE_STATE, N2_VALVE_STATE\n");
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], Thermistor1 [C], Thermistor2 [C], ETH_VALVE_STATE, N2_VALVE_STATE\n");
     #else
-    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], Valve1_State, Valve2_State\n");
+    fprintf(f, "Time [ms], Temperature1 [C], Temperature2 [C], Temperature3 [C], Pressure1 [kPa], Pressure2 [kPa], Battery Voltage [V], Thermistor1 [C], Thermistor2 [C], Valve1_State, Valve2_State\n");
     #endif
 
     fclose(f);
@@ -168,45 +170,38 @@ void update_data_task(void *arg)
     while (1)
     {
         BoardData_t boardDataCopy;
+
         if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-            memcpy(&boardDataCopy, (const void*)&boardData, sizeof(BoardData_t));
+            memcpy(&boardDataCopy, &boardData, sizeof(BoardData_t));
             xSemaphoreGive(BoardDataSemaphore);
         }
 
         if (xSemaphoreTake(current_mutex, portMAX_DELAY) == pdTRUE) {
             current_buffer[counter] = boardDataCopy;
             counter++;
-            if (counter >= BUFFER_SAMPLES)
-            {
-                SemaphoreHandle_t save_mutex = current_mutex;
-                BoardData_t* save_buffer = current_buffer;
+            xSemaphoreGive(current_mutex);
+        }
 
-                SemaphoreHandle_t other_mutex = (current_mutex == mutex_A) ? mutex_B : mutex_A;
-                BoardData_t* other_buffer = (current_buffer == buffer_A) ? buffer_B : buffer_A;
+        if (counter >= BUFFER_SAMPLES)
+        {
+            xSemaphoreGive(current_sync);
 
-                if (xSemaphoreTake(other_mutex, portMAX_DELAY) == pdTRUE) {
-                    current_buffer = other_buffer;
-                    current_mutex = other_mutex;
-                    counter = 0;
-
-                    if (save_buffer == buffer_A) {
-                        xSemaphoreGive(buffer_A_ready);
-                    } else {
-                        xSemaphoreGive(buffer_B_ready);
-                    }
-                    xSemaphoreGive(save_mutex);
-                } else {
-                    ESP_LOGW(TAG, "Nie można wziąć mutexu drugiego bufora, kontynuuję z tym samym buforem");
-                    xSemaphoreGive(save_mutex);
-                }
+            if (current_buffer == buffer_A) {
+                current_buffer = buffer_B;
+                current_mutex = mutex_B;
+                current_sync = buffer_B_ready;
             } else {
-                xSemaphoreGive(current_mutex);
+                current_buffer = buffer_A;
+                current_mutex = mutex_A;
+                current_sync = buffer_A_ready;
             }
-        } // end if take current_mutex
+            counter = 0;
+        }
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
+
 
 void save_data_task(void *arg)
 {

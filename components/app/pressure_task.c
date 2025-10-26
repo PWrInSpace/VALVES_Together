@@ -46,7 +46,7 @@ void pressure_task(void *arg) {
         if(pressure_manager.Initialized) {
             pressure1 = get_pressure(&pressure_manager.mPressure1);
             pressure2 = get_pressure(&pressure_manager.mPressure2);
-            // ESP_LOGI("PRESSURE_TASK", "Pressure1: %.2f kPa, Pressure2: %.2f kPa", pressure1, pressure2);
+            // ESP_LOGI("PRESSURE_TASK", "Pressure1: %.5f kPa, Pressure2: %.5f kPa", pressure1, pressure2);
         }
         else
         {

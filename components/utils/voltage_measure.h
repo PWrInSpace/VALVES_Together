@@ -41,6 +41,6 @@ uint16_t voltage_measure_init(Voltage_Measure_t *voltage_ptr);
 
 void voltage_measure_deinit(Voltage_Measure_t *voltage_ptr);
 
-float get_voltage(Voltage_Measure_t *voltage_ptr);
+float get_voltage(uint8_t channel_index);
 
 #endif  // VOLTAGE_MEASURE_HH
