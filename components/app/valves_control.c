@@ -151,12 +151,12 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
             ESP_LOGI("VALVES_CONTROL", "DZIDA COMMAND RECEIVED");
             #ifdef SERVO_N20_CONFIG
                 vTaskDelay(pdMS_TO_TICKS(100));
-                chandle_valve_cmd(N20_VALVE_OPEN, 0);
+                chandle_valve_cmd(N20_VALVE_OPEN, 2000);
             #endif
 
             #ifdef SERVO_ETH_N2_CONFIG
                 vTaskDelay(pdMS_TO_TICKS(220));
-                chandle_valve_cmd(ETH_VALVE_OPEN, 0);
+                chandle_valve_cmd(ETH_VALVE_OPEN, 2000);
 
                 
             #endif

@@ -68,12 +68,12 @@ esp_err_t board_config_init(void) {
         return ESP_FAIL;
     }
 
-    err = mcu_spi_init();
+    // err = mcu_spi_init();
 
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "SPI initialization failed");
-        return err;
-    }
+    // if (err != ESP_OK) {
+    //     ESP_LOGE(TAG, "SPI initialization failed");
+    //     return err;
+    // }
 
     if(!timers_init())
     {
@@ -119,17 +119,17 @@ esp_err_t board_config_init(void) {
         return ESP_FAIL;
     }
 
-    if(sd_task_init() != ESP_OK) {
-        ESP_LOGE(TAG, "SD card task initialization failed");
-        return ESP_FAIL;
-    }
+    // if(sd_task_init() != ESP_OK) {
+    //     ESP_LOGE(TAG, "SD card task initialization failed");
+    //     return ESP_FAIL;
+    // }
 
 
 
     createNowSendTask();
     pressure_task_init();
-    voltage_task_init();
-    temperature_task_init();
+    // voltage_task_init();
+    // temperature_task_init();
 
 
     return ESP_OK;

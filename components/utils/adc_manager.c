@@ -20,13 +20,12 @@ bool adc_manager_init(void)
     ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config, &adc_manager.adc_handle));
 
     // Calibration
-    adc_cali_line_fitting_config_t cali_config = {
+    adc_cali_curve_fitting_config_t cali_config = {
         .unit_id = ADC_UNIT_1,
-        .atten = ADC_ATTEN_DB_11,
-        .bitwidth = ADC_BITWIDTH_12,
+        .atten = ADC_ATTEN_DB_12,
     };
 
-    if (adc_cali_create_scheme_line_fitting(&cali_config, &adc_manager.cali_handle) == ESP_OK) {
+    if (adc_cali_create_scheme_curve_fitting(&cali_config, &adc_manager.cali_handle) == ESP_OK) {
         adc_manager.cali_enabled = true;
         ESP_LOGI(TAG, "ADC Calibration ENABLED");
     } else {
