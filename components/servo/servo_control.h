@@ -24,14 +24,18 @@
 
 #define DEFAULT_POS_ANGLE 90  // Angle of the default position for servos
 
-#ifdef SERVO_ETH_N2_CONFIG
+#ifdef SERVO_N20_CONFIG
 #define VALVE_CLOSE_POSITION 143U
 #define VALVE_OPEN_POSITION 50U
-#define VALVE_CLOSE_POSITION2 160U
-#define VALVE_OPEN_POSITION2 60
-#else
+#elif defined(SERVO_N2_CONFIG)
+#define VALVE_CLOSE_POSITION 143U
+#define VALVE_OPEN_POSITION 50U
+#elif defined(SOL_N20_SERVO_ETH_CONFIG)  
 #define VALVE_CLOSE_POSITION 140U
 #define VALVE_OPEN_POSITION 40U
+#else
+#define VALVE_CLOSE_POSITION 0U
+#define VALVE_OPEN_POSITION 0U
 #endif
 #define MOVE_WITHOUT_TIMER (uint16_t)0
 
@@ -57,18 +61,18 @@ typedef enum {
     N2O_FILL_SERVO,
     SERVO_COUNT // Number of servos
 } ServoId_t;
-#elif defined(SERVO_ETH_N2_CONFIG)
+#elif defined(SERVO_N2_CONFIG)
 typedef enum {
-    ETH_FILL_SERVO,
     N2_FILL_SERVO,
     SERVO_COUNT // Number of servos
 } ServoId_t;
-#elif defined(SOL_ETH_CONFIG)
+#elif defined(SOL_N20_SERVO_ETH_CONFIG)
 typedef enum {
+    ETH_FILL_SERVO,
     SERVO_COUNT // Number of servos
 } ServoId_t;
 
-#elif defined(SOL_N2O_N2_CONFIG)
+#elif defined(SOL_N2_ETH_CONFIG)
 typedef enum {
     SERVO_COUNT // Number of servos
 } ServoId_t;

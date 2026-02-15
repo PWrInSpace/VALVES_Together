@@ -19,7 +19,7 @@
 
 #include "esp_log.h"
 
-#include "console_config.h"
+// #include "console_config.h"
 #include "mcu_spi_config.h"
 #include "timers_config.h"
 #include "now.h"
@@ -109,15 +109,15 @@ esp_err_t board_config_init(void) {
         vTaskDelete(NULL);
     }
     
-    if(!pressure_sensors_init()) {
-        ESP_LOGE(TAG, "Pressure sensors initialization failed");
-        return ESP_FAIL;
-    }
+    // if(!pressure_sensors_init()) {
+    //     ESP_LOGE(TAG, "Pressure sensors initialization failed");
+    //     return ESP_FAIL;
+    // }
 
-    if(!vol_mes_init()) {
-        ESP_LOGE(TAG, "Voltage measurement initialization failed");
-        return ESP_FAIL;
-    }
+    // if(!vol_mes_init()) {
+    //     ESP_LOGE(TAG, "Voltage measurement initialization failed");
+    //     return ESP_FAIL;
+    // }
 
     // if(sd_task_init() != ESP_OK) {
     //     ESP_LOGE(TAG, "SD card task initialization failed");
@@ -127,7 +127,7 @@ esp_err_t board_config_init(void) {
 
 
     createNowSendTask();
-    pressure_task_init();
+    // pressure_task_init();
     // voltage_task_init();
     // temperature_task_init();
 

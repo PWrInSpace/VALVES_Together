@@ -4,48 +4,39 @@
 #include "valve_board_config.h"
 #include "Solenoid.h"
 
-#ifdef SOL_N2O_N2_CONFIG
+#ifdef SOL_N2_ETH_CONFIG
 
 typedef enum {
-    N20_FILL_SOL,
     N2_FILL_SOL,
-    NUM_OF_SOLENOIDS // Count of solenoids
-} ValveName;
-
-static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-    [N20_FILL_SOL] = GPIO_NUM_15,
-    [N2_FILL_SOL]  = GPIO_NUM_16,
-};
-
-#elif defined(SOL_ETH_CONFIG)
-
-typedef enum {
     ETH_FILL_SOL,
     NUM_OF_SOLENOIDS // Count of solenoids
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
     [ETH_FILL_SOL] = GPIO_NUM_15,
+    [N2_FILL_SOL]  = GPIO_NUM_16,
 };
 
-#elif defined(SERVO_N20_CONFIG)
+#elif defined(SOL_N20_SERVO_ETH_CONFIG)
 
 typedef enum {
-    NUM_OF_SOLENOIDS // No solenoids here
+    N20_FILL_SOL,
+    NUM_OF_SOLENOIDS
 } ValveName;
 
-static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {};
+static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
+    [N20_FILL_SOL] = GPIO_NUM_15,
 
-#elif defined(SERVO_ETH_N2_CONFIG)
-
-typedef enum {
-    NUM_OF_SOLENOIDS // No solenoids here
-} ValveName;
-
-static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {};
+};
 
 #else
-#error "No solenoid config defined"
+
+typedef enum {
+    NUM_OF_SOLENOIDS // No solenoids here
+} ValveName;
+
+static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {};
+
 #endif
 
 

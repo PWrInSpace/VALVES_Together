@@ -54,19 +54,29 @@ esp_err_t app_task_deinit(void) {
 void app_task(void *arg) {
     uint32_t start_time_us = esp_timer_get_time();
 
+    // #ifdef SERVO_N20_CONFIG
+    // #elif defined(SERVO_ETH_N2_CONFIG)
+    // #elif defined(SOL_ETH_CONFIG)
+    // #elif defined(SOL_N2O_N2_CONFIG)
+    // #endif
+
+
     #ifdef SERVO_N20_CONFIG
     ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
     chandle_valve_cmd(N20_VALVE_CLOSE, 0);
-    #elif defined(SERVO_ETH_N2_CONFIG)
-    ESP_LOGI("APP_TASK", "SERVO_ETH_N2_CONFIG defined");
-    chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
+    #elif defined(SERVO_N2_CONFIG)
+    ESP_LOGI("APP_TASK", "SERVO_N2_CONFIG defined");
     chandle_valve_cmd(N2_VALVE_CLOSE, 0);
-    #elif defined(SOL_ETH_CONFIG)
-    ESP_LOGI("APP_TASK", "SOL_ETH_CONFIG defined");
+    #elif defined(SOL_N2_ETH_CONFIG)
+    ESP_LOGI("APP_TASK", "SOL_N2_ETH_CONFIG defined");
     chandle_valve_cmd(ETH_SOL_CLOSE, 0);
-    #elif defined(SOL_N2O_N2_CONFIG)
-        chandle_valve_cmd(N20_SOL_OPEN, 0);
-        chandle_valve_cmd(N2_SOL_CLOSE, 0);
+    vTaskDelay(pdMS_TO_TICKS(100));
+    chandle_valve_cmd(N2_SOL_CLOSE, 0);
+    #elif defined(SOL_N20_SERVO_ETH_CONFIG)
+    ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
+        chandle_valve_cmd(N20_SOL_CLOSE, 0);
+        vTaskDelay(pdMS_TO_TICKS(100));
+        chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
     ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
     #endif
 

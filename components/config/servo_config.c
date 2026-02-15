@@ -8,14 +8,15 @@
 Servo_t servos[SERVO_COUNT] = {
     [N2O_FILL_SERVO] = SERVO_INIT(15),
 };
-#elif defined(SERVO_ETH_N2_CONFIG)
+#elif defined(SOL_N20_SERVO_ETH_CONFIG)
 Servo_t servos[SERVO_COUNT] = {
-    [ETH_FILL_SERVO] = SERVO_INIT(15),
-    [N2_FILL_SERVO] = SERVO_INIT(16)
+    [ETH_FILL_SERVO] = SERVO_INIT(16),
 };
-#elif defined(SOL_ETH_CONFIG)
-Servo_t servos[SERVO_COUNT] = {};
-#elif defined(SOL_N2O_N2_CONFIG)
+#elif defined(SERVO_N2_CONFIG)
+Servo_t servos[SERVO_COUNT] = {
+    [N2_FILL_SERVO] = SERVO_INIT(15)
+};
+#else
 Servo_t servos[SERVO_COUNT] = {};
 #endif
 

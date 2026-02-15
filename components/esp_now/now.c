@@ -32,13 +32,24 @@ bool nowInit() {
     esp_wifi_set_storage(WIFI_STORAGE_RAM);
     esp_wifi_set_mode(WIFI_MODE_STA);
 
+    // #ifdef SERVO_N20_CONFIG
+    // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x55};
+    // #elif defined(SERVO_ETH_N2_CONFIG)
+    // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x66};
+    // #elif defined(SOL_ETH_CONFIG)
+    // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x77};
+    // #elif defined(SOL_N2O_N2_CONFIG)
+    // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x88};
+    // #endif
+
+
     #ifdef SERVO_N20_CONFIG
     uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x55};
-    #elif defined(SERVO_ETH_N2_CONFIG)
+    #elif defined(SERVO_N2_CONFIG)
     uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x66};
-    #elif defined(SOL_ETH_CONFIG)
+    #elif defined(SOL_N20_SERVO_ETH_CONFIG)
     uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x77};
-    #elif defined(SOL_N2O_N2_CONFIG)
+    #elif defined(SOL_N2_ETH_CONFIG)
     uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x88};
     #endif
 
