@@ -33,11 +33,12 @@
 // SERVO N20       | SERVO_N20_CONFIG           --GPIO15    valve1_state
 //
 
-// #define SERVO_N20_CONFIG
+//#define SERVO_N20_CONFIG
 // #define SERVO_N2_CONFIG
-#define SOL_N20_SERVO_ETH_CONFIG
+// #define SOL_N20_SERVO_ETH_CONFIG
 // #define SOL_N2_ETH_CONFIG
-
+//#define SPES3D_SERVO_N20_CONFIG
+#define SPES3D_SERVO_ETH_CONFIG
 
 
 // #define PRESSURE_CALIBRATION

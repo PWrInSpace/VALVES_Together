@@ -11,6 +11,8 @@
 
 #include "servo_control.h"
 #include "servo_config.h"
+#include "freertos/FreeRTOS.h"
+
 /************************** PRIVATE INCLUDES ********************************/
 
 #include "esp_log.h"
@@ -39,6 +41,13 @@ static void close_servo_callback(TimerHandle_t xTimer) {
   if (mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION)) != ESP_OK) {
     // ESP_LOGE(TAG, "Failed to close servo %d", servo_id);
   } else {
+    vTaskDelay(pdMS_TO_TICKS(300)); // Short delay to ensure the servo has time to move
+    if(servo_ptr->state.angle > VALVE_CLOSE_POSITION){
+      mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION + 5));
+    }
+    else if(servo_ptr->state.angle <= VALVE_CLOSE_POSITION){
+      mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION - 5));
+    }
     servo_ptr->state.state = SERVO_CLOSED;
     servo_ptr->state.angle = VALVE_CLOSE_POSITION;
     if(servo_id == 0)
@@ -127,10 +136,7 @@ uint16_t servo_init(ServoId_t servo_id) {
   }
 
 
-  // Enable and start timer
-  ESP_ERROR_CHECK(mcpwm_timer_enable(servo_ptr->timer));
-  ESP_ERROR_CHECK(
-      mcpwm_timer_start_stop(servo_ptr->timer, MCPWM_TIMER_START_NO_STOP));
+  mcpwm_generator_set_force_level(servo_ptr->generator, 1 , false);
 
   ESP_LOGI(TAG, "Servo %d initialized on GPIO %d", servo_id, servo_ptr->pwm_pin);
   return EXIT_SUCCESS;
@@ -146,9 +152,20 @@ esp_err_t move_servo(ServoId_t servo_id, uint8_t angle, uint16_t open_time_ms) {
   Servo_t *servo_ptr = &servos[servo_id];
   ESP_LOGI(TAG, "Moving servo[%d] to angle: %d", servo_id, angle);
 
+  mcpwm_timer_enable(servo_ptr->timer);
+  mcpwm_timer_start_stop(servo_ptr->timer, MCPWM_TIMER_START_NO_STOP);
+
   if (mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(angle)) != ESP_OK) {
     ESP_LOGE(TAG, "Moving servo %d FAILURE", servo_id);
     return ESP_LOG_ERROR;
+  }
+
+  vTaskDelay(pdMS_TO_TICKS(300)); // Short delay to ensure the servo has time to move
+  if(servo_ptr->state.angle > angle){
+    mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(angle + 5));
+  }
+  else if(servo_ptr->state.angle <= angle){
+    mcpwm_comparator_set_compare_value(servo_ptr->comparator, angle_to_duty_us(angle - 5));
   }
   servo_ptr->state.angle = angle;
   servo_ptr->state.state = SERVO_OPEN;
@@ -159,6 +176,8 @@ esp_err_t move_servo(ServoId_t servo_id, uint8_t angle, uint16_t open_time_ms) {
     xTimerChangePeriod(servo_ptr->close_timer, pdMS_TO_TICKS(open_time_ms), 0);
     xTimerStart(servo_ptr->close_timer, 0);
   }
+
+  mcpwm_generator_set_force_level(servo_ptr->generator, 0 , false);
 
   return ESP_OK;
 }

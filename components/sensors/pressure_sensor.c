@@ -92,6 +92,9 @@
      #ifdef SERVO_N20_CONFIG //channel 1
         zero_offset = 10.1053; //70bar
         multiplier = 0.0316;
+        #elif defined(SPES3D_SERVO_N20_CONFIG) //channel 1
+        zero_offset = 10.1053; //70bar
+        multiplier = 0.0316;
         #elif defined(SERVO_ETH_N2_CONFIG)
         zero_offset = 37.05;; // 300bar
         multiplier = 0.1523;
