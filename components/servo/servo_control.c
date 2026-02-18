@@ -135,6 +135,8 @@ uint16_t servo_init(ServoId_t servo_id) {
     return EXIT_FAILURE;
   }
 
+  mcpwm_timer_enable(servo_ptr->timer);
+  mcpwm_timer_start_stop(servo_ptr->timer, MCPWM_TIMER_START_NO_STOP);
 
   //mcpwm_generator_set_force_level(servo_ptr->generator, 1 , false);
 
