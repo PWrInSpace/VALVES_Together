@@ -84,9 +84,9 @@ static void timer_open_callback(void *arg) {
     }
 
     if(*valve_name ==  0)
-      valve1_state = 1;
+      valve1_state = 0;
     else if(*valve_name == 1)
-      valve2_state = 1;
+      valve2_state = 0;
 
     free(valve_name); // Zwolnij pamięć
 }

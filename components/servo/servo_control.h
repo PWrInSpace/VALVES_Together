@@ -87,6 +87,7 @@ typedef enum {
 
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 typedef enum {
+    DUMMY_SERVO, // Placeholder for index 0
     ETH_FILL_SERVO,
     SERVO_COUNT // Number of servos
 } ServoId_t;
