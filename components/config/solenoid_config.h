@@ -7,8 +7,8 @@
 #ifdef SOL_N2_ETH_CONFIG
 
 typedef enum {
-    N2_FILL_SOL,
     ETH_FILL_SOL,
+    N2_FILL_SOL,
     NUM_OF_SOLENOIDS // Count of solenoids
 } ValveName;
 
