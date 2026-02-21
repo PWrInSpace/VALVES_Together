@@ -18,7 +18,7 @@ Servo_t servos[SERVO_COUNT] = {
 };
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 Servo_t servos[SERVO_COUNT] = {
-    [ETH_FILL_SERVO] = SERVO_INIT(16),
+    [ETH_FILL_SERVO] = SERVO_INIT(15),
 };
 #elif defined(SERVO_N2_CONFIG)
 Servo_t servos[SERVO_COUNT] = {

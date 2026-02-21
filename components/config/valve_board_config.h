@@ -19,8 +19,8 @@
 //     ETH 
 // -------------
 //
-// SOLENOID N2O    |                            --GPIO15    valve1_state
-// SERVO ETH       | SOL_N20_SERVO_ETH_CONFIG   --GPIO16    valve2_state
+// SOLENOID N2O    |                            --GPIO16    valve1_state
+// SERVO ETH       | SOL_N20_SERVO_ETH_CONFIG   --GPIO15    valve2_state
 // -------------
 //
 //
@@ -35,8 +35,8 @@
 
 // #define SERVO_N20_CONFIG
 // #define SERVO_N2_CONFIG
-// #define SOL_N20_SERVO_ETH_CONFIG
-#define SOL_N2_ETH_CONFIG
+#define SOL_N20_SERVO_ETH_CONFIG
+// #define SOL_N2_ETH_CONFIG
 // #define SPES3D_SERVO_N20_CONFIG
 // #define SPES3D_SERVO_ETH_CONFIG
 

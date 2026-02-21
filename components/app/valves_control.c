@@ -192,8 +192,8 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
                 chandle_valve_cmd(ETH_VALVE_OPEN, 6000);
             #endif
 
-            #ifdef SPES3D_SERVO_ETH_CONFIG
-                vTaskDelay(pdMS_TO_TICKS(220));
+                #ifdef SPES3D_SERVO_ETH_CONFIG
+                vTaskDelay(pdMS_TO_TICKS(160));
                 chandle_valve_cmd(ETH_VALVE_OPEN, 4000);
             #endif
 
