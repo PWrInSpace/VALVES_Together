@@ -24,13 +24,6 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
             } else {
                 valve1_state = 1;
             }
-            #elif defined(SPES3D_SERVO_N20_CONFIG)
-            if( open_servo(N2O_FILL_SERVO, time_ms) != ESP_OK) {
-                ESP_LOGE("VALVES_CONTROL", "Failed to open N2O_FILL_SERVO");
-                valve1_state = 0;
-            } else {
-                valve1_state = 1;
-            }
             #endif
             break;
         case N20_VALVE_CLOSE:
@@ -41,15 +34,8 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
             } else {
                 valve1_state = 0;
             }
-            #elif defined(SPES3D_SERVO_N20_CONFIG)
-            if(close_servo(N2O_FILL_SERVO) != ESP_OK) {
-                ESP_LOGE("VALVES_CONTROL", "Failed to close N2O_FILL_SERVO");
-                valve1_state = 1;
-            } else {
-                valve1_state = 0;
-            }
-            #endif
             break;
+            #endif
         case ETH_VALVE_OPEN:
             #ifdef SOL_N20_SERVO_ETH_CONFIG
             if( open_servo(ETH_FILL_SERVO, time_ms) != ESP_OK) {
@@ -59,26 +45,10 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
             else {
                 valve2_state = 1;
             }
-            #elif defined(SPES3D_SERVO_ETH_CONFIG)
-            if( open_servo(ETH_FILL_SERVO, time_ms) != ESP_OK) {
-                ESP_LOGE("VALVES_CONTROL", "Failed to open ETH_FILL_SERVO");
-                valve2_state = 0;
-            }
-            else {               
-                valve2_state = 1;
-            }
             #endif
             break;
         case ETH_VALVE_CLOSE:
             #ifdef SOL_N20_SERVO_ETH_CONFIG
-            if(close_servo(ETH_FILL_SERVO) != ESP_OK) {
-                ESP_LOGE("VALVES_CONTROL", "Failed to close ETH_FILL_SERVO");
-                valve2_state = 1;
-            }
-            else {
-                valve2_state = 0;
-            }
-            #elif defined(SPES3D_SERVO_ETH_CONFIG)
             if(close_servo(ETH_FILL_SERVO) != ESP_OK) {
                 ESP_LOGE("VALVES_CONTROL", "Failed to close ETH_FILL_SERVO");
                 valve2_state = 1;
@@ -182,19 +152,9 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
                 chandle_valve_cmd(N20_VALVE_OPEN, 6000);
             #endif
 
-            #ifdef SPES3D_SERVO_N20_CONFIG
-                vTaskDelay(pdMS_TO_TICKS(100));
-                chandle_valve_cmd(N20_VALVE_OPEN, 4000);
-            #endif
-
             #ifdef SOL_N20_SERVO_ETH_CONFIG
                 vTaskDelay(pdMS_TO_TICKS(160));
                 chandle_valve_cmd(ETH_VALVE_OPEN, 6000);
-            #endif
-
-                #ifdef SPES3D_SERVO_ETH_CONFIG
-                vTaskDelay(pdMS_TO_TICKS(160));
-                chandle_valve_cmd(ETH_VALVE_OPEN, 4000);
             #endif
 
             break;

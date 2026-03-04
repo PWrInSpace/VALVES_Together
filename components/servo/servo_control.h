@@ -27,12 +27,6 @@
 #ifdef SERVO_N20_CONFIG
 #define VALVE_CLOSE_POSITION 142U
 #define VALVE_OPEN_POSITION 35U
-#elif defined(SPES3D_SERVO_N20_CONFIG)
-#define VALVE_CLOSE_POSITION 132U
-#define VALVE_OPEN_POSITION 32U
-    #elif defined(SPES3D_SERVO_ETH_CONFIG)
-#define VALVE_CLOSE_POSITION 111U
-#define VALVE_OPEN_POSITION 17U 
 #elif defined(SERVO_N2_CONFIG)
 #define VALVE_CLOSE_POSITION 30U
 #define VALVE_OPEN_POSITION 127U
@@ -65,17 +59,6 @@ typedef struct{
 #ifdef SERVO_N20_CONFIG
 typedef enum {
     N2O_FILL_SERVO,
-    SERVO_COUNT // Number of servos
-} ServoId_t;
-#elif defined(SPES3D_SERVO_N20_CONFIG)
-typedef enum {
-    N2O_FILL_SERVO,
-    SERVO_COUNT // Number of servos
-} ServoId_t;
-
-#elif defined(SPES3D_SERVO_ETH_CONFIG)
-typedef enum {
-    ETH_FILL_SERVO,
     SERVO_COUNT // Number of servos
 } ServoId_t;
 

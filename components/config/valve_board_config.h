@@ -37,11 +37,24 @@
 // #define SERVO_N2_CONFIG
 #define SOL_N20_SERVO_ETH_CONFIG
 // #define SOL_N2_ETH_CONFIG
-// #define SPES3D_SERVO_N20_CONFIG
-// #define SPES3D_SERVO_ETH_CONFIG
 
 
 // #define PRESSURE_CALIBRATION
 // #define THERMISTOR_CALIBRATION
 
 #endif // VALVE_BOARD_CONFIG_H
+
+
+/*TODO
+Cli
+I2C scanner
+Buzzer
+Press
+Servo
+Solenoid
+Charging data
+Thermocouple
+Dump Valve
+SD
+RGB
+*/

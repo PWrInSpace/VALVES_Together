@@ -64,12 +64,6 @@ void app_task(void *arg) {
     #ifdef SERVO_N20_CONFIG
     ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
     chandle_valve_cmd(N20_VALVE_CLOSE, 0);
-    #elif defined(SPES3D_SERVO_N20_CONFIG)
-    ESP_LOGI("APP_TASK", "SPES3D_SERVO_N20_CONFIG defined");
-    chandle_valve_cmd(N20_VALVE_CLOSE, 0);
-    #elif defined(SPES3D_SERVO_ETH_CONFIG)
-    ESP_LOGI("APP_TASK", "SPES3D_SERVO_ETH_CONFIG defined");
-    chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
     #elif defined(SERVO_N2_CONFIG)
     ESP_LOGI("APP_TASK", "SERVO_N2_CONFIG defined");
     chandle_valve_cmd(N2_VALVE_CLOSE, 0);
