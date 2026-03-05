@@ -19,7 +19,7 @@
 
 #include "esp_log.h"
 
-// #include "console_config.h"
+#include "console_config.h"
 #include "mcu_spi_config.h"
 #include "timers_config.h"
 #include "now.h"
@@ -33,6 +33,8 @@
 #include "voltage_measure_task.h"
 #include "adc_manager.h"
 #include "temperature_task.h"
+#include "mcu_i2c_config.h"
+#include "ltc4162.h"
 
 
 #define TAG "BOARD_CONFIG"
@@ -108,6 +110,28 @@ esp_err_t board_config_init(void) {
         ESP_LOGE(TAG, "Servo configuration failed");
         vTaskDelete(NULL);
     }
+
+    err = mcu_i2c_init();
+    if(err!=ESP_OK)
+    {
+        ESP_LOGE(TAG, "I2C initialization failed");
+        vTaskDelete(NULL);
+    }
+
+    err = console_config_init();
+    if(err!=ESP_OK)
+    {
+        ESP_LOGE(TAG, "Console configuration failed");
+        vTaskDelete(NULL);
+    }
+
+    err = ltc4162_init();
+    if(err!=ESP_OK)
+    {
+        ESP_LOGE(TAG, "LTC4162 initialization failed");
+        vTaskDelete(NULL);
+    }
+
     
     // if(!pressure_sensors_init()) {
     //     ESP_LOGE(TAG, "Pressure sensors initialization failed");

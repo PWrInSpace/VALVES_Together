@@ -82,7 +82,7 @@ void app_task(void *arg) {
 
     while(1) {
         if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-            boardData.time_ms = (uint32_t)(esp_timer_get_time() - start_time_us) / 1000;
+            // time_ms = (uint32_t)(esp_timer_get_time() - start_time_us) / 1000;
             boardData.valve_state[0] = valve1_state;
             boardData.valve_state[1] = valve2_state;
             xSemaphoreGive(BoardDataSemaphore);

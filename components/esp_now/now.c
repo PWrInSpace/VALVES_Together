@@ -191,19 +191,19 @@ void now_send_data_to_obc(void *arg) {
             ESP_LOGE("NOW", "Error sending data to OBC");
         }
 
-        ESP_LOGI("NOW", "OBC state: %d", moduleData.obcState);
-        ESP_LOGI("NOW", "Data sent to OBC: valve1_state=%d, valve2_state=%d, temp1=%d, temp2=%d, temp3=%d, pres1=%.5f, pres2=%.5f, batt=%.5f",
-                 moduleData.dataToObc.valve1_state,
-                 moduleData.dataToObc.valve2_state,
-                 moduleData.dataToObc.temperature1,
-                 moduleData.dataToObc.temperature2,
-                 moduleData.dataToObc.temperature3,
-                 moduleData.dataToObc.pressure1,
-                 moduleData.dataToObc.pressure2,
-                 moduleData.dataToObc.battery_voltage);
-        ESP_LOGW("NOW", "THERMISTOR1: %.2f C, THERMISTOR2: %.2f C (This data waits to be sent (obc need update))",
-                  board_data_copy.thermistor_temp[0],
-                  board_data_copy.thermistor_temp[1]);
+        // ESP_LOGI("NOW", "OBC state: %d", moduleData.obcState);
+        // ESP_LOGI("NOW", "Data sent to OBC: valve1_state=%d, valve2_state=%d, temp1=%d, temp2=%d, temp3=%d, pres1=%.5f, pres2=%.5f, batt=%.5f",
+        //          moduleData.dataToObc.valve1_state,
+        //          moduleData.dataToObc.valve2_state,
+        //          moduleData.dataToObc.temperature1,
+        //          moduleData.dataToObc.temperature2,
+        //          moduleData.dataToObc.temperature3,
+        //          moduleData.dataToObc.pressure1,
+        //          moduleData.dataToObc.pressure2,
+        //          moduleData.dataToObc.battery_voltage);
+        // ESP_LOGW("NOW", "THERMISTOR1: %.2f C, THERMISTOR2: %.2f C (This data waits to be sent (obc need update))",
+        //           board_data_copy.thermistor_temp[0],
+        //           board_data_copy.thermistor_temp[1]);
 
         vTaskDelay(pdMS_TO_TICKS(moduleData.stateTimes[moduleData.obcState]));
     }

@@ -8,14 +8,15 @@
 
 
 typedef struct {
-    uint32_t time_ms;
     float temperature[3];
-    float pressure[2];
+    float termistor;
+    float pressure[3];
     float battery_voltage;
     float thermistor_temp[2];
     uint8_t valve_state[2];
 } BoardData_t;
 
+extern volatile uint32_t power_time; 
 extern BoardData_t boardData;
 extern volatile uint8_t valve1_state;
 extern volatile uint8_t valve2_state;
@@ -84,7 +85,18 @@ typedef struct DataToObc {
     float battery_voltage;
 } DataToObc;
 
-
+// typedef struct DataToObc {
+//     bool waken_up : 1;
+//     uint8_t  valve1_state : 2; // 0 - closed, 1 - open
+//     uint8_t  valve2_state : 2; // 0 - closed, 1 - open
+//     int16_t temperature1;
+//     int16_t temperature2;
+//     int16_t temperature3;
+//     float pressure1;
+//     float pressure2;
+//     float pressure3;
+//     float battery_voltage;
+// } DataToObc;
 
 
 typedef struct { 

@@ -46,13 +46,13 @@
 
 
 /*TODO
-Cli
-I2C scanner
-Buzzer
+Cli Napisane ale trzeba uzupelniac na bierzaco
+I2C scanner DONE
+Buzzer napiany trzeba dodac nutki
 Press
 Servo
 Solenoid
-Charging data
+Charging data DONE
 Thermocouple
 Dump Valve
 SD
