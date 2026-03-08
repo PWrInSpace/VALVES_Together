@@ -6,20 +6,34 @@
 #include "solenoid_config.h"
 #include "servo_config.h"
 
+typedef struct {
+    float vbat;
+    float vin;
+    float ibat;
+    float iin;
+    float die_temp;
+    float vout;
+    uint8_t charger_status;
+    uint8_t charger_state;
+
+
+} ChargerData_t;
 
 typedef struct {
     float temperature[3];
-    float termistor;
     float pressure[3];
-    float battery_voltage;
-    float thermistor_temp[2];
-    uint8_t valve_state[2];
+    float termistor;
+    uint8_t ign_con;
+    uint8_t i_jump_flag;
+    ChargerData_t chargerData;
+
 } BoardData_t;
 
-extern volatile uint32_t power_time; 
-extern BoardData_t boardData;
+
+
 extern volatile uint8_t valve1_state;
 extern volatile uint8_t valve2_state;
+extern BoardData_t boardData;
 extern SemaphoreHandle_t BoardDataSemaphore;
 
 
@@ -108,5 +122,6 @@ typedef struct {
 
 
 esp_err_t board_data_init(void);
+uint64_t power_time();
 
 extern volatile ModuleData moduleData;

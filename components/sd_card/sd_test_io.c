@@ -112,7 +112,7 @@ void check_sd_card_pins(pin_configuration_t *config, const int pin_count)
         io_conf.mode = GPIO_MODE_INPUT_OUTPUT_OD;
         io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL(config->pins[i]);
         io_conf.pull_down_en = 0;
-        io_conf.pull_up_en = 1;
+        io_conf.pull_up_en = 0;
         gpio_config(&io_conf);
     }
 

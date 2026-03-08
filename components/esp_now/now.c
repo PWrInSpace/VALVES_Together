@@ -183,7 +183,6 @@ void now_send_data_to_obc(void *arg) {
         moduleData.dataToObc.temperature3 = board_data_copy.temperature[2];
         moduleData.dataToObc.pressure1 = board_data_copy.pressure[0];
         moduleData.dataToObc.pressure2 = board_data_copy.pressure[1];
-        moduleData.dataToObc.battery_voltage = board_data_copy.battery_voltage;
         moduleData.dataToObc.valve1_state = valve1_state;
         moduleData.dataToObc.valve2_state = valve2_state;
             

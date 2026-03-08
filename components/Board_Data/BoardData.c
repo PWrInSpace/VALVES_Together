@@ -2,6 +2,7 @@
 #include <esp_err.h>
 #include <string.h>
 #include "valve_board_config.h"
+#include "esp_timer.h"
 
 BoardData_t boardData;
 SemaphoreHandle_t BoardDataSemaphore;
@@ -12,17 +13,12 @@ volatile ModuleData moduleData = {
     .stateTimes = {0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
-#ifdef SOL_N2O_N2_CONFIG
-volatile uint8_t valve1_state = 1; // N2O valve
-#else
 volatile uint8_t valve1_state = 0;
-#endif
-
 volatile uint8_t valve2_state = 0;
+uint64_t start_time_us;
 
 esp_err_t board_data_init(void) {
-    // Initialize semaphore``````````````````
-
+    start_time_us = esp_timer_get_time();
     BoardDataSemaphore = xSemaphoreCreateMutex();
     if (BoardDataSemaphore == NULL) {
         return ESP_ERR_NO_MEM;
@@ -48,7 +44,11 @@ esp_err_t board_data_init(void) {
 
     memcpy((uint8_t *)moduleData.stateTimes, (uint8_t *)stateTimes, sizeof(stateTimes));
 
-    // Initialize board data (valves are initialized in valves_init())
     return ESP_OK;
+}
+
+uint64_t power_time()
+{
+    return (esp_timer_get_time() - start_time_us);
 }
 

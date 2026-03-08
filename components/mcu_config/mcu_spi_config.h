@@ -25,13 +25,12 @@
 #include "rom/gpio.h"
 #include "sdkconfig.h"
 #include "soc/gpio_struct.h"
-//TODO: zmienic pingy gdy bedize plytka
 #define MCU_SPI_DEFAULT_CONFIG()                   \
   {                                                \
     .host_id = SDSPI_DEFAULT_HOST,                          \
-    .bus_config = {.miso_io_num = 19, \
-                   .mosi_io_num = 23, \
-                   .sclk_io_num = 18,  \
+    .bus_config = {.miso_io_num = 13, \
+                   .mosi_io_num = 11, \
+                   .sclk_io_num = 12,  \
                    .quadwp_io_num = -1,            \
                    .quadhd_io_num = -1,            \
                    .max_transfer_sz = 4000},       \

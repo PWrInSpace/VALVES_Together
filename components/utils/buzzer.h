@@ -1,6 +1,8 @@
 #ifndef buzzer_h
 #define buzzer_h
 
+#include "esp_err.h"
+
 #define BUZZER_GPIO 36
 
 #define NOTE_C4  262
@@ -16,7 +18,7 @@
 #define NOTE_E5  659
 #define NOTE_F5  698
 
-void buzzer_init();
+esp_err_t buzzer_init();
 void play_tone(int freq, int duration_ms);
 void imperial_march();
 void ode_to_joy();

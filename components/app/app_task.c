@@ -22,6 +22,7 @@
 #include "commands.h"
 #include "esp_timer.h"
 #include "valve_board_config.h"
+#include "BoardData.h"
 
 
 #define APP_TASK_STACK_SIZE 8192
@@ -52,14 +53,6 @@ esp_err_t app_task_deinit(void) {
 }
 
 void app_task(void *arg) {
-    uint32_t start_time_us = esp_timer_get_time();
-
-    // #ifdef SERVO_N20_CONFIG
-    // #elif defined(SERVO_ETH_N2_CONFIG)
-    // #elif defined(SOL_ETH_CONFIG)
-    // #elif defined(SOL_N2O_N2_CONFIG)
-    // #endif
-
 
     #ifdef SERVO_N20_CONFIG
     ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
@@ -81,14 +74,6 @@ void app_task(void *arg) {
     #endif
 
     while(1) {
-        if(xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-            // time_ms = (uint32_t)(esp_timer_get_time() - start_time_us) / 1000;
-            boardData.valve_state[0] = valve1_state;
-            boardData.valve_state[1] = valve2_state;
-            xSemaphoreGive(BoardDataSemaphore);
-        }
-        
-
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

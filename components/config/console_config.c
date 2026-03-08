@@ -21,6 +21,7 @@
 #include "commands.h"
 #include "i2c_scan.h"
 #include "ltc4162.h"
+#include "buzzer.h"
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -42,6 +43,15 @@ int run_ltc4162_monitor(int argc, char **argv) {
     return 0;
 }
 
+int play_imperial_march(int argc, char **argv) {
+    imperial_march();
+    return 0;
+}
+
+int play_ode_to_joy(int argc, char **argv) {
+    ode_to_joy();
+    return 0;
+}
 
  // Place for the console configuration
 
@@ -51,6 +61,8 @@ int run_ltc4162_monitor(int argc, char **argv) {
  {"reset", "Reset the device", NULL, reset_device, NULL, NULL, NULL},
  {"i2c_scan", "Scan the I2C bus for devices", NULL, run_i2c_scan, NULL, NULL, NULL},
  {"ltc_monitor", "Run LTC4162 debug monitor", NULL, run_ltc4162_monitor, NULL, NULL, NULL},
+    {"play_imperial_march", "Play the Imperial March on the buzzer", NULL, play_imperial_march, NULL, NULL, NULL},
+    {"play_ode_to_joy", "Play Ode to Joy on the buzzer", NULL, play_ode_to_joy, NULL, NULL, NULL},
  };
 
 esp_err_t console_config_init() {

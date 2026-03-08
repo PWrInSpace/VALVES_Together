@@ -38,6 +38,18 @@
 #define SOL_N20_SERVO_ETH_CONFIG
 // #define SOL_N2_ETH_CONFIG
 
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+    #define CONFIG_NAME "SOL_N20_SERVO_ETH_CONFIG"
+#elif defined(SOL_N2_ETH_CONFIG)
+    #define CONFIG_NAME "SOL_N2_ETH_CONFIG"
+#elif defined(SERVO_N20_CONFIG)
+    #define CONFIG_NAME "SERVO_N20_CONFIG"
+#elif defined(SERVO_N2_CONFIG)
+    #define CONFIG_NAME "SERVO_N2_CONFIG"
+#else
+    #error "No valve configuration defined! Please define one of: SERVO_N20_CONFIG"
+#endif
+
 
 // #define PRESSURE_CALIBRATION
 // #define THERMISTOR_CALIBRATION

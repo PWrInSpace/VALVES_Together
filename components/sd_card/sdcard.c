@@ -11,11 +11,13 @@
 
 #define TAG "SDCARD"
 
-const char* names[] = {"CLK ", "MOSI", "MISO", "CS  "};
-const int pins[] = {18, //TODO zmienic gdy bedzie plytka
-                    23,
-                    19,
-                    5};
+const char* names[] = {"CLK ", "MOSI", "MISO", "CS   "};
+const int pins[] = {
+                    12, // CLK
+                    11, // MOSI
+                    13, // MISO
+                    10  // CS
+                  };
 const int pin_count = sizeof(pins)/sizeof(pins[0]);
 
 pin_configuration_t pin_config = {
@@ -24,10 +26,10 @@ pin_configuration_t pin_config = {
 };
 
 bool SD_init(sd_card_t *sd_card, sd_card_config_t *cfg) {
-  sd_card->spi_host = cfg->spi_host;
-  sd_card->cs_pin = cfg->cs_pin;
-  sd_card->card_detect_pin = cfg->cd_pin;
-  sd_card->mount_point = cfg->mount_point;
+  sd_card->spi_host = SDSPI_DEFAULT_HOST;
+  sd_card->cs_pin = 10;
+  sd_card->card_detect_pin = -1;
+  sd_card->mount_point = "/sdcard";
 
   // Options for mounting the filesystem
   if (SD_mount(sd_card) == false) {
@@ -54,11 +56,18 @@ bool SD_mount(sd_card_t *sd_card) {
       .allocation_unit_size = 16 * 1024};
 
   sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+
   // host.slot = sd_card->spi_host;
-  host.max_freq_khz = 3000; //TODO zwiekszyc na wiecej gdy bedzie plytka
+  // host.max_freq_khz = SDMMC_FREQ_PROBING;
   sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
-  slot_config.gpio_cs = sd_card->cs_pin;
-  slot_config.host_id = host.slot;
+  slot_config.gpio_cs = 10;
+  slot_config.host_id = SDSPI_DEFAULT_HOST;
+  
+  // sdspi_dev_handle_t sd_handle;
+
+  // sdspi_host_init();
+
+  // sdspi_host_init_device(&slot_config, &sd_handle);
 
   res = esp_vfs_fat_sdspi_mount(sd_card->mount_point, &host, &slot_config,
                                 &mount_config, &sd_card->card);

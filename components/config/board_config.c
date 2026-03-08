@@ -30,11 +30,11 @@
 #include "voltage_measure.h"
 #include "pressure_task.h"
 #include "sd_task.h"
-#include "voltage_measure_task.h"
 #include "adc_manager.h"
 #include "temperature_task.h"
 #include "mcu_i2c_config.h"
 #include "ltc4162.h"
+#include "buzzer.h"
 
 
 #define TAG "BOARD_CONFIG"
@@ -44,19 +44,12 @@ void _led_delay(uint32_t _ms) {
 }
 
 board_config_t config = {
-    .board_name = "VALVES_Together_BOARD", //CHANGE TO REAL BOARD NAME
+    .board_name = CONFIG_NAME
 };
 
 esp_err_t board_config_init(void) {
 
     esp_err_t err;
-    
-    // err = console_config_init();
-
-    // if (err != ESP_OK) {
-    //     ESP_LOGE(TAG, "Console initialization failed");
-    //     return err;
-    // }
 
     // Initialize board data structure and semaphore
     err = board_data_init();
@@ -70,12 +63,12 @@ esp_err_t board_config_init(void) {
         return ESP_FAIL;
     }
 
-    // err = mcu_spi_init();
+    err = mcu_spi_init();
 
-    // if (err != ESP_OK) {
-    //     ESP_LOGE(TAG, "SPI initialization failed");
-    //     return err;
-    // }
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "SPI initialization failed");
+        return err;
+    }
 
     if(!timers_init())
     {
@@ -128,25 +121,21 @@ esp_err_t board_config_init(void) {
     err = ltc4162_init();
     if(err!=ESP_OK)
     {
-        ESP_LOGE(TAG, "LTC4162 initialization failed");
+        ESP_LOGW(TAG, "LTC4162 initialization failed");
+        ESP_LOGW(TAG, "Connect vbat or vin");
+    }
+
+    err = buzzer_init();
+    if(err!=ESP_OK)
+    {
+        ESP_LOGE(TAG, "Buzzer initialization failed");
         vTaskDelete(NULL);
     }
 
-    
-    // if(!pressure_sensors_init()) {
-    //     ESP_LOGE(TAG, "Pressure sensors initialization failed");
-    //     return ESP_FAIL;
-    // }
-
-    // if(!vol_mes_init()) {
-    //     ESP_LOGE(TAG, "Voltage measurement initialization failed");
-    //     return ESP_FAIL;
-    // }
-
-    // if(sd_task_init() != ESP_OK) {
-    //     ESP_LOGE(TAG, "SD card task initialization failed");
-    //     return ESP_FAIL;
-    // }
+    if(sd_task_init() != ESP_OK) {
+        ESP_LOGE(TAG, "SD card task initialization failed");
+        return ESP_FAIL;
+    }
 
 
 

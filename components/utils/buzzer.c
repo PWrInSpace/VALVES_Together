@@ -2,8 +2,9 @@
 #include "driver/ledc.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
 
-void buzzer_init()
+esp_err_t buzzer_init()
 {
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
@@ -26,6 +27,19 @@ void buzzer_init()
     ledc_channel_config(&ledc_channel);
 
     ESP_LOGI("BUZZER", "Buzzer initialized on GPIO %d", BUZZER_GPIO);
+    return ESP_OK;
+}
+
+void play_tone(int freq, int duration_ms)
+{
+    int duty = (1 << 10) / 2; // 50% duty cycle
+    ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    vTaskDelay(pdMS_TO_TICKS(duration_ms));
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    vTaskDelay(pdMS_TO_TICKS(50)); 
 }
 
 void imperial_march()
