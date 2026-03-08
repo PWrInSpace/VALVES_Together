@@ -15,9 +15,7 @@
 #include "freertos/task.h"
 
 #include "esp_log.h"
-#include "pressure_sensor.h"
 #include "BoardData.h"
-#include "voltage_measure.h"
 #include "valves_control.h"
 #include "commands.h"
 #include "esp_timer.h"

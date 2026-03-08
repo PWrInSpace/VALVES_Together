@@ -25,13 +25,8 @@
 #include "now.h"
 #include "solenoid_config.h"
 #include "servo_config.h"
-#include "pressure_sensor.h"
 #include "BoardData.h"
-#include "voltage_measure.h"
-#include "pressure_task.h"
 #include "sd_task.h"
-#include "adc_manager.h"
-#include "temperature_task.h"
 #include "mcu_i2c_config.h"
 #include "ltc4162.h"
 #include "buzzer.h"
@@ -56,11 +51,6 @@ esp_err_t board_config_init(void) {
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Board data initialization failed");
         return err;
-    }
-
-    if(!adc_manager_init()) {
-        ESP_LOGE(TAG, "ADC Manager initialization failed");
-        return ESP_FAIL;
     }
 
     err = mcu_spi_init();
