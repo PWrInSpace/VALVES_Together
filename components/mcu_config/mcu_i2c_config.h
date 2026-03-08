@@ -23,16 +23,15 @@
 
 #define SDA_GPIO 20
 #define SCL_GPIO 19
-#define CONFIG_I2C_MASTER_PORT_NUM I2C_NUM_0 
+#define CONFIG_I2C_MASTER_PORT_NUM I2C_NUM_0
 #define CONFIG_I2C_MASTER_FREQUENCY 100000
 #define CONFIG_I2C_MASTER_TIMEOUT_MS 1000
-#define MCU_I2C_DEFAULT_CONFIG()                                                      \
-  {                                                                                   \
-    .port = CONFIG_I2C_MASTER_PORT_NUM, .sda = CONFIG_I2C_SDA, .scl = CONFIG_I2C_SCL, \
-    .clk_speed = CONFIG_I2C_MASTER_FREQUENCY, .i2c_init_flag = false,                 \
+#define MCU_I2C_DEFAULT_CONFIG()                                               \
+  {                                                                            \
+    .port = CONFIG_I2C_MASTER_PORT_NUM, .sda = CONFIG_I2C_SDA,                 \
+    .scl = CONFIG_I2C_SCL, .clk_speed = CONFIG_I2C_MASTER_FREQUENCY,           \
+    .i2c_init_flag = false,                                                    \
   }
-
-
 
 typedef struct {
   i2c_port_t port;

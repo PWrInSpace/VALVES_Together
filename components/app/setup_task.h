@@ -18,4 +18,4 @@ void setup_task(void *arg);
 esp_err_t setup_task_init(void);
 esp_err_t setup_task_deinit(void);
 
-#endif //PWRINSPACE_CAN_TASK_H
+#endif // PWRINSPACE_CAN_TASK_H

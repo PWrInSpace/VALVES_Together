@@ -11,14 +11,14 @@
 
 #define TAG "SDCARD"
 
-const char* names[] = {"CLK ", "MOSI", "MISO", "CS   "};
+const char *names[] = {"CLK ", "MOSI", "MISO", "CS   "};
 const int pins[] = {
-                    12, // CLK
-                    11, // MOSI
-                    13, // MISO
-                    10  // CS
-                  };
-const int pin_count = sizeof(pins)/sizeof(pins[0]);
+    12, // CLK
+    11, // MOSI
+    13, // MISO
+    10  // CS
+};
+const int pin_count = sizeof(pins) / sizeof(pins[0]);
 
 pin_configuration_t pin_config = {
     .names = names,
@@ -62,7 +62,7 @@ bool SD_mount(sd_card_t *sd_card) {
   sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
   slot_config.gpio_cs = 10;
   slot_config.host_id = SDSPI_DEFAULT_HOST;
-  
+
   // sdspi_dev_handle_t sd_handle;
 
   // sdspi_host_init();
@@ -72,18 +72,18 @@ bool SD_mount(sd_card_t *sd_card) {
   res = esp_vfs_fat_sdspi_mount(sd_card->mount_point, &host, &slot_config,
                                 &mount_config, &sd_card->card);
   if (res != ESP_OK) {
-    ESP_LOGE("SD_INIT", "esp_vfs_fat_sdspi_mount failed: %s (0x%x)", esp_err_to_name(res), res);
+    ESP_LOGE("SD_INIT", "esp_vfs_fat_sdspi_mount failed: %s (0x%x)",
+             esp_err_to_name(res), res);
     if (res == ESP_FAIL) {
-      ESP_LOGE(TAG,
-               "Failed to mount filesystem. "
-               "If you want the card to be formatted, set the"
-               "CONFIG_EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig option.");
+      ESP_LOGE(TAG, "Failed to mount filesystem. "
+                    "If you want the card to be formatted, set the"
+                    "CONFIG_EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig option.");
     } else {
       ESP_LOGE(TAG,
                "Failed to initialize the card (%s). "
                "Make sure SD card lines have pull-up resistors in place.",
                esp_err_to_name(res));
-               check_sd_card_pins(&pin_config, pin_count);
+      check_sd_card_pins(&pin_config, pin_count);
     }
     return false;
   }

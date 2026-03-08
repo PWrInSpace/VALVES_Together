@@ -7,7 +7,6 @@
 #include "esp_log.h"
 #define MOUNT_POINT "/sdcard"
 
-
 extern TaskHandle_t sd_task;
 extern volatile bool new_filename_flag;
 esp_err_t sd_task_init(void);

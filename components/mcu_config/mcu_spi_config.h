@@ -15,32 +15,32 @@
 #include <stdbool.h>
 
 #include "driver/gpio.h"
-#include "driver/spi_common.h"
 #include "driver/sdspi_host.h"
+#include "driver/spi_common.h"
 #include "esp_log.h"
 #include "esp_rom_gpio.h"
-#include "freertos/task.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "freertos/task.h"
 #include "rom/gpio.h"
 #include "sdkconfig.h"
 #include "soc/gpio_struct.h"
-#define MCU_SPI_DEFAULT_CONFIG()                   \
-  {                                                \
-    .host_id = SDSPI_DEFAULT_HOST,                          \
-    .bus_config = {.miso_io_num = 13, \
-                   .mosi_io_num = 11, \
-                   .sclk_io_num = 12,  \
-                   .quadwp_io_num = -1,            \
-                   .quadhd_io_num = -1,            \
-                   .max_transfer_sz = 4000},       \
-    .dev_config = {.clock_speed_hz = 400000,       \
-                   .mode = 0,                      \
-                   .spics_io_num = -1,             \
-                   .queue_size = 1,                \
-                   .flags = 0,                     \
-                   .pre_cb = NULL},                \
-    .spi_init_flag = false,                        \
+#define MCU_SPI_DEFAULT_CONFIG()                                               \
+  {                                                                            \
+    .host_id = SDSPI_DEFAULT_HOST,                                             \
+    .bus_config = {.miso_io_num = 13,                                          \
+                   .mosi_io_num = 11,                                          \
+                   .sclk_io_num = 12,                                          \
+                   .quadwp_io_num = -1,                                        \
+                   .quadhd_io_num = -1,                                        \
+                   .max_transfer_sz = 4000},                                   \
+    .dev_config = {.clock_speed_hz = 400000,                                   \
+                   .mode = 0,                                                  \
+                   .spics_io_num = -1,                                         \
+                   .queue_size = 1,                                            \
+                   .flags = 0,                                                 \
+                   .pre_cb = NULL},                                            \
+    .spi_init_flag = false,                                                    \
   }
 
 typedef struct {
@@ -62,7 +62,7 @@ esp_err_t mcu_spi_init(void);
 /**
  * \brief Deinitializes the SPI bus
  * \return ESP_OK on success, ESP_FAIL otherwise
-*/
+ */
 esp_err_t mcu_spi_deinit(void);
 
 #endif /* PWRINSPACE_MCU_SPI_CONFIG_H_ */

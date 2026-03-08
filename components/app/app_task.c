@@ -14,14 +14,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "esp_log.h"
 #include "BoardData.h"
-#include "valves_control.h"
 #include "commands.h"
+#include "esp_log.h"
 #include "esp_timer.h"
 #include "valve_board_config.h"
-#include "BoardData.h"
-
+#include "valves_control.h"
 
 #define APP_TASK_STACK_SIZE 8192
 #define APP_TASK_PRIORITY 5
@@ -30,48 +28,50 @@
 static TaskHandle_t app_task_handle = NULL;
 
 esp_err_t app_task_init(void) {
-    
-    if(xTaskCreatePinnedToCore(app_task, "app_task", APP_TASK_STACK_SIZE, NULL, APP_TASK_PRIORITY, &app_task_handle, APP_TASK_CORE_ID) == pdPASS) {
-        ESP_LOGI("APP_TASK", "App task created successfully");
-    } else {
-        ESP_LOGE("APP_TASK", "Failed to create app task");
-        return ESP_FAIL;
-    }
 
-    return ESP_OK;
+  if (xTaskCreatePinnedToCore(app_task, "app_task", APP_TASK_STACK_SIZE, NULL,
+                              APP_TASK_PRIORITY, &app_task_handle,
+                              APP_TASK_CORE_ID) == pdPASS) {
+    ESP_LOGI("APP_TASK", "App task created successfully");
+  } else {
+    ESP_LOGE("APP_TASK", "Failed to create app task");
+    return ESP_FAIL;
+  }
+
+  return ESP_OK;
 }
 
 esp_err_t app_task_deinit(void) {
-    if (app_task_handle != NULL) {
-        vTaskDelete(app_task_handle);
-        app_task_handle = NULL;
-    }
-    
-    return ESP_OK;
+  if (app_task_handle != NULL) {
+    vTaskDelete(app_task_handle);
+    app_task_handle = NULL;
+  }
+
+  return ESP_OK;
 }
 
 void app_task(void *arg) {
 
-    #ifdef SERVO_N20_CONFIG
-    ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
-    chandle_valve_cmd(N20_VALVE_CLOSE, 0);
-    #elif defined(SERVO_N2_CONFIG)
-    ESP_LOGI("APP_TASK", "SERVO_N2_CONFIG defined");
-    chandle_valve_cmd(N2_VALVE_CLOSE, 0);
-    #elif defined(SOL_N2_ETH_CONFIG)
-    ESP_LOGI("APP_TASK", "SOL_N2_ETH_CONFIG defined");
-    chandle_valve_cmd(ETH_SOL_CLOSE, 0);
-    vTaskDelay(pdMS_TO_TICKS(100));
-    chandle_valve_cmd(N2_SOL_CLOSE, 0);
-    #elif defined(SOL_N20_SERVO_ETH_CONFIG)
-    ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
-        chandle_valve_cmd(N20_SOL_CLOSE, 0);
-        vTaskDelay(pdMS_TO_TICKS(100));
-        chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
-    ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
-    #endif
+#ifdef SERVO_N20_CONFIG
+  ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
+  chandle_valve_cmd(N20_VALVE_CLOSE, 0);
+#elif defined(SERVO_N2_CONFIG)
+  ESP_LOGI("APP_TASK", "SERVO_N2_CONFIG defined");
+  chandle_valve_cmd(N2_VALVE_CLOSE, 0);
+#elif defined(SOL_N2_ETH_CONFIG)
+  ESP_LOGI("APP_TASK", "SOL_N2_ETH_CONFIG defined");
+  chandle_valve_cmd(ETH_SOL_CLOSE, 0);
+  vTaskDelay(pdMS_TO_TICKS(100));
+  chandle_valve_cmd(N2_SOL_CLOSE, 0);
+#elif defined(SOL_N20_SERVO_ETH_CONFIG)
+  ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
+  chandle_valve_cmd(N20_SOL_CLOSE, 0);
+  vTaskDelay(pdMS_TO_TICKS(100));
+  chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
+  ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
+#endif
 
-    while(1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+  while (1) {
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
 }

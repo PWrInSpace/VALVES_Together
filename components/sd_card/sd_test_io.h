@@ -13,13 +13,12 @@ extern "C" {
 #endif
 
 typedef struct {
-    const char** names;
-    const int* pins;
+  const char **names;
+  const int *pins;
 #if CONFIG_EXAMPLE_ENABLE_ADC_FEATURE
-    const int *adc_channels;
+  const int *adc_channels;
 #endif
 } pin_configuration_t;
-
 
 void check_sd_card_pins(pin_configuration_t *config, const int pin_count);
 
