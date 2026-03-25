@@ -72,6 +72,10 @@ void app_task(void *arg) {
 #endif
 
   while (1) {
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+      boardData.power_time = power_time();
+      xSemaphoreGive(BoardDataSemaphore);
+    }
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 }

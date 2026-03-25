@@ -19,6 +19,7 @@ typedef struct {
 } ChargerData_t;
 
 typedef struct {
+  uint64_t power_time;
   float temperature[3];
   float pressure[3];
   float termistor;

@@ -1,7 +1,7 @@
 #ifndef VALVE_BOARD_CONFIG_H
 #define VALVE_BOARD_CONFIG_H
 
-// SETUP STATIC 20.02.2026
+// SETUP NOMINALNY
 //  -------------
 //
 //      N2
@@ -9,16 +9,16 @@
 //
 //  -------------
 //
-//  SERVO N2      | SERVO_N2_CONFIG              --GPIO15    valve1_state
-//  SOLENOID N2         |                        --GPIO16    valve2_state
-//  SOLENOID ETH        | SOL_N2_ETH_CONFIG      --GPIO15    valve1_state
+//  SERVO N2      | SERVO_N2_CONFIG              --GPIO47    valve1_state
+//  SOLENOID N2         |                        --GPIO48    valve2_state
+//  SOLENOID ETH        | SOL_N2_ETH_CONFIG      --GPIO47    valve1_state
 //
 //  -------------
 //      ETH
 //  -------------
 //
-//  SOLENOID N2O    |                            --GPIO16    valve1_state
-//  SERVO ETH       | SOL_N20_SERVO_ETH_CONFIG   --GPIO15    valve2_state
+//  SOLENOID N2O    |                            --GPIO48    valve1_state
+//  SERVO ETH       | SOL_N20_SERVO_ETH_CONFIG   --GPIO47    valve2_state
 //  -------------
 //
 //
@@ -28,7 +28,7 @@
 //
 //  -------------
 //
-//  SERVO N20       | SERVO_N20_CONFIG           --GPIO15    valve1_state
+//  SERVO N20       | SERVO_N20_CONFIG           --GPIO47    valve1_state
 //
 
 // #define SERVO_N20_CONFIG
@@ -56,13 +56,14 @@
 /*TODO
 Cli Napisane ale trzeba uzupelniac na bierzaco
 I2C scanner DONE
+Servo DONE
+Solenoid DONE
+Charging data DONE
+Dump Valve DONE
+SD DONE
+
 Buzzer napiany trzeba dodac nutki
 Press
-Servo
-Solenoid
-Charging data DONE
 Thermocouple
-Dump Valve
-SD
 RGB
 */

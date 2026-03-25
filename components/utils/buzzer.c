@@ -33,7 +33,7 @@ void play_tone(int freq, int duration_ms) {
   vTaskDelay(pdMS_TO_TICKS(duration_ms));
   ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
   ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-  vTaskDelay(pdMS_TO_TICKS(50));
+  vTaskDelay(pdMS_TO_TICKS(20));
 }
 
 void imperial_march() {
@@ -81,4 +81,66 @@ void ode_to_joy() {
   play_tone(NOTE_E4, 450);
   play_tone(NOTE_D4, 150);
   play_tone(NOTE_D4, 600);
+}
+
+void harry_potter_theme() {
+  play_tone(NOTE_B4, 300);
+  play_tone(NOTE_E5, 600);
+  play_tone(NOTE_G5, 300);
+  play_tone(NOTE_FS5, 300);
+  play_tone(NOTE_E5, 600);
+
+  play_tone(NOTE_B5, 300);
+  play_tone(NOTE_A5, 600);
+  play_tone(NOTE_FS5, 600);
+
+  play_tone(NOTE_E5, 300);
+  play_tone(NOTE_G5, 600);
+  play_tone(NOTE_FS5, 300);
+  play_tone(NOTE_DS5, 300);
+  play_tone(NOTE_F5, 600);
+
+  play_tone(NOTE_B4, 300);
+  play_tone(NOTE_E5, 600);
+}
+
+void good_bad_ugly() {
+  play_tone(NOTE_E4, 300);
+  play_tone(NOTE_A4, 300);
+  play_tone(NOTE_E4, 300);
+
+  play_tone(NOTE_A4, 600);
+  play_tone(NOTE_E4, 300);
+  play_tone(NOTE_A4, 300);
+
+  play_tone(NOTE_E4, 300);
+  play_tone(NOTE_A4, 800);
+}
+
+void mario_theme() {
+  play_tone(NOTE_E5, 150);
+  play_tone(NOTE_E5, 150);
+  play_tone(0, 150);
+
+  play_tone(NOTE_E5, 150);
+  play_tone(0, 150);
+  play_tone(NOTE_C5, 150);
+  play_tone(NOTE_E5, 150);
+
+  play_tone(NOTE_G5, 400);
+  play_tone(0, 400);
+
+  play_tone(NOTE_G4, 400);
+}
+
+void nokia_tune() {
+  play_tone(NOTE_E5, 250);
+  play_tone(NOTE_D5, 250);
+  play_tone(NOTE_FS4, 500);
+  play_tone(NOTE_GS4, 500);
+
+  play_tone(NOTE_CS5, 250);
+  play_tone(NOTE_B4, 250);
+  play_tone(NOTE_D4, 500);
+  play_tone(NOTE_E4, 500);
 }

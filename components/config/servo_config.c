@@ -6,14 +6,16 @@
 
 #ifdef SERVO_N20_CONFIG
 Servo_t servos[SERVO_COUNT] = {
-    [N2O_FILL_SERVO] = SERVO_INIT(15),
+    [N2O_FILL_SERVO] = SERVO_INIT(47),
 };
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 Servo_t servos[SERVO_COUNT] = {
-    [ETH_FILL_SERVO] = SERVO_INIT(15),
+    [ETH_FILL_SERVO] = SERVO_INIT(47),
 };
 #elif defined(SERVO_N2_CONFIG)
-Servo_t servos[SERVO_COUNT] = {[N2_FILL_SERVO] = SERVO_INIT(15)};
+Servo_t servos[SERVO_COUNT] = {
+    [N2_FILL_SERVO] = SERVO_INIT(47),
+};
 #else
 Servo_t servos[SERVO_COUNT] = {};
 #endif

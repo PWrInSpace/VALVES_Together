@@ -22,7 +22,10 @@
 #include "BoardData.h"
 #include "buzzer.h"
 #include "console_config.h"
+#include "igniter_driver.h"
 #include "ltc4162.h"
+#include "mcu_adc_config.h"
+#include "mcu_gpio_config.h"
 #include "mcu_i2c_config.h"
 #include "mcu_spi_config.h"
 #include "now.h"
@@ -48,8 +51,13 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
-  err = mcu_spi_init();
+  err = mcu_gpio_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "GPIO initialization failed");
+    return err;
+  }
 
+  err = mcu_spi_init();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "SPI initialization failed");
     return err;
@@ -107,10 +115,21 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  if (sd_task_init() != ESP_OK) {
-    ESP_LOGE(TAG, "SD card task initialization failed");
+  if (mcu_adc_init() != ESP_OK) {
+    ESP_LOGE(TAG, "ADC initialization failed");
     return ESP_FAIL;
   }
+
+  err = igniter_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Igniter initialization failed");
+    vTaskDelete(NULL);
+  }
+
+  // if (sd_task_init() != ESP_OK) {
+  //   ESP_LOGE(TAG, "SD card task initialization failed");
+  //   return ESP_FAIL;
+  // }
 
   createNowSendTask();
   // pressure_task_init();

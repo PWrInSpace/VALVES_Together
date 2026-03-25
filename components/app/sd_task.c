@@ -110,7 +110,7 @@ bool save_text(const char *path, BoardData_t *data) {
     fprintf(f,
             "%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d,%d,%d,%.2f,%.2f,"
             "%.2f,%.2f,%d,%d\n",
-            power_time(), data[i].temperature[0], data[i].temperature[1],
+            data[i].power_time, data[i].temperature[0], data[i].temperature[1],
             data[i].temperature[2], data[i].pressure[0], data[i].pressure[1],
             data[i].pressure[2], data[i].termistor, data[i].ign_con,
             data[i].i_jump_flag, valve1_state, valve2_state,
