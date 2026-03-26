@@ -2,10 +2,16 @@
 #include "Solenoid.h"
 #include "esp_log.h"
 
-#ifdef SOL_N2_ETH_CONFIG
+#ifdef SOL_N2_CONFIG
 
 Valve valves[NUM_OF_SOLENOIDS] = {
     [N2_FILL_SOL] = {.name = N2_FILL_SOL},
+
+};
+
+#elif defined(SOL_ETH_CONFIG)
+
+Valve valves[NUM_OF_SOLENOIDS] = {
     [ETH_FILL_SOL] = {.name = ETH_FILL_SOL},
 
 };

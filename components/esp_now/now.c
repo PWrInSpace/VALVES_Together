@@ -44,11 +44,11 @@ bool nowInit() {
 
 #ifdef SERVO_N20_CONFIG
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x55};
-#elif defined(SERVO_N2_CONFIG)
+#elif defined(SOL_N2_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x66};
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x77};
-#elif defined(SOL_N2_ETH_CONFIG)
+#elif defined(SOL_ETH_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x88};
 #endif
 
@@ -174,8 +174,6 @@ void now_send_data_to_obc(void *arg) {
       continue;
     }
     moduleData.dataToObc.temperature1 = board_data_copy.temperature[0];
-    moduleData.dataToObc.temperature2 = board_data_copy.temperature[1];
-    moduleData.dataToObc.temperature3 = board_data_copy.temperature[2];
     moduleData.dataToObc.pressure1 = board_data_copy.pressure[0];
     moduleData.dataToObc.pressure2 = board_data_copy.pressure[1];
     moduleData.dataToObc.valve1_state = valve1_state;

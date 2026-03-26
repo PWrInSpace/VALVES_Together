@@ -4,17 +4,26 @@
 #include "Solenoid.h"
 #include "valve_board_config.h"
 
-#ifdef SOL_N2_ETH_CONFIG
+#ifdef SOL_ETH_CONFIG
 
 typedef enum {
   ETH_FILL_SOL,
-  N2_FILL_SOL,
   NUM_OF_SOLENOIDS // Count of solenoids
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
     [ETH_FILL_SOL] = GPIO_NUM_47,
-    [N2_FILL_SOL] = GPIO_NUM_48,
+};
+
+#elif defined(SOL_N2_CONFIG)
+
+typedef enum {
+  N2_FILL_SOL,
+  NUM_OF_SOLENOIDS // Count of solenoids
+} ValveName;
+
+static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
+    [N2_FILL_SOL] = GPIO_NUM_47,
 };
 
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)

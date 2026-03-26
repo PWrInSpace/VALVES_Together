@@ -86,28 +86,17 @@ typedef enum {
 
 typedef struct DataToObc {
   bool waken_up : 1;
+  bool dump_valve_arm : 1;  // 0 not armed, 1 armed
+  bool dump_valve_cont : 1; // 0 no cont, 1 cont
   uint8_t valve1_state : 2; // 0 - closed, 1 - open
   uint8_t valve2_state : 2; // 0 - closed, 1 - open
   int16_t temperature1;
-  int16_t temperature2;
-  int16_t temperature3;
   float pressure1;
   float pressure2;
   float battery_voltage;
+  float bettery_consumption;
+  float charger_temperature;
 } DataToObc;
-
-// typedef struct DataToObc {
-//     bool waken_up : 1;
-//     uint8_t  valve1_state : 2; // 0 - closed, 1 - open
-//     uint8_t  valve2_state : 2; // 0 - closed, 1 - open
-//     int16_t temperature1;
-//     int16_t temperature2;
-//     int16_t temperature3;
-//     float pressure1;
-//     float pressure2;
-//     float pressure3;
-//     float battery_voltage;
-// } DataToObc;
 
 typedef struct {
   DataFromObc dataFromObc;

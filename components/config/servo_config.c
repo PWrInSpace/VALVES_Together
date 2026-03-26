@@ -12,10 +12,10 @@ Servo_t servos[SERVO_COUNT] = {
 Servo_t servos[SERVO_COUNT] = {
     [ETH_FILL_SERVO] = SERVO_INIT(47),
 };
-#elif defined(SERVO_N2_CONFIG)
-Servo_t servos[SERVO_COUNT] = {
-    [N2_FILL_SERVO] = SERVO_INIT(47),
-};
+// #elif defined(SERVO_N2_CONFIG)
+// Servo_t servos[SERVO_COUNT] = {
+//     [N2_FILL_SERVO] = SERVO_INIT(47),
+// };
 #else
 Servo_t servos[SERVO_COUNT] = {};
 #endif

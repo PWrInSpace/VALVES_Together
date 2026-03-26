@@ -79,6 +79,8 @@ igniter_status_t igniter_fire(igniter_struct_t *igniter);
 
 igniter_status_t igniter_reset(igniter_struct_t *igniter);
 
+igniter_status_t igniter_fire_time(igniter_struct_t *igniter, uint64_t time_ms);
+
 igniter_state_t igniter_init();
 
 #endif /* PWRINSPACE_IGNITER_DRIVER_H_ */

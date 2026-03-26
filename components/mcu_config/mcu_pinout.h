@@ -5,5 +5,7 @@
 #define _SOFT_ARM_GPIO 14
 #define _IGN_CON_GPIO 9
 #define _DUMP_VALVE_GPIO 21
+#define _VALVE1_GPIO 47
+#define _VALVE2_GPIO 48
 
 #endif // mcu_pinout_h

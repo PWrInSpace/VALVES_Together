@@ -6,6 +6,8 @@
 ///===-----------------------------------------------------------------------------------------===//
 #include "igniter_driver.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "mcu_adc_config.h"
 #include "mcu_gpio_config.h"
 
@@ -18,8 +20,8 @@ igniter_state_t igniter_init() {
       ._adc_analog_read_raw = _mcu_adc_read_raw,
       ._gpio_set_level = _mcu_gpio_set_level,
       .adc_channel_continuity = IGNITER_1_CHANNEL_INDEX,
-      .gpio_num_arm = SOFT_ARM_GPIO,
-      .gpio_num_fire = DUMP_VALVE_GPIO,
+      .gpio_num_arm = SOFT_ARM_GPIO_INDEX,
+      .gpio_num_fire = DUMP_VALVE_GPIO_INDEX,
       .drive = IGNITER_DRIVE_POSITIVE,
       .state = IGNITER_STATE_WAITING,
   };
@@ -44,7 +46,7 @@ igniter_status_t igniter_check_continuity(igniter_struct_t *igniter,
     ESP_LOGE(TAG, "Failed to read analog value from ADC for continuity check");
     return IGNITER_ADC_ERR;
   }
-  ESP_LOGD(TAG, "Continuity check value: %d", value);
+  ESP_LOGI(TAG, "Continuity check value: %d", value);
   if (value > IGNITER_CONTINUITY_THRESHOLD) {
     *continuity = IGNITER_CONTINUITY_OK;
   } else {
@@ -110,7 +112,9 @@ igniter_status_t igniter_fire(igniter_struct_t *igniter) {
     ESP_LOGE(TAG, "Failed to set GPIO level for firing");
     return IGNITER_GPIO_ERR;
   }
+
   igniter->state = IGNITER_STATE_FIRED;
+
   return IGNITER_OK;
 }
 
@@ -129,5 +133,24 @@ igniter_status_t igniter_reset(igniter_struct_t *igniter) {
     return IGNITER_GPIO_ERR;
   }
   igniter->state = IGNITER_STATE_WAITING;
+  return IGNITER_OK;
+}
+
+igniter_status_t igniter_fire_time(igniter_struct_t *igniter,
+                                   uint64_t time_ms) {
+  igniter_status_t status = igniter_fire(igniter_cfg);
+  if (status != IGNITER_OK) {
+    ESP_LOGE(TAG, "Igniter firing failed with status %d", status);
+    return IGNITER_FAIL;
+  }
+  ESP_LOGI(TAG, "Igniter fired successfully");
+
+  vTaskDelay(pdMS_TO_TICKS(time_ms));
+
+  status = igniter_reset(igniter_cfg);
+  if (status != IGNITER_OK) {
+    ESP_LOGE(TAG, "Igniter reset failed with status %d", status);
+    return IGNITER_FAIL;
+  }
   return IGNITER_OK;
 }

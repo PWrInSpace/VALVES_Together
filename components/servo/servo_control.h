@@ -27,9 +27,9 @@
 #ifdef SERVO_N20_CONFIG
 #define VALVE_CLOSE_POSITION 142U
 #define VALVE_OPEN_POSITION 35U
-#elif defined(SERVO_N2_CONFIG)
-#define VALVE_CLOSE_POSITION 30U
-#define VALVE_OPEN_POSITION 127U
+// #elif defined(SERVO_N2_CONFIG)
+// #define VALVE_CLOSE_POSITION 30U
+// #define VALVE_OPEN_POSITION 127U
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 #define VALVE_CLOSE_POSITION 120U
 #define VALVE_OPEN_POSITION 20U
@@ -59,11 +59,11 @@ typedef enum {
   SERVO_COUNT // Number of servos
 } ServoId_t;
 
-#elif defined(SERVO_N2_CONFIG)
-typedef enum {
-  N2_FILL_SERVO,
-  SERVO_COUNT // Number of servos
-} ServoId_t;
+// #elif defined(SERVO_N2_CONFIG)
+// typedef enum {
+//   N2_FILL_SERVO,
+//   SERVO_COUNT // Number of servos
+// } ServoId_t;
 
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 typedef enum {
@@ -72,11 +72,15 @@ typedef enum {
   SERVO_COUNT // Number of servos
 } ServoId_t;
 
-#elif defined(SOL_N2_ETH_CONFIG)
+#elif defined(SOL_N2_CONFIG)
 typedef enum {
   SERVO_COUNT // Number of servos
 } ServoId_t;
 
+#elif defined(SOL_ETH_CONFIG)
+typedef enum {
+  SERVO_COUNT // Number of servos
+} ServoId_t;
 #endif
 
 /************************** PUBLIC VARIABLES **********************************/

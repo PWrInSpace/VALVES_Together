@@ -18,5 +18,8 @@
 #define GET_DATA 0x20 //????
 
 #define VALVE_DZIDA 0x69
+#define DUMP_VALVE_FIRE 0x68
+#define DUMP_VALVE_ARM 0x70
+#define DUMP_VALVE_DISARM 0x71
 
 #endif // COMMANDS_H

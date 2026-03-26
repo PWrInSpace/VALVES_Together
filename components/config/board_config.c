@@ -109,11 +109,11 @@ esp_err_t board_config_init(void) {
     ESP_LOGW(TAG, "Connect vbat or vin");
   }
 
-  err = buzzer_init();
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "Buzzer initialization failed");
-    vTaskDelete(NULL);
-  }
+  // err = buzzer_init();
+  // if (err != ESP_OK) {
+  //   ESP_LOGE(TAG, "Buzzer initialization failed");
+  //   vTaskDelete(NULL);
+  // }
 
   if (mcu_adc_init() != ESP_OK) {
     ESP_LOGE(TAG, "ADC initialization failed");

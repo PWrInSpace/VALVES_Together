@@ -45,7 +45,9 @@ int run_ltc4162_monitor(int argc, char **argv) {
 
 int run_igniter_continuity_check(int argc, char **argv) {
   igniter_continuity_t continuity;
+  ESP_LOGI(TAG, "Checking igniter continuity...");
   igniter_status_t status = igniter_check_continuity(igniter_cfg, &continuity);
+  ESP_LOGI(TAG, "Continuity check status: %d", status);
   if (status != IGNITER_OK) {
     ESP_LOGE(TAG, "Igniter continuity check failed with status %d", status);
     return -1;
@@ -79,12 +81,12 @@ int run_igniter_disarm(int argc, char **argv) {
 }
 
 int run_igniter_fire(int argc, char **argv) {
-  igniter_status_t status = igniter_fire(igniter_cfg);
-  if (status != IGNITER_OK) {
-    ESP_LOGE(TAG, "Igniter firing failed with status %d", status);
-    return -1;
+  uint64_t fire_time = DUMP_VALVE_TIME_MS;
+  if (argc == 2) {
+    fire_time = atoi(argv[1]);
   }
-  ESP_LOGI(TAG, "Igniter fired successfully");
+  igniter_status_t status = igniter_fire_time(igniter_cfg, fire_time);
+
   return 0;
 }
 
@@ -108,12 +110,12 @@ int open_valve1(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   chandle_valve_cmd(N20_SOL_OPEN, duration_ms);
-#elif defined(SOL_N2_ETH_CONFIG)
+#elif defined(SOL_N2_CONFIG)
   chandle_valve_cmd(N2_SOL_OPEN, duration_ms);
 #elif defined(SERVO_N20_CONFIG)
   chandle_valve_cmd(N20_VALVE_OPEN, duration_ms);
-#elif defined(SERVO_N2_CONFIG)
-  chandle_valve_cmd(N2_VALVE_OPEN, duration_ms);
+#elif defined(SOL_ETH_CONFIG)
+  chandle_valve_cmd(ETH_SOL_OPEN, duration_ms);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -125,12 +127,12 @@ int close_valve1(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   chandle_valve_cmd(N20_SOL_CLOSE, 0);
-#elif defined(SOL_N2_ETH_CONFIG)
+#elif defined(SOL_N2_CONFIG)
   chandle_valve_cmd(N2_SOL_CLOSE, 0);
 #elif defined(SERVO_N20_CONFIG)
   chandle_valve_cmd(N20_VALVE_CLOSE, 0);
-#elif defined(SERVO_N2_CONFIG)
-  chandle_valve_cmd(N2_VALVE_CLOSE, 0);
+#elif defined(SOL_ETH_CONFIG)
+  chandle_valve_cmd(ETH_SOL_CLOSE, 0);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -147,12 +149,12 @@ int open_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   chandle_valve_cmd(ETH_VALVE_OPEN, duration_ms);
-#elif defined(SOL_N2_ETH_CONFIG)
-  chandle_valve_cmd(ETH_SOL_OPEN, duration_ms);
+#elif defined(SOL_ETH_CONFIG)
+  ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
 #elif defined(SERVO_N20_CONFIG)
   ESP_LOGI(TAG, "SERVO_N20_CONFIG does not have valve 2!");
-#elif defined(SERVO_N2_CONFIG)
-  ESP_LOGI(TAG, "SERVO_N2_CONFIG does not have valve 2!");
+#elif defined(SOL_N2_CONFIG)
+  ESP_LOGI(TAG, "SOL_N2_CONFIG does not have valve 2!");
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -164,12 +166,12 @@ int close_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
-#elif defined(SOL_N2_ETH_CONFIG)
-  chandle_valve_cmd(ETH_SOL_CLOSE, 0);
+#elif defined(SOL_ETH_CONFIG)
+  ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
 #elif defined(SERVO_N20_CONFIG)
   ESP_LOGI(TAG, "SERVO_N20_CONFIG does not have valve 2!");
-#elif defined(SERVO_N2_CONFIG)
-  ESP_LOGI(TAG, "SERVO_N2_CONFIG does not have valve 2!");
+#elif defined(SOL_N2_CONFIG)
+  ESP_LOGI(TAG, "SOL_N2_CONFIG does not have valve 2!");
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -197,23 +199,22 @@ static esp_console_cmd_t cmd[] = {
     {"igniter_arm", "Arm the igniter", NULL, run_igniter_arm, NULL, NULL, NULL},
     {"igniter_disarm", "Disarm the igniter", NULL, run_igniter_disarm, NULL, NULL, NULL},
     {"igniter_fire", "Fire the igniter", NULL, run_igniter_fire, NULL, NULL, NULL},
+    
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG
     {"open_sol_n2o", "Open N2O solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
     {"close_sol_n2o", "Close N2O solenoid", NULL, close_valve1, NULL, NULL, NULL},
     {"open_servo_eth", "Open ETH servo for specified duration (ms)", NULL, open_valve2, NULL, NULL, NULL},
     {"close_servo_eth", "Close ETH servo", NULL, close_valve2, NULL, NULL, NULL},
-    #elif defined(SOL_N2_ETH_CONFIG)
-    {"open_sol_n2", "Open N2 solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
-    {"close_sol_n2", "Close N2 solenoid", NULL, close_valve1, NULL, NULL, NULL},
-    {"open_sol_eth", "Open ETH solenoid for specified duration (ms)", NULL, open_valve2, NULL, NULL, NULL},
-    {"close_sol_eth", "Close ETH solenoid", NULL, close_valve2, NULL, NULL, NULL},
+    #elif defined(SOL_ETH_CONFIG)
+    {"open_sol_eth", "Open ETH solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
+    {"close_sol_eth", "Close ETH solenoid", NULL, close_valve1, NULL, NULL, NULL},
     #elif defined(SERVO_N20_CONFIG)
     {"open_servo_n2o", "Open N2O servo for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
     {"close_servo_n2o", "Close N2O servo", NULL, close_valve1, NULL, NULL, NULL},
-    #elif defined(SERVO_N2_CONFIG)
-    {"open_servo_n2", "Open N2 servo for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
-    {"close_servo_n2", "Close N2 servo", NULL, close_valve1, NULL, NULL, NULL},
+    #elif defined(SOL_N2_CONFIG)
+    {"open_sol_n2", "Open N2 solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
+    {"close_sol_n2", "Close N2 solenoid", NULL, close_valve1, NULL, NULL, NULL},
     #else
     #error "No valve configuration defined!"
     #endif

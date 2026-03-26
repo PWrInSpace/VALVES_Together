@@ -55,14 +55,12 @@ void app_task(void *arg) {
 #ifdef SERVO_N20_CONFIG
   ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
   chandle_valve_cmd(N20_VALVE_CLOSE, 0);
-#elif defined(SERVO_N2_CONFIG)
-  ESP_LOGI("APP_TASK", "SERVO_N2_CONFIG defined");
-  chandle_valve_cmd(N2_VALVE_CLOSE, 0);
-#elif defined(SOL_N2_ETH_CONFIG)
-  ESP_LOGI("APP_TASK", "SOL_N2_ETH_CONFIG defined");
-  chandle_valve_cmd(ETH_SOL_CLOSE, 0);
-  vTaskDelay(pdMS_TO_TICKS(100));
+#elif defined(SOL_N2_CONFIG)
+  ESP_LOGI("APP_TASK", "SOL_N2_CONFIG defined");
   chandle_valve_cmd(N2_SOL_CLOSE, 0);
+#elif defined(SOL_ETH_CONFIG)
+  ESP_LOGI("APP_TASK", "SOL_ETH_CONFIG defined");
+  chandle_valve_cmd(ETH_SOL_CLOSE, 0);
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
   chandle_valve_cmd(N20_SOL_CLOSE, 0);

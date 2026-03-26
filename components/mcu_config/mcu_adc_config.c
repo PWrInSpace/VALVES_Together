@@ -12,7 +12,7 @@
 
 mcu_adc_config_t mcu_adc_config = {
     .adc_cal = {5.742f},
-    .adc_chan = {_IGN_CON_GPIO},
+    .adc_chan = {ADC_CHANNEL_8},
     .adc_chan_num = MAX_CHANNEL_INDEX,
     .oneshot_unit_init_cfg =
         {
@@ -31,21 +31,25 @@ esp_err_t mcu_adc_init() {
     ESP_LOGE(TAG, "Too many ADC channels to configure!");
     return ESP_FAIL;
   }
-  esp_err_t res = ESP_OK;
 
-  res |= adc_oneshot_new_unit(&(mcu_adc_config.oneshot_unit_init_cfg),
-                              &(mcu_adc_config.oneshot_unit_handle));
+  esp_err_t res = adc_oneshot_new_unit(&mcu_adc_config.oneshot_unit_init_cfg,
+                                       &mcu_adc_config.oneshot_unit_handle);
+  if (res != ESP_OK) {
+    ESP_LOGE(TAG, "ADC unit init failed!");
+    return res;
+  }
 
   for (uint8_t i = 0; i < mcu_adc_config.adc_chan_num; i++) {
-    res |= adc_oneshot_config_channel(mcu_adc_config.oneshot_unit_handle,
-                                      mcu_adc_config.adc_chan[i],
-                                      &mcu_adc_config.oneshot_chan_cfg);
+    res = adc_oneshot_config_channel(mcu_adc_config.oneshot_unit_handle,
+                                     mcu_adc_config.adc_chan[i],
+                                     &mcu_adc_config.oneshot_chan_cfg);
     if (res != ESP_OK) {
       ESP_LOGE(TAG, "ADC channel %d configuration failed!", i);
+      return res;
     }
   }
 
-  return res;
+  return ESP_OK;
 }
 
 bool _mcu_adc_read_raw(uint8_t channel, uint16_t *adc_raw) {
@@ -55,6 +59,7 @@ bool _mcu_adc_read_raw(uint8_t channel, uint16_t *adc_raw) {
     return false;
   }
   *adc_raw = (uint16_t)vRaw;
+  ESP_LOGI(TAG, "ADC channel %d raw value: %d", channel, vRaw);
   return true;
 }
 
