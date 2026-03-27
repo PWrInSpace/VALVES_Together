@@ -59,7 +59,7 @@ bool _mcu_adc_read_raw(uint8_t channel, uint16_t *adc_raw) {
     return false;
   }
   *adc_raw = (uint16_t)vRaw;
-  ESP_LOGI(TAG, "ADC channel %d raw value: %d", channel, vRaw);
+  // ESP_LOGI(TAG, "ADC channel %d raw value: %d", channel, vRaw);
   return true;
 }
 

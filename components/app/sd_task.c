@@ -107,13 +107,11 @@ bool save_text(const char *path, BoardData_t *data) {
   }
 
   for (uint32_t i = 0; i < BUFFER_SAMPLES; i++) {
-    fprintf(f,
-            "%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d,%d,%d,%.2f,%.2f,"
-            "%.2f,%.2f,%d,%d\n",
+    fprintf(f, "%u,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%d,%d\n",
             data[i].power_time, data[i].temperature[0], data[i].temperature[1],
             data[i].temperature[2], data[i].pressure[0], data[i].pressure[1],
-            data[i].pressure[2], data[i].termistor, data[i].ign_con,
-            data[i].i_jump_flag, valve1_state, valve2_state,
+            data[i].pressure[2], data[i].termistor, data[i].dump_valve_cont,
+            data[i].dump_valve_arm, valve1_state, valve2_state,
             data[i].chargerData.vbat, data[i].chargerData.vin,
             data[i].chargerData.ibat, data[i].chargerData.iin,
             data[i].chargerData.die_temp, data[i].chargerData.vout,
@@ -133,8 +131,8 @@ bool add_header(const char *path) {
   }
   fprintf(f, "Log file for configuration: %s\n", CONFIG_NAME);
   fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
-             "IgnCon,IJumpFlag,Valve1State,Valve2State,Vbat,Vin,Ibat,Iin,"
-             "DieTemp,Vout,ChargerStatus,ChargerState\n");
+             "DumpValveCont,DumpValveArm,Valve1State,Valve2State,"
+             "Vbat,Vin,Ibat,Iin,DieTemp,Vout,ChargerStatus,ChargerState\n");
 
   fclose(f);
   ESP_LOGI("SDCARD", "Header added to %s", path);

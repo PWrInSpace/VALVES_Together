@@ -15,6 +15,7 @@
 #include "freertos/task.h"
 
 #include "BoardData.h"
+#include "buzzer.h"
 #include "commands.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -55,17 +56,22 @@ void app_task(void *arg) {
 #ifdef SERVO_N20_CONFIG
   ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
   chandle_valve_cmd(N20_VALVE_CLOSE, 0);
+  beep_single();
 #elif defined(SOL_N2_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_N2_CONFIG defined");
   chandle_valve_cmd(N2_SOL_CLOSE, 0);
+  vTaskDelay(pdMS_TO_TICKS(250));
+  beep_quatro();
 #elif defined(SOL_ETH_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_ETH_CONFIG defined");
   chandle_valve_cmd(ETH_SOL_CLOSE, 0);
+  beep_triple();
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
   chandle_valve_cmd(N20_SOL_CLOSE, 0);
   vTaskDelay(pdMS_TO_TICKS(100));
   chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
+  beep_double();
   ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
 #endif
 

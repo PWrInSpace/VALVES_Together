@@ -14,6 +14,7 @@
 #include "esp_log.h"
 #include "esp_system.h"
 
+#include "BoardData.h"
 #include "board_config.h"
 #include "buzzer.h"
 #include "commands.h"
@@ -100,6 +101,26 @@ int play_ode_to_joy(int argc, char **argv) {
   return 0;
 }
 
+int play_single_beep(int argc, char **argv) {
+  beep_single();
+  return 0;
+}
+
+int play_double_beep(int argc, char **argv) {
+  beep_double();
+  return 0;
+}
+
+int play_triple_beep(int argc, char **argv) {
+  beep_triple();
+  return 0;
+}
+
+int play_quatro_beep(int argc, char **argv) {
+  beep_quatro();
+  return 0;
+}
+
 int open_valve1(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: open_valve_name <duration_ms>");
@@ -183,6 +204,40 @@ int play_harry_potter_theme(int argc, char **argv) {
   return 0;
 }
 
+int get_board_data(int argc, char **argv) {
+  int n = 1;
+  if (argc == 2) {
+    n = atoi(argv[1]);
+  }
+  for (int i = 0; i < n; i++) {
+
+    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+      ESP_LOGI(TAG, "-----------------------------------");
+      ESP_LOGI(TAG, "Current board data:");
+      ESP_LOGI(TAG, "Power time: %llu", boardData.power_time);
+      ESP_LOGI(TAG, "valve1 state: %d", valve1_state);
+      ESP_LOGI(TAG, "valve2 state: %d", valve2_state);
+      ESP_LOGI(TAG, "Temperature: %f, %f, %f", boardData.temperature[0],
+               boardData.temperature[1], boardData.temperature[2]);
+      ESP_LOGI(TAG, "Pressure: %f, %f, %f, %f", boardData.pressure[0],
+               boardData.pressure[1], boardData.pressure[2],
+               boardData.pressure[3]);
+      ESP_LOGI(TAG, "Dump valve arm: %d", boardData.dump_valve_arm);
+      ESP_LOGI(TAG, "Dump valve continuity: %d", boardData.dump_valve_cont);
+      ESP_LOGI(TAG, "Is charging: %d", boardData.is_charging);
+      ESP_LOGI(TAG, "------------------------------------\n\n");
+      xSemaphoreGive(BoardDataSemaphore);
+    } else {
+      ESP_LOGE(TAG, "Failed to take BoardDataSemaphore");
+      return -1;
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+
+  return 0;
+}
+
 // Place for the console configuration
 
 // clang-format off
@@ -192,13 +247,19 @@ static esp_console_cmd_t cmd[] = {
     {"reset", "Reset the device", NULL, reset_device, NULL, NULL, NULL},
     {"i2c_scan", "Scan the I2C bus for devices", NULL, run_i2c_scan, NULL, NULL, NULL},
     {"ltc_monitor", "Run LTC4162 debug monitor", NULL, run_ltc4162_monitor, NULL, NULL, NULL},
-    {"play_imperial_march", "Play the Imperial March on the buzzer", NULL, play_imperial_march, NULL, NULL, NULL},
-    {"play_ode_to_joy", "Play Ode to Joy on the buzzer", NULL, play_ode_to_joy, NULL, NULL, NULL},
-    {"play_harry_potter_theme", "Play Harry Potter theme on the buzzer", NULL, play_harry_potter_theme, NULL, NULL, NULL},
     {"igniter_continuity", "Check igniter continuity", NULL, run_igniter_continuity_check, NULL, NULL, NULL},
     {"igniter_arm", "Arm the igniter", NULL, run_igniter_arm, NULL, NULL, NULL},
     {"igniter_disarm", "Disarm the igniter", NULL, run_igniter_disarm, NULL, NULL, NULL},
     {"igniter_fire", "Fire the igniter", NULL, run_igniter_fire, NULL, NULL, NULL},
+    {"play_imperial_march", "Play the Imperial March on the buzzer", NULL, play_imperial_march, NULL, NULL, NULL},
+    {"play_ode_to_joy", "Play Ode to Joy on the buzzer", NULL, play_ode_to_joy, NULL, NULL, NULL},
+    {"play_harry_potter_theme", "Play Harry Potter theme on the buzzer", NULL, play_harry_potter_theme, NULL, NULL, NULL},
+    {"play_single_beep", "Play a single beep on the buzzer", NULL, play_single_beep, NULL, NULL, NULL},
+    {"play_double_beep", "Play a double beep on the buzzer", NULL, play_double_beep, NULL, NULL, NULL},
+    {"play_triple_beep", "Play a triple beep on the buzzer", NULL, play_triple_beep, NULL, NULL, NULL},
+    {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
+    {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
+
     
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG

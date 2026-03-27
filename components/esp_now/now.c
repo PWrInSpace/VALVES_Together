@@ -133,11 +133,11 @@ void obc_command_handler(const uint8_t *data, int len) {
     ESP_LOGE("NOW", "Invalid data length from OBC: %d", len);
     return;
   }
-  if (sizeof(DataFromObc) == len) {
-    ESP_LOGI("NOW", "Received DataFromObc structure");
-  } else if (sizeof(DataFromObc2) == len) {
-    ESP_LOGI("NOW", "Received DataFromObc2 structure");
-  }
+  // if (sizeof(DataFromObc) == len) {
+  //   ESP_LOGI("NOW", "Received DataFromObc structure");
+  // } else if (sizeof(DataFromObc2) == len) {
+  //   ESP_LOGI("NOW", "Received DataFromObc2 structure");
+  // }
   if (sizeof(DataFromObc) == len) {
     memcpy(&rxData, data, sizeof(DataFromObc));
     moduleData.dataFromObc = rxData;
@@ -178,27 +178,19 @@ void now_send_data_to_obc(void *arg) {
     moduleData.dataToObc.pressure2 = board_data_copy.pressure[1];
     moduleData.dataToObc.valve1_state = valve1_state;
     moduleData.dataToObc.valve2_state = valve2_state;
+    moduleData.dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
+    moduleData.dataToObc.bettery_consumption = board_data_copy.chargerData.ibat;
+    moduleData.dataToObc.charger_temperature =
+        board_data_copy.chargerData.die_temp;
+    moduleData.dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
+    moduleData.dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
+    moduleData.dataToObc.is_charging =
+        board_data_copy.chargerData.charger_status;
 
     if (esp_now_send(adressObc, (uint8_t *)&moduleData.dataToObc,
                      sizeof(DataToObc)) != ESP_OK) {
       ESP_LOGE("NOW", "Error sending data to OBC");
     }
-
-    // ESP_LOGI("NOW", "OBC state: %d", moduleData.obcState);
-    // ESP_LOGI("NOW", "Data sent to OBC: valve1_state=%d, valve2_state=%d,
-    // temp1=%d, temp2=%d, temp3=%d, pres1=%.5f, pres2=%.5f, batt=%.5f",
-    //          moduleData.dataToObc.valve1_state,
-    //          moduleData.dataToObc.valve2_state,
-    //          moduleData.dataToObc.temperature1,
-    //          moduleData.dataToObc.temperature2,
-    //          moduleData.dataToObc.temperature3,
-    //          moduleData.dataToObc.pressure1,
-    //          moduleData.dataToObc.pressure2,
-    //          moduleData.dataToObc.battery_voltage);
-    // ESP_LOGW("NOW", "THERMISTOR1: %.2f C, THERMISTOR2: %.2f C (This data
-    // waits to be sent (obc need update))",
-    //           board_data_copy.thermistor_temp[0],
-    //           board_data_copy.thermistor_temp[1]);
 
     vTaskDelay(pdMS_TO_TICKS(moduleData.stateTimes[moduleData.obcState]));
   }

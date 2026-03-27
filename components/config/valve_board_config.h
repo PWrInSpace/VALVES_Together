@@ -54,11 +54,11 @@ Cli Napisane ale trzeba uzupelniac na bierzaco
 I2C scanner DONE
 Servo DONE
 Solenoid DONE
-Charging data DONE
+Charging data dodac taska
 Dump Valve DONE
 SD DONE
 
-Buzzer napiany trzeba dodac nutki
+Buzzer
 Press
 Thermocouple
 RGB

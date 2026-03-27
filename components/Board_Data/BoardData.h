@@ -21,10 +21,11 @@ typedef struct {
 typedef struct {
   uint64_t power_time;
   float temperature[3];
-  float pressure[3];
+  float pressure[4];
   float termistor;
-  uint8_t ign_con;
-  uint8_t i_jump_flag;
+  bool dump_valve_arm;
+  bool dump_valve_cont;
+  bool is_charging;
   ChargerData_t chargerData;
 
 } BoardData_t;
@@ -88,6 +89,7 @@ typedef struct DataToObc {
   bool waken_up : 1;
   bool dump_valve_arm : 1;  // 0 not armed, 1 armed
   bool dump_valve_cont : 1; // 0 no cont, 1 cont
+  bool is_charging : 1;     // 0 not charging, 1 charging
   uint8_t valve1_state : 2; // 0 - closed, 1 - open
   uint8_t valve2_state : 2; // 0 - closed, 1 - open
   int16_t temperature1;

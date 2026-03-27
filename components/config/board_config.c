@@ -23,16 +23,20 @@
 #include "buzzer.h"
 #include "console_config.h"
 #include "igniter_driver.h"
+#include "igniter_task.h"
 #include "ltc4162.h"
 #include "mcu_adc_config.h"
 #include "mcu_gpio_config.h"
 #include "mcu_i2c_config.h"
 #include "mcu_spi_config.h"
 #include "now.h"
+#include "pressure_driver.h"
+#include "pressure_task.h"
 #include "sd_task.h"
 #include "servo_config.h"
 #include "solenoid_config.h"
 #include "timers_config.h"
+#include "valve_board_config.h"
 
 #define TAG "BOARD_CONFIG"
 
@@ -109,11 +113,11 @@ esp_err_t board_config_init(void) {
     ESP_LOGW(TAG, "Connect vbat or vin");
   }
 
-  // err = buzzer_init();
-  // if (err != ESP_OK) {
-  //   ESP_LOGE(TAG, "Buzzer initialization failed");
-  //   vTaskDelete(NULL);
-  // }
+  err = buzzer_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Buzzer initialization failed");
+    vTaskDelete(NULL);
+  }
 
   if (mcu_adc_init() != ESP_OK) {
     ESP_LOGE(TAG, "ADC initialization failed");
@@ -126,12 +130,25 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  // if (sd_task_init() != ESP_OK) {
-  //   ESP_LOGE(TAG, "SD card task initialization failed");
-  //   return ESP_FAIL;
-  // }
+  pressure_driver_status_t ret_press;
+  ret_press = pressure_driver_init(&(pressure_driver_config));
+  if (ret_press != PRESSURE_DRIVER_OK) {
+    ESP_LOGE(TAG, "Failed to initialize pressure driver");
+    return ESP_FAIL;
+  } else {
+    ESP_LOGI(TAG, "Pressure driver 1 initialized");
+  }
+
+  if (sd_task_init() != ESP_OK) {
+    ESP_LOGE(TAG, "SD card task initialization failed");
+    return ESP_FAIL;
+  }
 
   createNowSendTask();
+#ifdef SERVO_N20_CONFIG
+  run_igniter_task();
+#endif
+  run_pressure_task();
   // pressure_task_init();
   // voltage_task_init();
   // temperature_task_init();

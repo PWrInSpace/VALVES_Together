@@ -37,5 +37,8 @@ void harry_potter_theme();
 void nokia_tune();
 void mario_theme();
 void good_bad_ugly();
-
+void beep_single();
+void beep_double();
+void beep_triple();
+void beep_quatro();
 #endif // buzzer_h

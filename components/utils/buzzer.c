@@ -144,3 +144,29 @@ void nokia_tune() {
   play_tone(NOTE_D4, 500);
   play_tone(NOTE_E4, 500);
 }
+
+void beep_single() { play_tone(1000, 800); }
+
+void beep_double() {
+  play_tone(1000, 300);
+  vTaskDelay(pdMS_TO_TICKS(150));
+  play_tone(1000, 300);
+}
+
+void beep_triple() {
+  play_tone(1000, 200);
+  vTaskDelay(pdMS_TO_TICKS(100));
+  play_tone(1000, 200);
+  vTaskDelay(pdMS_TO_TICKS(100));
+  play_tone(1000, 200);
+}
+
+void beep_quatro() {
+  play_tone(1000, 150);
+  vTaskDelay(pdMS_TO_TICKS(80));
+  play_tone(1000, 150);
+  vTaskDelay(pdMS_TO_TICKS(80));
+  play_tone(1000, 150);
+  vTaskDelay(pdMS_TO_TICKS(80));
+  play_tone(1000, 150);
+}
