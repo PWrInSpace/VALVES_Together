@@ -219,9 +219,8 @@ int get_board_data(int argc, char **argv) {
       ESP_LOGI(TAG, "valve2 state: %d", valve2_state);
       ESP_LOGI(TAG, "Temperature: %f, %f, %f", boardData.temperature[0],
                boardData.temperature[1], boardData.temperature[2]);
-      ESP_LOGI(TAG, "Pressure: %f, %f, %f, %f", boardData.pressure[0],
-               boardData.pressure[1], boardData.pressure[2],
-               boardData.pressure[3]);
+      ESP_LOGI(TAG, "Pressure left channel: %f", boardData.pressure[2]);
+      ESP_LOGI(TAG, "Pressure middle channel: %f", boardData.pressure[3]);
       ESP_LOGI(TAG, "Dump valve arm: %d", boardData.dump_valve_arm);
       ESP_LOGI(TAG, "Dump valve continuity: %d", boardData.dump_valve_cont);
       ESP_LOGI(TAG, "Is charging: %d", boardData.is_charging);

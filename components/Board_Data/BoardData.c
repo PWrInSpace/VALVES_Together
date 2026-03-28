@@ -8,7 +8,7 @@ BoardData_t boardData;
 SemaphoreHandle_t BoardDataSemaphore;
 volatile ModuleData moduleData = {
     .dataFromObc = {0, 0},
-    .dataToObc = {true, 0, 0, 0, 0, 0, 0, 0, 0.0f},
+    // .dataToObc = {true, 0, 0, 0, 0, 0, 0, 0, 
     .obcState = 0,
     .stateTimes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };

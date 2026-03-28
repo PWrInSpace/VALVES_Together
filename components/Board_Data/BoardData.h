@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BOARD_DATA_H
+#define BOARD_DATA_H
+
 #include "Solenoid.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -13,8 +15,8 @@ typedef struct {
   float iin;
   float die_temp;
   float vout;
-  uint8_t charger_status;
-  uint8_t charger_state;
+  bool charger_status;
+  bool charger_state;
 
 } ChargerData_t;
 
@@ -86,12 +88,9 @@ typedef enum {
 } States;
 
 typedef struct DataToObc {
-  bool waken_up : 1;
-  bool dump_valve_arm : 1;  // 0 not armed, 1 armed
-  bool dump_valve_cont : 1; // 0 no cont, 1 cont
-  bool is_charging : 1;     // 0 not charging, 1 charging
-  uint8_t valve1_state : 2; // 0 - closed, 1 - open
-  uint8_t valve2_state : 2; // 0 - closed, 1 - open
+
+  int valve1_state;
+  int valve2_state;
   int16_t temperature1;
   float pressure1;
   float pressure2;
@@ -111,3 +110,5 @@ esp_err_t board_data_init(void);
 uint64_t power_time();
 
 extern volatile ModuleData moduleData;
+
+#endif // BOARD_DATA_H
