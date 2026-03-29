@@ -139,10 +139,12 @@ esp_err_t board_config_init(void) {
     ESP_LOGI(TAG, "Pressure driver 1 initialized");
   }
 
+  #if defined(SOL_N20_SERVO_ETH_CONFIG) || defined(SOL_ETH_CONFIG)
   if (sd_task_init() != ESP_OK) {
     ESP_LOGE(TAG, "SD card task initialization failed");
-    return ESP_FAIL;
+    // return ESP_FAIL;
   }
+  #endif
 
   createNowSendTask();
 #ifdef SERVO_N20_CONFIG

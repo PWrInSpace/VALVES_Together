@@ -78,6 +78,9 @@
   }
 
 
+  extern bool calibration_mode;
+
+
 typedef enum {
   PRESSURE_DRIVER_SENSOR_1 = 0,
   PRESSURE_DRIVER_SENSOR_2,

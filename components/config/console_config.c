@@ -25,6 +25,7 @@
 #include "ltc4162.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
+#include "pressure_driver.h"
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -237,6 +238,13 @@ int get_board_data(int argc, char **argv) {
   return 0;
 }
 
+int set_calibration_mode(int argc, char **argv) {
+  calibration_mode = !calibration_mode;
+  ESP_LOGI(TAG, "Calibration mode: %s", calibration_mode ? "ON" : "OFF");
+  return 0;
+}
+
+
 // Place for the console configuration
 
 // clang-format off
@@ -258,6 +266,7 @@ static esp_console_cmd_t cmd[] = {
     {"play_triple_beep", "Play a triple beep on the buzzer", NULL, play_triple_beep, NULL, NULL, NULL},
     {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
     {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
+    {"set_calibration_mode", "Toggle calibration mode for pressure sensors", NULL, set_calibration_mode, NULL, NULL, NULL},
 
     
 

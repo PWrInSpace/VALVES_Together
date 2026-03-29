@@ -122,9 +122,9 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
 #ifdef SOL_N2_CONFIG
     if (close_sol_time(valves[N2_FILL_SOL].name, time_ms) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SOL");
-      valve2_state = 0;
+      valve1_state = 0;
     } else {
-      valve2_state = 1;
+      valve1_state = 1;
     }
 #endif
     break;
@@ -132,9 +132,9 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
 #ifdef SOL_N2_CONFIG
     if (open_solenoid(valves[N2_FILL_SOL].name, 0) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to close N2_FILL_SOL");
-      valve2_state = 1;
+      valve1_state = 1;
     } else {
-      valve2_state = 0;
+      valve1_state = 0;
     }
 #endif
     break;

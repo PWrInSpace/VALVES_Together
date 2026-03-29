@@ -8,15 +8,16 @@
 //      N2
 //  -------------
 //
-//  SOLENOID N2         | SOL N2_CONFIG       --GPIO47    valve1_state
-//  SOLENOID ETH        | SOL_ETH_CONFIG      --GPIO47    valve1_state
+//  SOLENOID N2         | SOL N2_CONFIG       --GPIO47    valve1_state - brak pressure
+//
+//  SOLENOID ETH        | SOL_ETH_CONFIG      --GPIO47    valve1_state - press1 to press N2 
 //
 //  -------------
 //      ETH
 //  -------------
 //
-//  SOLENOID N2O    |                            --GPIO48    valve1_state
-//  SERVO ETH       | SOL_N20_SERVO_ETH_CONFIG   --GPIO47    valve2_state
+//  SOLENOID N2O    |                            --GPIO48    valve1_state   -press1 to press N2O
+//  SERVO ETH       | SOL_N20_SERVO_ETH_CONFIG   --GPIO47    valve2_state   -press2 to press ETH
 //  -------------
 //
 //

@@ -20,6 +20,8 @@ static ads1115_struct_t ads1115_config = {
     .i2c_address = 0x49,
 };
 
+bool calibration_mode;
+
 pressure_driver_struct_t pressure_driver_config =
     PRESSURE_DRIVER_TANWA_CONFIG(&ads1115_config);
 
@@ -48,6 +50,8 @@ pressure_driver_init(pressure_driver_struct_t *pressure_driver) {
   pressure_driver_config.sensors[3].pressure_max = 350.0f;
   pressure_driver_config.sensors[3].voltage_min = 0.361f;
   pressure_driver_config.sensors[3].voltage_max = 4.096f;
+
+  calibration_mode = false;
 
 
   // pressure_driver_config.sensors[0].raw_min = 0;
@@ -184,9 +188,22 @@ pressure_driver_status_t pressure_driver_read_pressures(pressure_driver_struct_t
                     pressure_driver->sensors[i].pressure_min;
 
 
-    //Kalibracja
-    //  ESP_LOGI(TAG, "Sensor %d, voltage: %.3f V, pressure: %.3f", i, voltage[i], pressure[i]);
-    //  vTaskDelay(pdMS_TO_TICKS(1000));
+    if(calibration_mode)
+    {
+      //SENSOR 2 lewy
+      //SENSOR 3 środkowy
+      //SENSOR 0 prawy
+
+      ESP_LOGI(TAG, "Sensor %d, voltage: %.3f V, pressure: %.3f", i, voltage[i], pressure[i]);
+      vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
   }
+
+    if(calibration_mode)
+    {
+      ESP_LOGI(TAG, "\n\n------------------------------\n\n");
+    }
+
   return PRESSURE_DRIVER_OK;
 }

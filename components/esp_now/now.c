@@ -166,7 +166,7 @@ void obc_command_handler(const uint8_t *data, int len) {
 void now_send_data_to_obc(void *arg) {
   while (1) {
     BoardData_t board_data_copy;
-    DataToObc tmp;
+    DataToObc dataToObc;
     if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
       memcpy(&board_data_copy, (const void *)&boardData, sizeof(BoardData_t));
       xSemaphoreGive(BoardDataSemaphore);
@@ -174,55 +174,36 @@ void now_send_data_to_obc(void *arg) {
       ESP_LOGE("NOW", "Failed to take BoardData semaphore");
       continue;
     }
-    // dataToObc.waken_up = true;
-    // dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
-    // dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
-    // dataToObc.is_charging = board_data_copy.is_charging;
-    // dataToObc.temperature1 = board_data_copy.temperature[0];
-    // dataToObc.pressure1 = board_data_copy.pressure[2]+10;
-    // dataToObc.pressure2 = board_data_copy.pressure[3];
-    // dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
-    // dataToObc.bettery_consumption = board_data_copy.chargerData.ibat;
-    // dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
-    // dataToObc.valve1_state =  valve1_state; 
-    // dataToObc.valve2_state =  valve2_state;
+    dataToObc.waken_up = true;
+    dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
+    dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
+    dataToObc.is_charging = board_data_copy.is_charging;
+    dataToObc.temperature1 = board_data_copy.temperature[0];
+    dataToObc.pressure1 = board_data_copy.pressure[2]+10;
+    dataToObc.pressure2 = board_data_copy.pressure[3];
+    dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
+    dataToObc.bettery_consumption = board_data_copy.chargerData.ibat;
+    dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
+    dataToObc.valve1_state =  valve1_state; 
+    dataToObc.valve2_state =  valve2_state;
 
+    #ifdef SOL_N2_CONFIG
+    dataToObc.pressure1 = board_data_copy.pressure[0];
+    #endif
 
-    // dataToObc.waken_up = 0;
-    // dataToObc.dump_valve_arm = 0;
-    // dataToObc.dump_valve_cont = 0;
-    // dataToObc.is_charging = 0;
-    tmp.temperature1 = 0.0f;
-    tmp.pressure1 = 0.0f;
-    tmp.pressure2 = 0.0f;
-    tmp.battery_voltage = 0.0f;
-    tmp.bettery_consumption = 0.0f;
-    tmp.charger_temperature = 0.0f;
-    tmp.valve1_state = 1;
-    tmp.valve2_state = 0;
+    // ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u", valve1_state, valve2_state);
 
-    ESP_LOGI("NOW", "Size of DataToObc: %d bytes", sizeof(DataToObc));
-
-    ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u", valve1_state, valve2_state);
-
-
-    ESP_LOGI("NOW", "Sending data to OBC: temperature1=%.2f, pressure1=%.2f, pressure2=%.2f, battery_voltage=%.2f, bettery_consumption=%.2f, charger_temperature=%.2f, valve1_state=%d, valve2_state=%d",
-             tmp.temperature1, tmp.pressure1,
-             tmp.pressure2, tmp.battery_voltage,
-             tmp.bettery_consumption, tmp.charger_temperature,
-             tmp.valve1_state, tmp.valve2_state);
-
-    // ESP_LOGI("NOW", "Sending data to OBC: waken_up=%d, dump_valve_arm=%d, dump_valve_cont=%d, is_charging=%d, temperature1=%.2f, pressure1=%.2f, pressure2=%.2f, battery_voltage=%.2f, bettery_consumption=%.2f, charger_temperature=%.2f, valve1_state=%u, valve2_state=%u",
+    // ESP_LOGI("NOW", "Sending data to OBC: waken_up=%d, dump_valve_arm=%d, dump_valve_cont=%d, is_charging=%d, temperature1=%d, pressure1=%.2f, pressure2=%.2f, battery_voltage=%.2f, bettery_consumption=%.2f, charger_temperature=%.2f, valve1_state=%u, valve2_state=%u",
     //          dataToObc.waken_up, dataToObc.dump_valve_arm,
     //          dataToObc.dump_valve_cont, dataToObc.is_charging,
     //          dataToObc.temperature1, dataToObc.pressure1,
     //          dataToObc.pressure2, dataToObc.battery_voltage,
     //          dataToObc.bettery_consumption, dataToObc.charger_temperature,
-    //          dataToObc.valve1_state, dataToObc.valve2_state);
+    //          (unsigned int)dataToObc.valve1_state, (unsigned int)dataToObc.valve2_state);
     
 
 
-    if (esp_now_send(adressObc, (uint8_t *)&tmp,
+    if (esp_now_send(adressObc, (uint8_t *)&dataToObc,
                      sizeof(DataToObc)) != ESP_OK) {
       ESP_LOGE("NOW", "Error sending data to OBC");
     }
