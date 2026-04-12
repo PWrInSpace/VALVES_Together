@@ -18,7 +18,6 @@
 
 #include "app_task.h"
 #include "board_config.h"
-// #include "timers_config.h"
 
 #define SETUP_TASK_STACK_SIZE 8000
 #define SETUP_TASK_PRIORITY 9

@@ -9,6 +9,7 @@
 /**************************  PRIVATE INCLUDES  ********************************/
 
 #include <string.h>
+#include <math.h>
 
 /**************************  PRIVATE VARIABLES  *******************************/
 // Adres OBC:
@@ -21,6 +22,8 @@ bool adressCompare(const uint8_t *addr1, const uint8_t *addr2);
 void obc_command_handler(const uint8_t *data, int len);
 
 /**************************  CODE *********************************************/
+
+// static int dupa = 1;
 
 bool nowInit() {
 
@@ -179,27 +182,33 @@ void now_send_data_to_obc(void *arg) {
     dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
     dataToObc.is_charging = board_data_copy.is_charging;
     dataToObc.temperature1 = board_data_copy.temperature[0];
-    dataToObc.pressure1 = board_data_copy.pressure[2]+10;
+    dataToObc.pressure1 = board_data_copy.pressure[2];
     dataToObc.pressure2 = board_data_copy.pressure[3];
     dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
-    dataToObc.bettery_consumption = board_data_copy.chargerData.ibat;
+    dataToObc.bettery_consumption =
+        (fabsf(board_data_copy.chargerData.ibat) >
+         fabsf(board_data_copy.chargerData.iin))
+            ? fabsf(board_data_copy.chargerData.ibat)
+            : fabsf(board_data_copy.chargerData.iin);
     dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
     dataToObc.valve1_state =  valve1_state; 
     dataToObc.valve2_state =  valve2_state;
-
-    #ifdef SOL_N2_CONFIG
+    #ifdef SOL_ETH_CONFIG
     dataToObc.pressure1 = board_data_copy.pressure[0];
     #endif
 
+    // dataToObc.pressure1 = 69.69f + dupa; // to test purposes, to be removed
+    // dataToObc.pressure2 = 88.88f; // to test purposes, to be removed
+    // dupa++;
     // ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u", valve1_state, valve2_state);
 
-    // ESP_LOGI("NOW", "Sending data to OBC: waken_up=%d, dump_valve_arm=%d, dump_valve_cont=%d, is_charging=%d, temperature1=%d, pressure1=%.2f, pressure2=%.2f, battery_voltage=%.2f, bettery_consumption=%.2f, charger_temperature=%.2f, valve1_state=%u, valve2_state=%u",
-    //          dataToObc.waken_up, dataToObc.dump_valve_arm,
-    //          dataToObc.dump_valve_cont, dataToObc.is_charging,
-    //          dataToObc.temperature1, dataToObc.pressure1,
-    //          dataToObc.pressure2, dataToObc.battery_voltage,
-    //          dataToObc.bettery_consumption, dataToObc.charger_temperature,
-    //          (unsigned int)dataToObc.valve1_state, (unsigned int)dataToObc.valve2_state);
+    ESP_LOGI("NOW", "Sending data to OBC: waken_up=%d, dump_valve_arm=%d, dump_valve_cont=%d, is_charging=%d, temperature1=%d, pressure1=%.2f, pressure2=%.2f, battery_voltage=%.2f, bettery_consumption=%.2f, charger_temperature=%.2f, valve1_state=%u, valve2_state=%u",
+             dataToObc.waken_up, dataToObc.dump_valve_arm,
+             dataToObc.dump_valve_cont, dataToObc.is_charging,
+             dataToObc.temperature1, dataToObc.pressure1,
+             dataToObc.pressure2, dataToObc.battery_voltage,
+             dataToObc.bettery_consumption, dataToObc.charger_temperature,
+             (unsigned int)dataToObc.valve1_state, (unsigned int)dataToObc.valve2_state);
     
 
 

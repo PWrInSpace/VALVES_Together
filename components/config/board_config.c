@@ -31,7 +31,7 @@
 #include "mcu_spi_config.h"
 #include "now.h"
 #include "pressure_driver.h"
-#include "pressure_task.h"
+#include "measure_task.h"
 #include "sd_task.h"
 #include "servo_config.h"
 #include "solenoid_config.h"
@@ -150,7 +150,7 @@ esp_err_t board_config_init(void) {
 #ifdef SERVO_N20_CONFIG
   run_igniter_task();
 #endif
-  run_pressure_task();
+  run_measure_task();
   // pressure_task_init();
   // voltage_task_init();
   // temperature_task_init();

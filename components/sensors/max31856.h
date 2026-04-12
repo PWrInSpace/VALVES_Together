@@ -14,9 +14,6 @@
 #include "driver/spi_master.h"
 
 #include "driver/gpio.h"
-#include "driver/spi_master.h"
-#include "soc/gpio_struct.h"
-#include <esp_log.h>
 
 #define MAX31856_CR0_REG 0x00
 #define MAX31856_CR0_AUTOCONVERT 0x80

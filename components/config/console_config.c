@@ -89,6 +89,12 @@ int run_igniter_fire(int argc, char **argv) {
   }
   igniter_status_t status = igniter_fire_time(igniter_cfg, fire_time);
 
+  if (status != IGNITER_OK) {
+    ESP_LOGE(TAG, "Igniter firing failed with status %d", status);
+    return -1;
+  }
+  ESP_LOGI(TAG, "Igniter fired successfully");
+
   return 0;
 }
 
@@ -244,6 +250,35 @@ int set_calibration_mode(int argc, char **argv) {
   return 0;
 }
 
+int deinit_i2c(int argc, char **argv) {
+  esp_err_t ret = mcu_i2c_deinit();
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "I2C deinitialization failed");
+    return -1;
+  }
+  ESP_LOGI(TAG, "I2C deinitialized successfully");
+  return 0;
+}
+
+int init_i2c(int argc, char **argv) {
+  esp_err_t ret = mcu_i2c_init();
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "I2C initialization failed");
+    return -1;
+  }
+  ESP_LOGI(TAG, "I2C initialized successfully");
+  return 0;
+}
+
+int init_i2c_with_pins(int argc, char **argv) {
+  esp_err_t ret = mcu_i2c_init_with_pins(SDA_GPIO_ALT, SCL_GPIO_ALT);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "I2C initialization with pins failed");
+    return -1;
+  }
+  ESP_LOGI(TAG, "I2C initialized with pins successfully");
+  return 0;
+}
 
 // Place for the console configuration
 
@@ -267,7 +302,9 @@ static esp_console_cmd_t cmd[] = {
     {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
     {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
     {"set_calibration_mode", "Toggle calibration mode for pressure sensors", NULL, set_calibration_mode, NULL, NULL, NULL},
-
+    {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
+    {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
+    {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
     
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG

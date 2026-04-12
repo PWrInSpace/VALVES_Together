@@ -41,7 +41,6 @@
 
 #include "driver/mcpwm_prelude.h"
 #include "esp_log.h"
-#include "valve_board_config.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/timers.h>
 

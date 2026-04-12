@@ -28,9 +28,16 @@
 //  SERVO N20       | SERVO_N20_CONFIG           --GPIO47    valve1_state
 //
 
-#define SERVO_N20_CONFIG
-// #define SOL_N20_SERVO_ETH_CONFIG
+// #define SERVO_N20_CONFIG
+#define SOL_N20_SERVO_ETH_CONFIG
 // #define SOL_ETH_CONFIG
+
+
+
+
+
+
+
 // #define SOL_N2_CONFIG
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG

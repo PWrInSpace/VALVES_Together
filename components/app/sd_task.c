@@ -109,8 +109,8 @@ bool save_text(const char *path, BoardData_t *data) {
   for (uint32_t i = 0; i < BUFFER_SAMPLES; i++) {
     fprintf(f, "%u,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%d,%d\n",
             data[i].power_time, data[i].temperature[0], data[i].temperature[1],
-            data[i].temperature[2], data[i].pressure[0], data[i].pressure[1],
-            data[i].pressure[2], data[i].termistor, data[i].dump_valve_cont,
+            data[i].temperature[2], data[i].pressure[0], data[i].pressure[2],
+            data[i].pressure[3], data[i].termistor, data[i].dump_valve_cont,
             data[i].dump_valve_arm, valve1_state, valve2_state,
             data[i].chargerData.vbat, data[i].chargerData.vin,
             data[i].chargerData.ibat, data[i].chargerData.iin,

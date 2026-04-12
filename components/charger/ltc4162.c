@@ -6,6 +6,7 @@
 
 #define TAG "LTC4162"
 
+
 esp_err_t ltc4162_read_register(uint8_t reg, uint8_t *data, size_t len) {
   if (len == 0 || data == NULL) {
     return ESP_ERR_INVALID_ARG;
@@ -23,7 +24,6 @@ esp_err_t ltc4162_write_register(uint8_t reg, uint8_t *data, size_t len) {
 
 esp_err_t ltc4162_init(void) {
   uint16_t config = (1 << 2); // force_telemetry_on
-
   if (ltc4162_write_register(0x14, (uint8_t *)&config, 2) != ESP_OK) {
     ESP_LOGE(TAG, "Failed to write config register");
     return ESP_FAIL;
@@ -36,8 +36,8 @@ esp_err_t ltc4162_init(void) {
     return ESP_FAIL;
   }
 
-  ESP_LOGI(TAG, "Force telemetry on: %s",
-           (config_check & (1 << 2)) ? "ON" : "OFF");
+  // ESP_LOGI(TAG, "Force telemetry on: %s",
+          //  (config_check & (1 << 2)) ? "ON" : "OFF");
   return ESP_OK;
 }
 
@@ -53,6 +53,70 @@ static int16_t read_reg16(uint8_t reg) {
 
   // little endian
   return (int16_t)((buf[1] << 8) | buf[0]);
+}
+
+static esp_err_t read_reg16_checked(uint8_t reg, int16_t *value) {
+  uint8_t buf[2] = {0};
+  if (value == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  if (ltc4162_read_register(reg, buf, 2) != ESP_OK) {
+    ESP_LOGE(TAG, "Read failed: 0x%02X", reg);
+    return ESP_FAIL;
+  }
+
+  *value = (int16_t)((buf[1] << 8) | buf[0]);
+  return ESP_OK;
+}
+
+esp_err_t read_charger_data(ltc4162_charger_data_t *charger_data) {
+  if (charger_data == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  if(ltc4162_init() != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to init LTC4162");
+    return ESP_FAIL;
+  }
+
+  int16_t vbat_raw = 0;
+  int16_t vin_raw = 0;
+  int16_t vout_raw = 0;
+  int16_t iin_raw = 0;
+  int16_t ibat_raw = 0;
+  int16_t die_raw = 0;
+  int16_t sys_raw = 0;
+  int16_t charger_state_raw = 0;
+  int16_t chem_cells = 0;
+
+  if (read_reg16_checked(0x3A, &vbat_raw) != ESP_OK ||
+      read_reg16_checked(0x3B, &vin_raw) != ESP_OK ||
+      read_reg16_checked(0x3C, &vout_raw) != ESP_OK ||
+      read_reg16_checked(0x3D, &iin_raw) != ESP_OK ||
+      read_reg16_checked(0x3E, &ibat_raw) != ESP_OK ||
+      read_reg16_checked(0x3F, &die_raw) != ESP_OK ||
+      read_reg16_checked(0x39, &sys_raw) != ESP_OK ||
+      read_reg16_checked(0x34, &charger_state_raw) != ESP_OK ||
+      read_reg16_checked(0x43, &chem_cells) != ESP_OK) {
+    return ESP_FAIL;
+  }
+
+  uint8_t cell_count = chem_cells & 0x0F;
+  if (cell_count == 0) {
+    cell_count = 4;
+  }
+
+  charger_data->vbat = vbat_raw * (cell_count * 192.4e-6f);
+  charger_data->vin = vin_raw * 1.649e-3f;
+  charger_data->vout = vout_raw * 1.653e-3f;
+  charger_data->iin = (iin_raw * 1.466e-6f) / RSNSI;
+  charger_data->ibat = (ibat_raw * 1.466e-6f) / RSNSB;
+  charger_data->die_temp = die_raw * 0.0215f - 264.4f;
+  charger_data->charger_status = (sys_raw & (1 << 8)) != 0;
+  charger_data->charger_state = charger_state_raw == 2 ? 1 : 0;
+
+  return ESP_OK;
 }
 
 esp_err_t ltc4162_debug_monitor(void) {
@@ -165,3 +229,4 @@ esp_err_t ltc4162_debug_monitor(void) {
 
   return ESP_OK;
 }
+

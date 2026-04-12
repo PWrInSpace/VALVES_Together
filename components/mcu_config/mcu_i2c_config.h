@@ -18,11 +18,14 @@
 #include "driver/i2c.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
 #define SDA_GPIO 20
 #define SCL_GPIO 19
+#define SDA_GPIO_ALT 19
+#define SCL_GPIO_ALT 20
 #define CONFIG_I2C_MASTER_PORT_NUM I2C_NUM_0
 #define CONFIG_I2C_MASTER_FREQUENCY 100000
 #define CONFIG_I2C_MASTER_TIMEOUT_MS 1000
@@ -49,10 +52,28 @@ typedef struct {
  * \return ESP_OK on success, ESP_FAIL otherwise
  * \note This function will initiate I2C peripheral.
  */
-esp_err_t mcu_i2c_init();
+esp_err_t mcu_i2c_init(void);
+
+/*!
+ * \brief Initiates the I2C bus with custom SDA/SCL pins.
+ * \param sda SDA pin number
+ * \param scl SCL pin number
+ * \return ESP_OK on success, ESP_FAIL otherwise
+ */
+esp_err_t mcu_i2c_init_with_pins(gpio_num_t sda, gpio_num_t scl);
+
+/*!
+ * \brief Deinitializes the I2C bus.
+ * \return ESP_OK on success, ESP_FAIL otherwise
+ */
+esp_err_t mcu_i2c_deinit(void);
+
+extern SemaphoreHandle_t mcu_i2c_mutex;
 
 bool _mcu_i2c_write(uint8_t address, uint8_t reg, uint8_t *data, uint8_t len);
 
 bool _mcu_i2c_read(uint8_t address, uint8_t reg, uint8_t *data, uint8_t len);
+
+
 
 #endif // PWRINSPACE_MCU_I2C_CONFIG_H_
