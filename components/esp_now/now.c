@@ -1,6 +1,7 @@
 #include "now.h"
 #include "BoardData.h"
 #include "Solenoid.h"
+#include "auto_vent_task.h"
 #include "commands.h"
 #include "servo_control.h"
 #include "valve_board_config.h"
@@ -8,8 +9,8 @@
 
 /**************************  PRIVATE INCLUDES  ********************************/
 
-#include <string.h>
 #include <math.h>
+#include <string.h>
 
 /**************************  PRIVATE VARIABLES  *******************************/
 // Adres OBC:
@@ -191,29 +192,58 @@ void now_send_data_to_obc(void *arg) {
             ? fabsf(board_data_copy.chargerData.ibat)
             : fabsf(board_data_copy.chargerData.iin);
     dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
-    dataToObc.valve1_state =  valve1_state; 
-    dataToObc.valve2_state =  valve2_state;
-    #ifdef SOL_ETH_CONFIG
+    dataToObc.valve1_state = valve1_state;
+    dataToObc.valve2_state = valve2_state;
+#ifdef SOL_ETH_CONFIG
     dataToObc.pressure1 = board_data_copy.pressure[0];
-    #endif
+#endif
+
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+    dataToObc.auto_vent_activated = is_auto_vent_active;
+    dataToObc.auto_vent_triggered = is_triggered;
+    float auto_vent_pressure_local = 0.0f;
+    get_auto_vent_pressure(&auto_vent_pressure_local);
+    dataToObc.auto_vent_pressure = (int32_t)(auto_vent_pressure_local * 1000);
+#endif
 
     // dataToObc.pressure1 = 69.69f + dupa; // to test purposes, to be removed
     // dataToObc.pressure2 = 88.88f; // to test purposes, to be removed
     // dupa++;
-    // ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u", valve1_state, valve2_state);
+    // ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u",
+    // valve1_state, valve2_state);
 
-    ESP_LOGI("NOW", "Sending data to OBC: waken_up=%d, dump_valve_arm=%d, dump_valve_cont=%d, is_charging=%d, temperature1=%d, pressure1=%.2f, pressure2=%.2f, battery_voltage=%.2f, bettery_consumption=%.2f, charger_temperature=%.2f, valve1_state=%u, valve2_state=%u",
+    ESP_LOGI("NOW",
+             "Sending data to OBC:\n"
+             "  waken_up            = %d\n"
+             "  dump_valve_arm      = %d\n"
+             "  dump_valve_cont     = %d\n"
+             "  is_charging         = %d\n"
+             "  temperature1        = %d\n"
+             "  pressure1           = %.2f\n"
+             "  pressure2           = %.2f\n"
+             "  battery_voltage     = %.2f\n"
+             "  bettery_consumption = %.2f\n"
+             "  charger_temperature = %.2f\n"
+             "  valve1_state        = %u\n"
+             "  valve2_state        = %u",
              dataToObc.waken_up, dataToObc.dump_valve_arm,
              dataToObc.dump_valve_cont, dataToObc.is_charging,
-             dataToObc.temperature1, dataToObc.pressure1,
-             dataToObc.pressure2, dataToObc.battery_voltage,
-             dataToObc.bettery_consumption, dataToObc.charger_temperature,
-             (unsigned int)dataToObc.valve1_state, (unsigned int)dataToObc.valve2_state);
-    
+             dataToObc.temperature1, dataToObc.pressure1, dataToObc.pressure2,
+             dataToObc.battery_voltage, dataToObc.bettery_consumption,
+             dataToObc.charger_temperature,
+             (unsigned int)dataToObc.valve1_state,
+             (unsigned int)dataToObc.valve2_state);
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+    ESP_LOGI("NOW",
+             "\n  auto_vent_activated = %d\n"
+             "  auto_vent_triggered = %d\n"
+             "  auto_vent_pressure = %d\n",
+             dataToObc.auto_vent_activated, dataToObc.auto_vent_triggered,
+             dataToObc.auto_vent_pressure);
+#endif
 
-
-    if (esp_now_send(adressObc, (uint8_t *)&dataToObc,
-                     sizeof(DataToObc)) != ESP_OK) {
+    if (esp_now_send(adressObc, (uint8_t *)&dataToObc, sizeof(DataToObc)) !=
+        ESP_OK) {
       ESP_LOGE("NOW", "Error sending data to OBC");
     }
 

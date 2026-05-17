@@ -36,8 +36,7 @@ esp_err_t mcu_i2c_deinit(void) {
 }
 
 esp_err_t mcu_i2c_init_with_pins(gpio_num_t sda, gpio_num_t scl) {
-  if (mcu_i2c_config.i2c_init_flag &&
-      mcu_i2c_config.sda == sda &&
+  if (mcu_i2c_config.i2c_init_flag && mcu_i2c_config.sda == sda &&
       mcu_i2c_config.scl == scl) {
     return ESP_OK;
   }

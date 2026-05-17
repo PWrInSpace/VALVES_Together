@@ -15,11 +15,13 @@
 #define N2_SOL_CLOSE 0x14
 #define N2_SOL_OPEN 0x15
 
-#define GET_DATA 0x20 //????
+#define GET_DATA 0x20 // unused
 
 #define VALVE_DZIDA 0x69
 #define DUMP_VALVE_FIRE 0x68
 #define DUMP_VALVE_ARM 0x70
 #define DUMP_VALVE_DISARM 0x71
+#define AUTO_VENT_SET 0x66
+#define AUTO_VENT_OFF 0x65
 
 #endif // COMMANDS_H

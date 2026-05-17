@@ -6,7 +6,6 @@
 
 #define TAG "LTC4162"
 
-
 esp_err_t ltc4162_read_register(uint8_t reg, uint8_t *data, size_t len) {
   if (len == 0 || data == NULL) {
     return ESP_ERR_INVALID_ARG;
@@ -25,7 +24,7 @@ esp_err_t ltc4162_write_register(uint8_t reg, uint8_t *data, size_t len) {
 esp_err_t ltc4162_init(void) {
   uint16_t config = (1 << 2); // force_telemetry_on
   if (ltc4162_write_register(0x14, (uint8_t *)&config, 2) != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to write config register");
+    // ESP_LOGE(TAG, "Failed to write config register");
     return ESP_FAIL;
   }
 
@@ -37,7 +36,7 @@ esp_err_t ltc4162_init(void) {
   }
 
   // ESP_LOGI(TAG, "Force telemetry on: %s",
-          //  (config_check & (1 << 2)) ? "ON" : "OFF");
+  //  (config_check & (1 << 2)) ? "ON" : "OFF");
   return ESP_OK;
 }
 
@@ -75,8 +74,8 @@ esp_err_t read_charger_data(ltc4162_charger_data_t *charger_data) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  if(ltc4162_init() != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to init LTC4162");
+  if (ltc4162_init() != ESP_OK) {
+    // ESP_LOGE(TAG, "Failed to init LTC4162");
     return ESP_FAIL;
   }
 
@@ -229,4 +228,3 @@ esp_err_t ltc4162_debug_monitor(void) {
 
   return ESP_OK;
 }
-

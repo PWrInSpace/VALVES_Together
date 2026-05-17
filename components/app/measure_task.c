@@ -1,7 +1,7 @@
 #include "BoardData.h"
-#include "pressure_driver.h"
-#include "mcu_i2c_config.h"
 #include "ltc4162.h"
+#include "mcu_i2c_config.h"
+#include "pressure_driver.h"
 
 TaskHandle_t pressure_task_handle = NULL;
 TaskHandle_t charger_task_handle = NULL;
@@ -42,8 +42,7 @@ void charger_task(void *arg) {
         continue;
       }
 
-      if(mcu_i2c_init_with_pins(SDA_GPIO_ALT, SCL_GPIO_ALT) != ESP_OK)
-      {
+      if (mcu_i2c_init_with_pins(SDA_GPIO_ALT, SCL_GPIO_ALT) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to init I2C with alt pins");
         xSemaphoreGive(mcu_i2c_mutex);
         continue;

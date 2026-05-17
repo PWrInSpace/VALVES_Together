@@ -1,6 +1,7 @@
 #include "valves_control.h"
 #include "BoardData.h"
 #include "Solenoid.h"
+#include "auto_vent_task.h"
 #include "commands.h"
 #include "driver/gpio.h"
 #include "esp_err.h"
@@ -170,7 +171,14 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
     igniter_disarm(igniter_cfg);
 #endif
     break;
-
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+  case AUTO_VENT_SET:
+    set_auto_vent_on((float)time_ms / 1000.0f);
+    break;
+  case AUTO_VENT_OFF:
+    set_auto_vent_off();
+    break;
+#endif
   default:
     ESP_LOGW("VALVES_CONTROL", "Unknown command: %lu",
              moduleData.dataFromObc.commandNum);

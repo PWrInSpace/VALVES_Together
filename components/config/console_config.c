@@ -1,20 +1,8 @@
-///===-----------------------------------------------------------------------------------------===//
-///
-/// Copyright (c) PWr in Space. All rights reserved.
-/// Created: 27.01.2024 by Michał Kos
-///
-///===-----------------------------------------------------------------------------------------===//
-///
-/// \file
-/// This file contains implementation of the system console configuration,
-/// including initialization and available commands for debugging/testing
-/// purposes.
-///===-----------------------------------------------------------------------------------------===//
-
 #include "esp_log.h"
 #include "esp_system.h"
 
 #include "BoardData.h"
+#include "auto_vent_task.h"
 #include "board_config.h"
 #include "buzzer.h"
 #include "commands.h"
@@ -23,9 +11,9 @@
 #include "i2c_scan.h"
 #include "igniter_driver.h"
 #include "ltc4162.h"
+#include "pressure_driver.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
-#include "pressure_driver.h"
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -280,6 +268,63 @@ int init_i2c_with_pins(int argc, char **argv) {
   return 0;
 }
 
+int open_angle(int argc, char **argv) {
+  if (argc < 3) {
+    ESP_LOGE(TAG, "Usage: open_angle <valve_id> <angle>");
+    return -1;
+  }
+  uint8_t valve_id = atoi(argv[1]);
+  int angle = atoi(argv[2]);
+  chandle_valve_cmd_angle(valve_id, 0, angle);
+  return 0;
+}
+
+int get_auto_vent_data(int argc, char **argv) {
+  float auto_vent_pressure = 0.0f;
+  get_auto_vent_pressure(&auto_vent_pressure);
+  ESP_LOGI(TAG, "Auto vent pressure: %f bar", auto_vent_pressure);
+  ESP_LOGI(TAG, "Auto vent pressure: %d mbar",
+           (int)(auto_vent_pressure * 1000));
+  ESP_LOGI(TAG, "Auto vent activated: %d", is_auto_vent_active);
+  ESP_LOGI(TAG, "Auto vent triggered: %d", is_triggered);
+  return 0;
+}
+
+int print_board_data(int argc, char **argv) {
+  BoardData_t board_data;
+  if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+    memcpy(&board_data, &boardData, sizeof(BoardData_t));
+    xSemaphoreGive(BoardDataSemaphore);
+  }
+  ESP_LOGI(TAG, "-----------------------------------");
+  ESP_LOGI(TAG, "Board data:");
+  ESP_LOGI(TAG, "Power time: %llu", board_data.power_time);
+  ESP_LOGI(TAG, "Temperature: %f, %f, %f", board_data.temperature[0],
+           board_data.temperature[1], board_data.temperature[2]);
+  ESP_LOGI(TAG, "Pressure: %f, %f, %f", board_data.pressure[0],
+           board_data.pressure[1], board_data.pressure[2]);
+  ESP_LOGI(TAG, "Dump valve arm: %d", board_data.dump_valve_arm);
+  ESP_LOGI(TAG, "Dump valve continuity: %d", board_data.dump_valve_cont);
+  ESP_LOGI(TAG, "Is charging: %d", board_data.is_charging);
+  ESP_LOGI(TAG, "------------------------------------\n\n");
+  return 0;
+}
+
+int auto_vent_on(int argc, char **argv) {
+  if (argc < 2) {
+    ESP_LOGE(TAG, "Usage: auto_vent_on <pressure>");
+    return -1;
+  }
+  float pressure = atof(argv[1]);
+  set_auto_vent_on(pressure);
+  return 0;
+}
+
+int auto_vent_off(int argc, char **argv) {
+  set_auto_vent_off();
+  return 0;
+}
+
 // Place for the console configuration
 
 // clang-format off
@@ -305,6 +350,8 @@ static esp_console_cmd_t cmd[] = {
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
     {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
+    {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
+    {"print_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
     
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG
@@ -312,6 +359,9 @@ static esp_console_cmd_t cmd[] = {
     {"close_sol_n2o", "Close N2O solenoid", NULL, close_valve1, NULL, NULL, NULL},
     {"open_servo_eth", "Open ETH servo for specified duration (ms)", NULL, open_valve2, NULL, NULL, NULL},
     {"close_servo_eth", "Close ETH servo", NULL, close_valve2, NULL, NULL, NULL},
+    {"auto_vent_on", "Activate auto vent", NULL, auto_vent_on, NULL, NULL, NULL},
+    {"auto_vent_off", "Deactivate auto vent", NULL, auto_vent_off, NULL, NULL, NULL},
+    {"get_auto_vent_data", "Get auto vent data", NULL, get_auto_vent_data, NULL, NULL, NULL},
     #elif defined(SOL_ETH_CONFIG)
     {"open_sol_eth", "Open ETH solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
     {"close_sol_eth", "Close ETH solenoid", NULL, close_valve1, NULL, NULL, NULL},

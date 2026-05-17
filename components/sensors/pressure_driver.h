@@ -27,59 +27,56 @@
 #define PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE 0.0f
 #define PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE 350.0f
 
-//3.6k
+// 3.6k
 //#define PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE 0.3597f
 //#define PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE 3.237f
 
-//3.3k
+// 3.3k
 #define PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE 0.3759f
 #define PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE 3.3835f
 
 //#define PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE 0.495f
 //#define PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE 4.4554f
 
-#define PRESSURE_DRIVER_TANWA_CONFIG(X)                         \
-  {                                                             \
-    .ads1115 = X,                                               \
-    .sensors = {                                                \
-      {                                                         \
-        .sensor = PRESSURE_DRIVER_SENSOR_1,                     \
-        .adc_pin = PRESSURE_DRIVER_SENSOR_1_ADC_PIN,            \
-        .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,   \
-        .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,   \
-        .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,     \
-        .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,     \
-      },                                                        \
-      {                                                         \
-        .sensor = PRESSURE_DRIVER_SENSOR_2,                     \
-        .adc_pin = PRESSURE_DRIVER_SENSOR_2_ADC_PIN,            \
-        .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,   \
-        .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,   \
-        .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,     \
-        .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,     \
-      },                                                        \
-      {                                                         \
-        .sensor = PRESSURE_DRIVER_SENSOR_3,                     \
-        .adc_pin = PRESSURE_DRIVER_SENSOR_3_ADC_PIN,            \
-        .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,   \
-        .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,   \
-        .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,     \
-        .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,     \
-      },                                                        \
-      {                                                         \
-        .sensor = PRESSURE_DRIVER_SENSOR_4,                     \
-        .adc_pin = PRESSURE_DRIVER_SENSOR_4_ADC_PIN,            \
-        .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,   \
-        .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,   \
-        .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,     \
-        .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,     \
-      },                                                        \
-    }                                                           \
+#define PRESSURE_DRIVER_TANWA_CONFIG(X)                                        \
+  {                                                                            \
+    .ads1115 = X, .sensors = {                                                 \
+      {                                                                        \
+          .sensor = PRESSURE_DRIVER_SENSOR_1,                                  \
+          .adc_pin = PRESSURE_DRIVER_SENSOR_1_ADC_PIN,                         \
+          .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,                \
+          .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,                \
+          .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,                  \
+          .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,                  \
+      },                                                                       \
+      {                                                                        \
+          .sensor = PRESSURE_DRIVER_SENSOR_2,                                  \
+          .adc_pin = PRESSURE_DRIVER_SENSOR_2_ADC_PIN,                         \
+          .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,                \
+          .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,                \
+          .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,                  \
+          .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,                  \
+      },                                                                       \
+      {                                                                        \
+          .sensor = PRESSURE_DRIVER_SENSOR_3,                                  \
+          .adc_pin = PRESSURE_DRIVER_SENSOR_3_ADC_PIN,                         \
+          .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,                \
+          .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,                \
+          .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,                  \
+          .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,                  \
+      },                                                                       \
+      {                                                                        \
+          .sensor = PRESSURE_DRIVER_SENSOR_4,                                  \
+          .adc_pin = PRESSURE_DRIVER_SENSOR_4_ADC_PIN,                         \
+          .pressure_min = PRESSURE_DRIVER_DEFAULT_MIN_PRESSURE,                \
+          .pressure_max = PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE,                \
+          .voltage_min = PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE,                  \
+          .voltage_max = PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE,                  \
+      },                                                                       \
+    }                                                                          \
   }
 
-
-  extern bool calibration_mode;
-
+extern bool calibration_mode;
 
 typedef enum {
   PRESSURE_DRIVER_SENSOR_1 = 0,

@@ -5,6 +5,7 @@
 #include "servo_config.h"
 #include "solenoid_config.h"
 #include "stdbool.h"
+#include <stdint.h>
 
 typedef struct {
   float vbat;
@@ -18,6 +19,21 @@ typedef struct {
 
 } ChargerData_t;
 
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+typedef struct {
+  uint64_t power_time;
+  float temperature[3];
+  float pressure[4];
+  float termistor;
+  bool dump_valve_arm;
+  bool dump_valve_cont;
+  bool is_charging;
+  bool auto_vent_activated;
+  bool auto_vent_triggered;
+  ChargerData_t chargerData;
+} BoardData_t;
+#else
+
 typedef struct {
   uint64_t power_time;
   float temperature[3];
@@ -29,6 +45,8 @@ typedef struct {
   ChargerData_t chargerData;
 
 } BoardData_t;
+
+#endif
 
 extern volatile uint8_t valve1_state;
 extern volatile uint8_t valve2_state;
@@ -85,6 +103,27 @@ typedef enum {
   NO_CHANGE = 0xff // DO NOT USE, ONLY FOR REQUEST PURPOSE
 } States;
 
+#if defined(SOL_N20_SERVO_ETH_CONFIG)
+typedef struct DataToObc {
+  bool waken_up : 1;
+  bool dump_valve_arm : 1;  // 0 not armed, 1 armed
+  bool dump_valve_cont : 1; // 0 no cont, 1 cont
+  bool is_charging : 1;     // 0 not charging, 1 charging
+  bool auto_vent_activated : 1;
+  bool auto_vent_triggered : 1;
+  int32_t auto_vent_pressure;
+  int16_t ox_temperature;
+  uint8_t valve1_state : 2; // 0 - closed, 1 - open
+  uint8_t valve2_state : 2; // 0 - closed, 1 - open
+  int16_t temperature1;
+  float pressure1;
+  float pressure2;
+  float battery_voltage;
+  float bettery_consumption;
+  float charger_temperature;
+} DataToObc;
+
+#else
 typedef struct DataToObc {
   bool waken_up : 1;
   bool dump_valve_arm : 1;  // 0 not armed, 1 armed
@@ -99,6 +138,7 @@ typedef struct DataToObc {
   float bettery_consumption;
   float charger_temperature;
 } DataToObc;
+#endif
 
 typedef struct {
   DataFromObc dataFromObc;

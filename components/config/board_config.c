@@ -20,6 +20,7 @@
 #include "esp_log.h"
 
 #include "BoardData.h"
+#include "auto_vent_task.h"
 #include "buzzer.h"
 #include "console_config.h"
 #include "igniter_driver.h"
@@ -29,9 +30,9 @@
 #include "mcu_gpio_config.h"
 #include "mcu_i2c_config.h"
 #include "mcu_spi_config.h"
+#include "measure_task.h"
 #include "now.h"
 #include "pressure_driver.h"
-#include "measure_task.h"
 #include "sd_task.h"
 #include "servo_config.h"
 #include "solenoid_config.h"
@@ -139,22 +140,22 @@ esp_err_t board_config_init(void) {
     ESP_LOGI(TAG, "Pressure driver 1 initialized");
   }
 
-  #if defined(SOL_N20_SERVO_ETH_CONFIG) || defined(SOL_ETH_CONFIG)
+#if defined(SOL_N20_SERVO_ETH_CONFIG) || defined(SOL_ETH_CONFIG)
   if (sd_task_init() != ESP_OK) {
     ESP_LOGE(TAG, "SD card task initialization failed");
     // return ESP_FAIL;
   }
-  #endif
+#endif
 
   createNowSendTask();
 #ifdef SERVO_N20_CONFIG
   run_igniter_task();
 #endif
   run_measure_task();
-  // pressure_task_init();
-  // voltage_task_init();
-  // temperature_task_init();
-
+#
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+  run_auto_vent_task();
+#endif
   return ESP_OK;
 
   //*********** ADD HARDWARE CONFIGURATION HERE ***********//
