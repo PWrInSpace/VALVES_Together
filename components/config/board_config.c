@@ -38,6 +38,7 @@
 #include "solenoid_config.h"
 #include "timers_config.h"
 #include "valve_board_config.h"
+#include "RGB_led_driver.h"
 
 #define TAG "BOARD_CONFIG"
 
@@ -71,6 +72,12 @@ esp_err_t board_config_init(void) {
   if (!timers_init()) {
     ESP_LOGE(TAG, "Failed to initialize timers");
     return ESP_FAIL;
+  }
+
+  err = rgb_led_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to initialize status LED (RGB)");
+    // return err;
   }
 
   if (nowInit()) {
