@@ -319,6 +319,128 @@ int auto_vent_off(int argc, char **argv) {
   return 0;
 }
 
+// |--- Commands for Flash memory module ---|
+
+void print_config(const data_config_t *cfg, const char *label) {
+  printf("%s\n", label);
+  flash_print_config(*cfg);
+  printf("\n");
+}
+
+int read_flash(int argc, char **argv) {
+  data_config_t data;
+  if (flash_read(&data) != ESP_OK) {
+      printf("Couldn't retrieve data from flash memory\n");
+      return 0;
+  }
+
+  print_config(&data, "Memory contents:");
+  return 0;
+}
+
+int get_runtime_config(int argc, char **argv) {
+  data_config_t data;
+  flash_get_runtime_config(&data);
+  print_config(&data, "Runtime config:");
+  return 0;
+}
+
+int save_flash(int argc, char **argv) {
+  esp_err_t ret;
+  ret = flash_commit();
+
+  if (ret != ESP_OK) {
+    printf("Couldn't save data to flash memory\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully saved data to flash memory\n");
+  return 0;
+}
+
+int restore_defaults(int argc, char **argv) {
+  esp_err_t ret;
+  ret = flash_restore_defaults();
+
+  if (ret != ESP_OK) {
+    printf("Couldn't restore config default values\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully restored config default values. Remember to use `save_config` to save your changes\n");
+  return 0;
+}
+
+int erase_flash(int argc, char **argv) {
+  if (argc < 2) {
+    print_cmd_usage(argv[0]);
+    return 0;
+  }
+  const char *confirmation = NULL;
+
+  // Attempt to parse argument
+  int nerrors = arg_parse(argc, argv, (void **)&erase_flash_args);
+  if (nerrors == 0) {
+    confirmation = erase_flash_args.confirmation->sval[0];
+  } else if (argc == 2) {
+    confirmation = argv[1];
+  }
+
+  if (!confirmation) {
+    arg_print_errors(stdout, erase_flash_args.end, argv[0]);
+    return 0;
+  }
+
+  if (strcmp(confirmation, "Y") != 0) {
+    printf("Flash erase cancelled. You need to pass 'Y' as argument to confirm.\n");
+    return 0;
+  }
+
+  esp_err_t ret = flash_erase_config();
+  if (ret != ESP_OK) {
+    printf("Couldn't erase flash contents\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully erased flash contents\n");
+  return 0;
+}
+
+int edit_flash(int argc, char **argv) {
+  if (argc < 3) {
+    print_cmd_usage(argv[0]);
+    return 0;
+  }
+
+  const char *field = NULL;
+  const char *value = NULL;
+
+  // Attempt to parse arguments
+  int nerrors = arg_parse(argc, argv, (void **)&edit_flash_args);
+
+  if (nerrors == 0) {
+    field = edit_flash_args.field->sval[0];
+    value = edit_flash_args.value->sval[0];
+  } else if (argc == 3) {
+    field = argv[1];
+    value = argv[2];
+  }
+
+  if (!field || !value) {
+    arg_print_errors(stdout, edit_flash_args.end, argv[0]);
+    return 0;
+  }
+  
+  esp_err_t ret = flash_edit_field(field, value);
+  if (ret != ESP_OK) {
+    printf("Couldn't edit provided field\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully edited runtime config. Remember to use `save_config` to save your changes\n");
+  return 0;
+}
+
 // Place for the console configuration
 
 // clang-format off
@@ -345,7 +467,13 @@ static esp_console_cmd_t cmd[] = {
     {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
     {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
     {"print_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
-    
+
+    {"read_flash", "Reads and displays saved data in flash memory.", NULL, read_flash, NULL, NULL, NULL},
+    {"display_config", "Displays current state of runtime config.\nThis command does NOT display flash memory contents, to see current flash memory contents use `read_flash`.", NULL, get_runtime_config, NULL, NULL, NULL},
+    {"save_config", "Saves runtime config edited by User to flash memory.", NULL, save_flash, NULL, NULL, NULL},
+    {"edit_config", "Sets the provided field in runtime config to provided value.", NULL, edit_flash, NULL, NULL, NULL},
+    {"restore_config", "Restores all default values and saves them into runtime config.\nUse `save_config` to save the runtime config to flash memory.", NULL, restore_defaults, NULL, NULL, NULL},
+    {"erase_flash", "Erases flash memory partition that is holding config data.\nTo erase stored data you need to type `erase_flash Y` to ensure that flash won't be erased by accident.\nThere is no need to run `save_flash` after this function finishes.", NULL, erase_flash, NULL, NULL, NULL},
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG
     {"open_sol_n2o", "Open N2O solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
