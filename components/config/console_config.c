@@ -14,6 +14,7 @@
 #include "pressure_driver.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
+#include "flash.h"
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -330,8 +331,8 @@ void print_config(const data_config_t *cfg, const char *label) {
 int read_flash(int argc, char **argv) {
   data_config_t data;
   if (flash_read(&data) != ESP_OK) {
-      printf("Couldn't retrieve data from flash memory\n");
-      return 0;
+    printf("Couldn't retrieve data from flash memory\n");
+    return 0;
   }
 
   print_config(&data, "Memory contents:");
@@ -372,26 +373,7 @@ int restore_defaults(int argc, char **argv) {
 }
 
 int erase_flash(int argc, char **argv) {
-  if (argc < 2) {
-    print_cmd_usage(argv[0]);
-    return 0;
-  }
-  const char *confirmation = NULL;
-
-  // Attempt to parse argument
-  int nerrors = arg_parse(argc, argv, (void **)&erase_flash_args);
-  if (nerrors == 0) {
-    confirmation = erase_flash_args.confirmation->sval[0];
-  } else if (argc == 2) {
-    confirmation = argv[1];
-  }
-
-  if (!confirmation) {
-    arg_print_errors(stdout, erase_flash_args.end, argv[0]);
-    return 0;
-  }
-
-  if (strcmp(confirmation, "Y") != 0) {
+  if (strcmp(argv[1], "Y") != 0) {
     printf("Flash erase cancelled. You need to pass 'Y' as argument to confirm.\n");
     return 0;
   }
@@ -408,28 +390,12 @@ int erase_flash(int argc, char **argv) {
 
 int edit_flash(int argc, char **argv) {
   if (argc < 3) {
-    print_cmd_usage(argv[0]);
+    printf("Usage: edit_flash <field> <value>\n");
     return 0;
   }
 
-  const char *field = NULL;
-  const char *value = NULL;
-
-  // Attempt to parse arguments
-  int nerrors = arg_parse(argc, argv, (void **)&edit_flash_args);
-
-  if (nerrors == 0) {
-    field = edit_flash_args.field->sval[0];
-    value = edit_flash_args.value->sval[0];
-  } else if (argc == 3) {
-    field = argv[1];
-    value = argv[2];
-  }
-
-  if (!field || !value) {
-    arg_print_errors(stdout, edit_flash_args.end, argv[0]);
-    return 0;
-  }
+  const char *field = argv[1];
+  const char *value = argv[2];
   
   esp_err_t ret = flash_edit_field(field, value);
   if (ret != ESP_OK) {
