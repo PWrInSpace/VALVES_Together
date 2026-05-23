@@ -232,12 +232,6 @@ int get_board_data(int argc, char **argv) {
   return 0;
 }
 
-int set_calibration_mode(int argc, char **argv) {
-  calibration_mode = !calibration_mode;
-  ESP_LOGI(TAG, "Calibration mode: %s", calibration_mode ? "ON" : "OFF");
-  return 0;
-}
-
 int deinit_i2c(int argc, char **argv) {
   esp_err_t ret = mcu_i2c_deinit();
   if (ret != ESP_OK) {
@@ -346,7 +340,6 @@ static esp_console_cmd_t cmd[] = {
     {"play_triple_beep", "Play a triple beep on the buzzer", NULL, play_triple_beep, NULL, NULL, NULL},
     {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
     {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
-    {"set_calibration_mode", "Toggle calibration mode for pressure sensors", NULL, set_calibration_mode, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
     {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
