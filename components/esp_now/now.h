@@ -23,6 +23,7 @@
 /**************************  PUBLIC VARIABLES  ********************************/
 
 extern const uint8_t adressObc[];
+extern bool now_send_data_log_enabled;
 
 /**************************  CODE *********************************************/
 

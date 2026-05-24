@@ -37,8 +37,8 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
     } else {
       valve1_state = 0;
     }
-    break;
 #endif
+    break;
   case ETH_VALVE_OPEN:
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     if (open_servo(ETH_FILL_SERVO, time_ms) != ESP_OK) {
@@ -143,12 +143,12 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
     ESP_LOGI("VALVES_CONTROL", "DZIDA COMMAND RECEIVED");
 #ifdef SERVO_N20_CONFIG
     vTaskDelay(pdMS_TO_TICKS(100));
-    chandle_valve_cmd(N20_VALVE_OPEN, 6000);
+    chandle_valve_cmd(N20_VALVE_OPEN, 0);
 #endif
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     vTaskDelay(pdMS_TO_TICKS(160));
-    chandle_valve_cmd(ETH_VALVE_OPEN, 6000);
+    chandle_valve_cmd(ETH_VALVE_OPEN, 0);
 #endif
 
     break;

@@ -36,6 +36,8 @@
 #include "sd_task.h"
 #include "servo_config.h"
 #include "solenoid_config.h"
+#include "thermocouple_config.h"
+#include "thermocouple_task.h"
 #include "timers_config.h"
 #include "valve_board_config.h"
 
@@ -67,6 +69,13 @@ esp_err_t board_config_init(void) {
     ESP_LOGE(TAG, "SPI initialization failed");
     return err;
   }
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+  err = thermocouple_config_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Thermocouple initialization failed");
+    return err;
+  }
+#endif
 
   if (!timers_init()) {
     ESP_LOGE(TAG, "Failed to initialize timers");
@@ -140,20 +149,21 @@ esp_err_t board_config_init(void) {
     ESP_LOGI(TAG, "Pressure driver 1 initialized");
   }
 
-#if defined(SOL_N20_SERVO_ETH_CONFIG) || defined(SOL_ETH_CONFIG)
   if (sd_task_init() != ESP_OK) {
     ESP_LOGE(TAG, "SD card task initialization failed");
     // return ESP_FAIL;
   }
-#endif
 
   createNowSendTask();
 #ifdef SERVO_N20_CONFIG
   run_igniter_task();
 #endif
   run_measure_task();
-#
 #ifdef SOL_N20_SERVO_ETH_CONFIG
+  if (!run_thermocouple_task()) {
+    ESP_LOGE(TAG, "Failed to start thermocouple task");
+    return ESP_FAIL;
+  }
   run_auto_vent_task();
 #endif
   return ESP_OK;

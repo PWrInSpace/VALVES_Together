@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "esp_log.h"
 #include "esp_system.h"
 
@@ -11,6 +13,7 @@
 #include "i2c_scan.h"
 #include "igniter_driver.h"
 #include "ltc4162.h"
+#include "now.h"
 #include "pressure_driver.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
@@ -238,6 +241,24 @@ int set_calibration_mode(int argc, char **argv) {
   return 0;
 }
 
+int set_now_send_log(int argc, char **argv) {
+  if (argc >= 2) {
+    if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
+      now_send_data_log_enabled = true;
+    } else if (strcmp(argv[1], "off") == 0 || strcmp(argv[1], "0") == 0) {
+      now_send_data_log_enabled = false;
+    } else {
+      ESP_LOGE(TAG, "Usage: now_send_log [on|off]");
+      return -1;
+    }
+  } else {
+    now_send_data_log_enabled = !now_send_data_log_enabled;
+  }
+  ESP_LOGI(TAG, "NOW send data log: %s",
+           now_send_data_log_enabled ? "ON" : "OFF");
+  return 0;
+}
+
 int deinit_i2c(int argc, char **argv) {
   esp_err_t ret = mcu_i2c_deinit();
   if (ret != ESP_OK) {
@@ -278,7 +299,7 @@ int open_angle(int argc, char **argv) {
   chandle_valve_cmd_angle(valve_id, 0, angle);
   return 0;
 }
-
+#ifdef SOL_N20_SERVO_ETH_CONFIG
 int get_auto_vent_data(int argc, char **argv) {
   float auto_vent_pressure = 0.0f;
   get_auto_vent_pressure(&auto_vent_pressure);
@@ -289,6 +310,7 @@ int get_auto_vent_data(int argc, char **argv) {
   ESP_LOGI(TAG, "Auto vent triggered: %d", is_triggered);
   return 0;
 }
+#endif
 
 int print_board_data(int argc, char **argv) {
   BoardData_t board_data;
@@ -310,6 +332,7 @@ int print_board_data(int argc, char **argv) {
   return 0;
 }
 
+#ifdef SOL_N20_SERVO_ETH_CONFIG
 int auto_vent_on(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: auto_vent_on <pressure>");
@@ -324,7 +347,7 @@ int auto_vent_off(int argc, char **argv) {
   set_auto_vent_off();
   return 0;
 }
-
+#endif
 // Place for the console configuration
 
 // clang-format off
@@ -347,6 +370,7 @@ static esp_console_cmd_t cmd[] = {
     {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
     {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
     {"set_calibration_mode", "Toggle calibration mode for pressure sensors", NULL, set_calibration_mode, NULL, NULL, NULL},
+    {"now_send_log", "Enable/disable ESP-NOW data-to-OBC debug log (on|off or toggle)", NULL, set_now_send_log, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
     {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
