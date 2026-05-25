@@ -425,8 +425,54 @@ static esp_err_t parse_float(const char *value, float *out) {
 }
 
 int press_tare(int argc, char **argv) {
+  const char *field = NULL;
+  int sensor_num = -1;
   if (argc > 1) {
+    field = argv[1];
 
+    size_t n = sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
+    for (size_t i = 0; i < n; i++) {
+      if (strcmp(pressure_sensors_names[i], field) == 0) {
+        sensor_num = i;
+        break; 
+      }
+    }
+  }
+
+  data_config_t new_config;
+  if (flash_get_runtime_config(&new_config) != ESP_OK) {
+    printf("Couldn't retrieve runtime config\n");
+    return 0;
+  }
+
+  float *config_fields[PRESSURE_DRIVER_SENSOR_COUNT] = {
+    &new_config.press_calibr.sensor_0_volt_0,
+    &new_config.press_calibr.sensor_1_volt_0,
+    &new_config.press_calibr.sensor_2_volt_0,
+    &new_config.press_calibr.sensor_3_volt_0,
+  };
+
+  if (sensor_num >= 0) {
+    float mv;
+    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv) != PRESSURE_DRIVER_OK)  {
+      printf("Calibration failed while taring %s sensor.", pressure_sensors_names[sensor_num]);
+      return 0;
+    }
+    *config_fields[sensor_num] = mv;
+  } else {
+    for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
+      float mv;
+      if (tare_pressure_sensor(&pressure_driver_config, i, &mv) != PRESSURE_DRIVER_OK) {
+        printf("Calibration failed while taring %s sensor.", pressure_sensors_names[i]);
+        return 0;
+      }
+      *config_fields[i] = mv;
+    }
+  }
+
+  if (flash_edit_config(new_config) != ESP_OK) {
+    printf("Failed to save calibration values into runtime config\n");
+    return 0;
   }
 }
 
