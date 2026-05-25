@@ -270,3 +270,36 @@ pressure_driver_status_t pressure_driver_read_pressures(pressure_driver_struct_t
 
   return PRESSURE_DRIVER_OK;
 }
+
+pressure_driver_status_t calibrate_pressure_sensor(pressure_driver_struct_t *pressure_driver, pressure_driver_sensor_t sensor, float pressure, float *measured_volt) {
+  if (pressure_driver == NULL || measured_volt == NULL) {
+    ESP_LOGE(TAG, "Invalid argument in calibrate_pressure_sensor");
+    return PRESSURE_DRIVER_FAIL;
+  }
+  
+  if (pressure_driver_read_voltage(pressure_driver, sensor, measured_volt) != PRESSURE_DRIVER_OK) {
+    return PRESSURE_DRIVER_FAIL;
+  }
+
+  // no need to check return type
+  pressure_driver_set_1_voltage(pressure_driver, sensor, *measured_volt);
+  pressure_driver_set_1_pressure(pressure_driver, sensor, pressure);
+
+  return PRESSURE_DRIVER_OK;
+}
+
+pressure_driver_status_t tare_pressure_sensor(pressure_driver_struct_t *pressure_driver, pressure_driver_sensor_t sensor, float *measured_volt) {
+  if (pressure_driver == NULL || measured_volt == NULL) {
+    ESP_LOGE(TAG, "Invalid argument in calibrate_pressure_sensor");
+    return PRESSURE_DRIVER_FAIL;
+  }
+  
+  if (pressure_driver_read_voltage(pressure_driver, sensor, measured_volt) != PRESSURE_DRIVER_OK) {
+    return PRESSURE_DRIVER_FAIL;
+  }
+
+  // no need to check return type
+  pressure_driver_set_zero_voltage(pressure_driver, sensor, *measured_volt);
+
+  return PRESSURE_DRIVER_OK;
+}

@@ -407,6 +407,94 @@ int edit_flash(int argc, char **argv) {
   return 0;
 }
 
+// |--- Commands for pressure sensors calibration ---|
+
+const char *pressure_sensors_names[] = {
+  "P1",
+  "P2",
+  "L",
+  "S",
+};
+
+static esp_err_t parse_float(const char *value, float *out) {
+  if (!value || !out) return ESP_ERR_INVALID_ARG;
+  char *endptr = NULL;
+  *out = strtof(value, &endptr);
+  if (*endptr != '\0') return ESP_ERR_INVALID_ARG;
+  return ESP_OK;
+}
+
+int press_tare(int argc, char **argv) {
+  if (argc > 1) {
+
+  }
+}
+
+int press_calibrate(int argc, char **argv) {
+  if (argc < 3) {
+    printf("Usage: calibrate <sensor> <value>\n");
+
+    size_t s_count = sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
+    printf("Available sensors:\n");
+    for (int i = 0; i < s_count; i++) printf("- %s\n", pressure_sensors_names[i]);
+
+    return 0;
+  }
+
+  const char *field = argv[1];
+  const char *value = argv[2];
+  float pressure;
+
+  if (parse_float(value, &pressure) != ESP_OK) {
+    printf("Couldn't parse provided pressure\n");
+    return 0;
+  }
+
+  data_config_t new_config;
+  if (flash_get_runtime_config(&new_config) != ESP_OK) {
+    printf("Couldn't retrieve runtime config\n");
+    return 0;
+  }
+
+  struct {
+    const char *key;
+    float *ptrs[2];
+  } sensor_map[] = {
+    {pressure_sensors_names[0], {&new_config.press_calibr.sensor_0_volt_1, &new_config.press_calibr.sensor_0_press_1}},
+    {pressure_sensors_names[1], {&new_config.press_calibr.sensor_1_volt_1, &new_config.press_calibr.sensor_1_press_1}},
+    {pressure_sensors_names[2], {&new_config.press_calibr.sensor_2_volt_1, &new_config.press_calibr.sensor_2_press_1}},
+    {pressure_sensors_names[3], {&new_config.press_calibr.sensor_3_volt_1, &new_config.press_calibr.sensor_3_press_1}}
+  };
+  size_t n = sizeof(sensor_map) / sizeof(sensor_map[0]);
+
+  float *voltage_1 = NULL, *pressure_1 = NULL;
+  int sensor_num = 0;
+  for (size_t i = 0; i < n; i++) {
+    if (strcmp(sensor_map[i].key, field) == 0) {
+      voltage_1 = sensor_map[i].ptrs[0];
+      pressure_1 = sensor_map[i].ptrs[1];
+      sensor_num = i;
+      break; 
+    }
+  }
+
+  if (voltage_1 == NULL || pressure_1 == NULL) {
+    printf("Couldn't parse provided field argument\n");
+    return 0;
+  }
+
+  calibrate_pressure_sensor(&pressure_driver_config, sensor_num, pressure, voltage_1);
+  *pressure_1 = pressure;
+
+  if (flash_edit_config(new_config) != ESP_OK) {
+    printf("Failed to save calibration values into runtime config\n");
+    return 0;
+  }
+
+  printf("Successfully calibrated %s sensor for pressure of %g bars. Remember to use `save_config` to save your changes\n", field, pressure);
+  return 0;
+}
+
 // Place for the console configuration
 
 // clang-format off
@@ -440,6 +528,9 @@ static esp_console_cmd_t cmd[] = {
     {"edit_config", "Sets the provided field in runtime config to provided value.", NULL, edit_flash, NULL, NULL, NULL},
     {"restore_config", "Restores all default values and saves them into runtime config.\nUse `save_config` to save the runtime config to flash memory.", NULL, restore_defaults, NULL, NULL, NULL},
     {"erase_flash", "Erases flash memory partition that is holding config data.\nTo erase stored data you need to type `erase_flash Y` to ensure that flash won't be erased by accident.\nThere is no need to run `save_flash` after this function finishes.", NULL, erase_flash, NULL, NULL, NULL},
+
+    {"calibrate", "Calibrate specific sensor for provided pressure", NULL, press_calibrate, NULL, NULL, NULL},
+    {"tare", "Calibrate all or chosen pressure sensors for 0 bar", NULL, press_tare, NULL, NULL, NULL},
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG
     {"open_sol_n2o", "Open N2O solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
