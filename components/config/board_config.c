@@ -39,6 +39,7 @@
 #include "timers_config.h"
 #include "valve_board_config.h"
 #include "RGB_led_driver.h"
+#include "flash.h"
 
 #define TAG "BOARD_CONFIG"
 
@@ -72,6 +73,12 @@ esp_err_t board_config_init(void) {
   if (!timers_init()) {
     ESP_LOGE(TAG, "Failed to initialize timers");
     return ESP_FAIL;
+  }
+
+  err = flash_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "NVS initialization failed");
+    return err;
   }
 
   err = rgb_led_init();
