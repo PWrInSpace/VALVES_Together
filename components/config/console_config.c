@@ -474,6 +474,13 @@ int press_tare(int argc, char **argv) {
     printf("Failed to save calibration values into runtime config\n");
     return 0;
   }
+
+  if (sensor_num != -1) {
+    printf("Successfully calibrated %s sensor for pressure of 0 bars. Remember to use `save_config` to save your changes\n", pressure_sensors_names[sensor_num]);
+  } else {
+    printf("Successfully calibrated all sensors for pressure of 0 bars. Remember to use `save_config` to save your changes\n");
+  }
+  return 0;
 }
 
 int press_calibrate(int argc, char **argv) {
