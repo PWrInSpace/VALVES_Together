@@ -454,7 +454,7 @@ int press_tare(int argc, char **argv) {
 
   if (sensor_num >= 0) {
     float mv;
-    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv) != PRESSURE_DRIVER_OK)  {
+    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv, 5) != PRESSURE_DRIVER_OK)  {
       printf("Calibration failed while taring %s sensor.", pressure_sensors_names[sensor_num]);
       return 0;
     }
@@ -462,7 +462,7 @@ int press_tare(int argc, char **argv) {
   } else {
     for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
       float mv;
-      if (tare_pressure_sensor(&pressure_driver_config, i, &mv) != PRESSURE_DRIVER_OK) {
+      if (tare_pressure_sensor(&pressure_driver_config, i, &mv, 5) != PRESSURE_DRIVER_OK) {
         printf("Calibration failed while taring %s sensor.", pressure_sensors_names[i]);
         return 0;
       }
@@ -536,7 +536,7 @@ int press_calibrate(int argc, char **argv) {
     return 0;
   }
 
-  calibrate_pressure_sensor(&pressure_driver_config, sensor_num, pressure, voltage_1);
+  calibrate_pressure_sensor(&pressure_driver_config, sensor_num, pressure, voltage_1, 5);
   *pressure_1 = pressure;
 
   if (flash_edit_config(new_config) != ESP_OK) {

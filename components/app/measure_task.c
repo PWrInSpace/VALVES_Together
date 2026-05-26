@@ -18,7 +18,7 @@ void pressure_task(void *arg) {
       if (xSemaphoreTake(BoardDataSemaphore,
                          pdMS_TO_TICKS(BOARDDATA_MUTEX_TIMEOUT_MS)) == pdTRUE) {
         pressure_driver_read_pressures(&pressure_driver_config,
-                                       boardData.pressure);
+                                       boardData.pressure, 10);
         // ESP_LOGI(TAG, "Pressure readings: %f, %f, %f", boardData.pressure[0],
         // boardData.pressure[1], boardData.pressure[2]);
         xSemaphoreGive(BoardDataSemaphore);
