@@ -150,4 +150,18 @@ typedef struct {
 esp_err_t board_data_init(void);
 uint64_t power_time();
 
+esp_err_t get_board_data(BoardData_t* data, uint32_t mutexTimeout);
+
+esp_err_t get_boardData_charger_data(ChargerData_t *data, uint32_t mutexTimeout);
+esp_err_t set_boardData_charger_data(ChargerData_t data, uint32_t mutexTimeout);
+
+esp_err_t get_boardData_pressures(float *pressures[4], uint32_t mutexTimeout);
+esp_err_t set_boardData_pressures(float pressures[4], uint32_t mutexTimeout);
+
+esp_err_t get_boardData_temperatures(float *temperatures[3], uint32_t mutexTimeout);
+esp_err_t set_boardData_temperatures(float temperatures[3], uint32_t mutexTimeout);
+
+esp_err_t get_boardData_power_time(uint64_t *power_time, uint32_t mutexTimeout);
+esp_err_t set_boardData_power_time(uint64_t power_time, uint32_t mutexTimeout);
+
 extern volatile ModuleData moduleData;

@@ -200,28 +200,26 @@ int play_harry_potter_theme(int argc, char **argv) {
   return 0;
 }
 
-int get_board_data(int argc, char **argv) {
+int get_board_data_cmd(int argc, char **argv) {
   int n = 1;
-  if (argc == 2) {
-    n = atoi(argv[1]);
-  }
-  for (int i = 0; i < n; i++) {
+  if (argc == 2) n = atoi(argv[1]);
 
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+  for (int i = 0; i < n; i++) {
+    BoardData_t data;
+    if (get_board_data(&data, portMAX_DELAY) == ESP_OK) {
       ESP_LOGI(TAG, "-----------------------------------");
       ESP_LOGI(TAG, "Current board data:");
-      ESP_LOGI(TAG, "Power time: %llu", boardData.power_time);
+      ESP_LOGI(TAG, "Power time: %llu", data.power_time);
       ESP_LOGI(TAG, "valve1 state: %d", valve1_state);
       ESP_LOGI(TAG, "valve2 state: %d", valve2_state);
-      ESP_LOGI(TAG, "Temperature: %f, %f, %f", boardData.temperature[0],
-               boardData.temperature[1], boardData.temperature[2]);
-      ESP_LOGI(TAG, "Pressure left channel: %f", boardData.pressure[2]);
-      ESP_LOGI(TAG, "Pressure middle channel: %f", boardData.pressure[3]);
-      ESP_LOGI(TAG, "Dump valve arm: %d", boardData.dump_valve_arm);
-      ESP_LOGI(TAG, "Dump valve continuity: %d", boardData.dump_valve_cont);
-      ESP_LOGI(TAG, "Is charging: %d", boardData.is_charging);
+      ESP_LOGI(TAG, "Temperature: %f, %f, %f", data.temperature[0],
+               data.temperature[1], data.temperature[2]);
+      ESP_LOGI(TAG, "Pressure left channel: %f", data.pressure[2]);
+      ESP_LOGI(TAG, "Pressure middle channel: %f", data.pressure[3]);
+      ESP_LOGI(TAG, "Dump valve arm: %d", data.dump_valve_arm);
+      ESP_LOGI(TAG, "Dump valve continuity: %d", data.dump_valve_cont);
+      ESP_LOGI(TAG, "Is charging: %d", data.is_charging);
       ESP_LOGI(TAG, "------------------------------------\n\n");
-      xSemaphoreGive(BoardDataSemaphore);
     } else {
       ESP_LOGE(TAG, "Failed to take BoardDataSemaphore");
       return -1;
@@ -568,7 +566,7 @@ static esp_console_cmd_t cmd[] = {
     {"play_double_beep", "Play a double beep on the buzzer", NULL, play_double_beep, NULL, NULL, NULL},
     {"play_triple_beep", "Play a triple beep on the buzzer", NULL, play_triple_beep, NULL, NULL, NULL},
     {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
-    {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
+    {"get_board_data", "Print current board data to console", NULL, get_board_data_cmd, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
     {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
