@@ -14,12 +14,12 @@
 
 /**************************  PRIVATE VARIABLES  *******************************/
 // Adres OBC:
-const uint8_t adressObc[] = {0x04, 0x20, 0x04,
+const uint8_t addressObc[] = {0x04, 0x20, 0x04,
                              0x20, 0x04, 0x20}; // dane devkita do testow
 
 /**************************  PRIVATE FUNCTIONS  *******************************/
 
-bool adressCompare(const uint8_t *addr1, const uint8_t *addr2);
+bool addressCompare(const uint8_t *addr1, const uint8_t *addr2);
 void obc_command_handler(const uint8_t *data, int len);
 
 /**************************  CODE *********************************************/
@@ -95,7 +95,7 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData,
 
   // ESP_LOGI("NOW", "Received data from OBC");
 
-  if (adressCompare(info->src_addr, adressObc)) {
+  if (addressCompare(info->src_addr, addressObc)) {
 
     // ESP_LOGI("NOW", "Data received from OBC in length: %d", len);
 
@@ -119,7 +119,7 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData,
   }
 }
 
-bool adressCompare(const uint8_t *addr1, const uint8_t *addr2) {
+bool addressCompare(const uint8_t *addr1, const uint8_t *addr2) {
 
   for (int8_t i = 0; i < 6; i++) {
 
@@ -148,7 +148,7 @@ void obc_command_handler(const uint8_t *data, int len) {
     ESP_LOGI("ESP-NOW", "Received command: %lu with arg: %ld",
              moduleData.dataFromObc.commandNum,
              moduleData.dataFromObc.commandArg);
-    chandle_valve_cmd(moduleData.dataFromObc.commandNum,
+    handle_valve_cmd(moduleData.dataFromObc.commandNum,
                       moduleData.dataFromObc.commandArg);
     return;
   }
@@ -161,7 +161,7 @@ void obc_command_handler(const uint8_t *data, int len) {
         (((uint32_t)(rxData2.arg2)) & 0x0000FFFF);
     ESP_LOGI("ESP-NOW", "Received command: %lu with arg1: %d and arg2: %d",
              moduleData.dataFromObc.commandNum, rxData2.arg1, rxData2.arg2);
-    chandle_valve_cmd_angle(moduleData.dataFromObc.commandNum, rxData2.arg1,
+    handle_valve_cmd_angle(moduleData.dataFromObc.commandNum, rxData2.arg1,
                             rxData2.arg2);
     return;
   }
@@ -186,7 +186,7 @@ void now_send_data_to_obc(void *arg) {
     dataToObc.pressure1 = board_data_copy.pressure[2];
     dataToObc.pressure2 = board_data_copy.pressure[3];
     dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
-    dataToObc.bettery_consumption =
+    dataToObc.battery_consumption =
         (fabsf(board_data_copy.chargerData.ibat) >
          fabsf(board_data_copy.chargerData.iin))
             ? fabsf(board_data_copy.chargerData.ibat)
@@ -222,14 +222,14 @@ void now_send_data_to_obc(void *arg) {
              "  pressure1           = %.2f\n"
              "  pressure2           = %.2f\n"
              "  battery_voltage     = %.2f\n"
-             "  bettery_consumption = %.2f\n"
+             "  battery_consumption = %.2f\n"
              "  charger_temperature = %.2f\n"
              "  valve1_state        = %u\n"
              "  valve2_state        = %u",
              dataToObc.waken_up, dataToObc.dump_valve_arm,
              dataToObc.dump_valve_cont, dataToObc.is_charging,
              dataToObc.temperature1, dataToObc.pressure1, dataToObc.pressure2,
-             dataToObc.battery_voltage, dataToObc.bettery_consumption,
+             dataToObc.battery_voltage, dataToObc.battery_consumption,
              dataToObc.charger_temperature,
              (unsigned int)dataToObc.valve1_state,
              (unsigned int)dataToObc.valve2_state);
@@ -242,7 +242,7 @@ void now_send_data_to_obc(void *arg) {
              dataToObc.auto_vent_pressure);
 #endif
 
-    if (esp_now_send(adressObc, (uint8_t *)&dataToObc, sizeof(DataToObc)) !=
+    if (esp_now_send(addressObc, (uint8_t *)&dataToObc, sizeof(DataToObc)) !=
         ESP_OK) {
       ESP_LOGE("NOW", "Error sending data to OBC");
     }

@@ -13,7 +13,7 @@
 #include "servo_control.h"
 #include "system_timer.h"
 
-void chandle_valve_cmd(uint8_t cmd, int time_ms) {
+void handle_valve_cmd(uint8_t cmd, int time_ms) {
   ESP_LOGI("VALVES_CONTROL", "Handling valve command: %d with time: %d ms", cmd, time_ms);
 
   switch (cmd) {
@@ -152,12 +152,12 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
       ESP_LOGI("VALVES_CONTROL", "DZIDA COMMAND RECEIVED");
       #ifdef SERVO_N20_CONFIG
       vTaskDelay(pdMS_TO_TICKS(100));
-      chandle_valve_cmd(N20_VALVE_OPEN, 6000);
+      handle_valve_cmd(N20_VALVE_OPEN, 6000);
       #endif
 
       #ifdef SOL_N20_SERVO_ETH_CONFIG
           vTaskDelay(pdMS_TO_TICKS(160));
-          chandle_valve_cmd(ETH_VALVE_OPEN, 6000);
+          handle_valve_cmd(ETH_VALVE_OPEN, 6000);
       #endif
 
       break;
@@ -196,7 +196,7 @@ void chandle_valve_cmd(uint8_t cmd, int time_ms) {
   }
 }
 
-void chandle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle) {
+void handle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle) {
 
   ESP_LOGI("VALVES_CONTROL",
            "Handling valve command: %d with time: %d ms and angle: %d", cmd,

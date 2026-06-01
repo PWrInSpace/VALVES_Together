@@ -119,7 +119,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 
@@ -135,7 +135,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 #endif

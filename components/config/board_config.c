@@ -88,7 +88,7 @@ esp_err_t board_config_init(void) {
   }
 
   if (nowInit()) {
-    nowAddPeer(adressObc, 1);
+    nowAddPeer(addressObc, 1);
     uint8_t mac[6];
     esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
     ESP_LOGI("MAC address", "MAC address: %02x:%02x:%02x:%02x:%02x:%02x",

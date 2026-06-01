@@ -126,13 +126,13 @@ int open_valve1(int argc, char **argv) {
   int duration_ms = atoi(argv[1]);
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(N20_SOL_OPEN, duration_ms);
+  handle_valve_cmd(N20_SOL_OPEN, duration_ms);
 #elif defined(SOL_N2_CONFIG)
-  chandle_valve_cmd(N2_SOL_OPEN, duration_ms);
+  handle_valve_cmd(N2_SOL_OPEN, duration_ms);
 #elif defined(SERVO_N20_CONFIG)
-  chandle_valve_cmd(N20_VALVE_OPEN, duration_ms);
+  handle_valve_cmd(N20_VALVE_OPEN, duration_ms);
 #elif defined(SOL_ETH_CONFIG)
-  chandle_valve_cmd(ETH_SOL_OPEN, duration_ms);
+  handle_valve_cmd(ETH_SOL_OPEN, duration_ms);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -143,13 +143,13 @@ int open_valve1(int argc, char **argv) {
 int close_valve1(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(N20_SOL_CLOSE, 0);
+  handle_valve_cmd(N20_SOL_CLOSE, 0);
 #elif defined(SOL_N2_CONFIG)
-  chandle_valve_cmd(N2_SOL_CLOSE, 0);
+  handle_valve_cmd(N2_SOL_CLOSE, 0);
 #elif defined(SERVO_N20_CONFIG)
-  chandle_valve_cmd(N20_VALVE_CLOSE, 0);
+  handle_valve_cmd(N20_VALVE_CLOSE, 0);
 #elif defined(SOL_ETH_CONFIG)
-  chandle_valve_cmd(ETH_SOL_CLOSE, 0);
+  handle_valve_cmd(ETH_SOL_CLOSE, 0);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -165,7 +165,7 @@ int open_valve2(int argc, char **argv) {
   int duration_ms = atoi(argv[1]);
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(ETH_VALVE_OPEN, duration_ms);
+  handle_valve_cmd(ETH_VALVE_OPEN, duration_ms);
 #elif defined(SOL_ETH_CONFIG)
   ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
 #elif defined(SERVO_N20_CONFIG)
@@ -182,7 +182,7 @@ int open_valve2(int argc, char **argv) {
 int close_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
+  handle_valve_cmd(ETH_VALVE_CLOSE, 0);
 #elif defined(SOL_ETH_CONFIG)
   ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
 #elif defined(SERVO_N20_CONFIG)
@@ -270,7 +270,7 @@ int open_angle(int argc, char **argv) {
   }
   uint8_t valve_id = atoi(argv[1]);
   int angle = atoi(argv[2]);
-  chandle_valve_cmd_angle(valve_id, 0, angle);
+  handle_valve_cmd_angle(valve_id, 0, angle);
   return 0;
 }
 

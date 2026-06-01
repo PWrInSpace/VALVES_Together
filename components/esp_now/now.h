@@ -22,7 +22,7 @@
 
 /**************************  PUBLIC VARIABLES  ********************************/
 
-extern const uint8_t adressObc[];
+extern const uint8_t addressObc[];
 
 /**************************  CODE *********************************************/
 

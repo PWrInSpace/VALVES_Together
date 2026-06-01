@@ -84,7 +84,7 @@ void auto_vent_task(void *arg) {
       avg_pressure = get_avg_pressure(50); // 5 seconds to process 50 samples
       get_auto_vent_pressure(&auto_vent_pressure_local);
       if (avg_pressure > auto_vent_pressure_local) {
-        chandle_valve_cmd(N20_SOL_OPEN, AUTO_VENT_OPEN_TIME_MS);
+        handle_valve_cmd(N20_SOL_OPEN, AUTO_VENT_OPEN_TIME_MS);
         is_triggered = true;
         vTaskDelay(pdMS_TO_TICKS(AUTO_VENT_TRIGGERED_STATUS_MS));
         is_triggered = false;
