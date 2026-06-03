@@ -285,10 +285,12 @@ int get_auto_vent_data(int argc, char **argv) {
 
 int print_board_data(int argc, char **argv) {
   BoardData_t board_data;
-  if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-    memcpy(&board_data, &boardData, sizeof(BoardData_t));
-    xSemaphoreGive(BoardDataSemaphore);
+
+  if (get_board_data(&board_data, portMAX_DELAY) != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to get Board Data\n");
+    return 0;
   }
+
   ESP_LOGI(TAG, "-----------------------------------");
   ESP_LOGI(TAG, "Board data:");
   ESP_LOGI(TAG, "Power time: %llu", board_data.power_time);

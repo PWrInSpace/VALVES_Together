@@ -58,8 +58,13 @@ void charger_task(void *arg) {
           .charger_state = charger_data.charger_state
         };
 
-        boardData.is_charging = charger_data.charger_state; // changing boardData.is_charging is atomic operation
-        set_boardData_charger_data(new_charger_data, BOARDDATA_MUTEX_TIMEOUT_MS);
+        BoardData_t new_bd;
+        if (get_board_data(&new_bd, BOARDDATA_MUTEX_TIMEOUT_MS) == ESP_OK) {
+          new_bd.is_charging = charger_data.charger_state;
+          new_bd.chargerData = new_charger_data;
+
+          set_board_data(new_bd, BOARDDATA_MUTEX_TIMEOUT_MS);
+        }
       }
 
       // ltc4162_debug_monitor();

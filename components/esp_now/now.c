@@ -171,13 +171,12 @@ void now_send_data_to_obc(void *arg) {
   while (1) {
     BoardData_t board_data_copy;
     DataToObc dataToObc;
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-      memcpy(&board_data_copy, (const void *)&boardData, sizeof(BoardData_t));
-      xSemaphoreGive(BoardDataSemaphore);
-    } else {
+
+    if (get_board_data(&board_data_copy, portMAX_DELAY) != ESP_OK) {
       ESP_LOGE("NOW", "Failed to take BoardData semaphore");
       continue;
     }
+
     dataToObc.waken_up = true;
     dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
     dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
