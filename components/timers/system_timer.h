@@ -25,7 +25,7 @@ typedef struct {
 } sys_timer_t;
 
 /**
- * @brief Initialzie and create timers
+ * @brief Initializie and create timers
  *
  * @param timers pointer to timers, !must be global variable!
  * @param number_of_timers number of timers

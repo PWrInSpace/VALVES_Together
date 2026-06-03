@@ -4,6 +4,7 @@
 #include "esp_crc.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_err.h"
 #include "esp_mac.h"
 #include "esp_netif.h"
 #include "esp_now.h"
@@ -27,7 +28,7 @@ extern const uint8_t addressObc[];
 /**************************  CODE *********************************************/
 
 // Init:
-bool nowInit();
+esp_err_t nowInit();
 
 // Dodanie peera:
 bool nowAddPeer(const uint8_t *address, uint8_t channel);

@@ -26,7 +26,7 @@ void obc_command_handler(const uint8_t *data, int len);
 
 // static int dupa = 1;
 
-bool nowInit() {
+esp_err_t nowInit() {
 
   nvs_flash_init();
   esp_netif_init();
@@ -61,14 +61,14 @@ bool nowInit() {
   esp_wifi_start();
 
   if (esp_now_init())
-    return false;
+    return ESP_FAIL;
 
   esp_now_register_send_cb(OnDataSent);
   esp_now_register_recv_cb(OnDataRecv);
 
   ESP_LOGI("NOW", "ESP-NOW initialized");
 
-  return true;
+  return ESP_OK;
 }
 
 bool nowAddPeer(const uint8_t *address, uint8_t channel) {

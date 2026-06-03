@@ -70,7 +70,8 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
-  if (!timers_init()) {
+  err = timers_init();
+  if (err != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialize timers");
     return ESP_FAIL;
   }
@@ -134,7 +135,8 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  if (mcu_adc_init() != ESP_OK) {
+  err = mcu_adc_init();
+  if (err != ESP_OK) {
     ESP_LOGE(TAG, "ADC initialization failed");
     return ESP_FAIL;
   }
