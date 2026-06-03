@@ -88,9 +88,9 @@ pressure_driver_struct_t pressure_driver_config = PRESSURE_DRIVER_TANWA_CONFIG(&
 
 //   // lewy
 //   pressure_driver_config.sensors[2].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[2].pressure_max = 60.0f;
-//   pressure_driver_config.sensors[2].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[2].voltage_max = 0.884f;
+//   pressure_driver_config.sensors[2].pressure_max = 80.0f;
+//   pressure_driver_config.sensors[2].voltage_min = 0.366f;
+//   pressure_driver_config.sensors[2].voltage_max = 1.051032f;
 
 //   //Środkowy
 //   pressure_driver_config.sensors[3].pressure_min = 0.0f;

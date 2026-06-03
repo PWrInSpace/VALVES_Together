@@ -24,4 +24,6 @@
 #define AUTO_VENT_SET 0x66
 #define AUTO_VENT_OFF 0x65
 
+#define OBC_TEST_COMMAND 0x88
+
 #endif // COMMANDS_H

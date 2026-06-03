@@ -23,7 +23,9 @@
 
 /**************************  PUBLIC VARIABLES  ********************************/
 
-extern const uint8_t addressObc[];
+extern const uint8_t adressObc[];
+extern bool now_send_data_log_enabled;
+extern bool obc_test_data_enabled;
 
 /**************************  CODE *********************************************/
 

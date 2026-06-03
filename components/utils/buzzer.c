@@ -26,6 +26,10 @@ esp_err_t buzzer_init() {
 }
 
 void play_tone(int freq, int duration_ms) {
+  if (freq <= 0) {
+    vTaskDelay(pdMS_TO_TICKS(duration_ms));
+    return;
+  }
   int duty = (1 << 10) / 2; // 50% duty cycle
   ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq);
   ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty);
@@ -170,3 +174,136 @@ void beep_quatro() {
   vTaskDelay(pdMS_TO_TICKS(80));
   play_tone(1000, 150);
 }
+
+// ---------------------------------------------------------------------------
+// Crab Rave - 3-part arrangement, BPM=128
+// Q=469ms  E=234ms  S=117ms  H=938ms
+// Key: D major  (D E F# G A B C#)
+// ---------------------------------------------------------------------------
+#define Q 469
+#define E 234
+#define S 117
+#define H 938
+
+// PART 1 - main melody (SERVO_N20_CONFIG)
+void crab_rave_melody(void) {
+  // Intro / main riff
+  play_tone(NOTE_D5, E);
+  play_tone(NOTE_D5, S);
+  play_tone(NOTE_E5, S);
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_A5, E);
+
+  play_tone(NOTE_G5, E);
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_E5, E);
+  play_tone(NOTE_D5, E);
+
+  play_tone(NOTE_E5, E);
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_A5, E);
+  play_tone(NOTE_B5, E);
+
+  play_tone(NOTE_A5, E);
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_D5, H);
+
+  // Second phrase
+  play_tone(NOTE_E5, E);
+  play_tone(NOTE_E5, S);
+  play_tone(NOTE_FS5, S);
+  play_tone(NOTE_G5, E);
+  play_tone(NOTE_A5, E);
+
+  play_tone(NOTE_B5, E);
+  play_tone(NOTE_A5, E);
+  play_tone(NOTE_G5, E);
+  play_tone(NOTE_FS5, E);
+
+  play_tone(NOTE_A5, E);
+  play_tone(NOTE_G5, E);
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_E5, E);
+
+  play_tone(NOTE_D5, H);
+  play_tone(0, H);
+}
+
+// PART 2 - counter-melody / harmony (SOL_N20_SERVO_ETH_CONFIG)
+void crab_rave_harmony(void) {
+  // Harmony follows the chord tones a third below the melody
+  play_tone(NOTE_B4, E);
+  play_tone(NOTE_B4, S);
+  play_tone(NOTE_CS5, S);
+  play_tone(NOTE_D5, E);
+  play_tone(NOTE_FS5, E);
+
+  play_tone(NOTE_E5, E);
+  play_tone(NOTE_D5, E);
+  play_tone(NOTE_CS5, E);
+  play_tone(NOTE_B4, E);
+
+  play_tone(NOTE_CS5, E);
+  play_tone(NOTE_D5, E);
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_G5, E);
+
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_D5, E);
+  play_tone(NOTE_B4, H);
+
+  // Second phrase
+  play_tone(NOTE_CS5, E);
+  play_tone(NOTE_CS5, S);
+  play_tone(NOTE_D5, S);
+  play_tone(NOTE_E5, E);
+  play_tone(NOTE_FS5, E);
+
+  play_tone(NOTE_G5, E);
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_E5, E);
+  play_tone(NOTE_D5, E);
+
+  play_tone(NOTE_FS5, E);
+  play_tone(NOTE_E5, E);
+  play_tone(NOTE_D5, E);
+  play_tone(NOTE_CS5, E);
+
+  play_tone(NOTE_B4, H);
+  play_tone(0, H);
+}
+
+// PART 3 - bass line (SOL_ETH_CONFIG)
+void crab_rave_bass(void) {
+  // Root-fifth bass pattern on chord changes: D A Bm G
+  // Bar 1-2  D major
+  play_tone(NOTE_D4, Q);
+  play_tone(NOTE_A4, Q);
+  play_tone(NOTE_D4, Q);
+  play_tone(NOTE_A4, Q);
+
+  // Bar 3-4  A major
+  play_tone(NOTE_A3, Q);
+  play_tone(NOTE_E4, Q);
+  play_tone(NOTE_A3, Q);
+  play_tone(NOTE_E4, Q);
+
+  // Bar 5-6  Bm
+  play_tone(NOTE_B3, Q);
+  play_tone(NOTE_FS4, Q);
+  play_tone(NOTE_B3, Q);
+  play_tone(NOTE_FS4, Q);
+
+  // Bar 7-8  G major
+  play_tone(NOTE_G4, Q);
+  play_tone(NOTE_D4, Q);
+  play_tone(NOTE_G4, Q);
+  play_tone(NOTE_D4, Q);
+
+  play_tone(0, H);
+}
+
+#undef Q
+#undef E
+#undef S
+#undef H
