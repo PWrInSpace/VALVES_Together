@@ -44,15 +44,13 @@ static void close_servo_callback(TimerHandle_t xTimer) {
   } else {
     vTaskDelay(
         pdMS_TO_TICKS(300)); // Short delay to ensure the servo has time to move
-    if (servo_ptr->state.angle > VALVE_CLOSE_POSITION &&
-        servo_ptr->state.angle <= 175) {
-      mcpwm_comparator_set_compare_value(
-          servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION + 5));
-    } else if (servo_ptr->state.angle <= VALVE_CLOSE_POSITION &&
-               servo_ptr->state.angle >= 5) {
-      mcpwm_comparator_set_compare_value(
-          servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION - 5));
-    }
+#if defined(SOL_N20_SERVO_ETH_CONFIG)
+    mcpwm_comparator_set_compare_value(
+        servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION - 1));
+#elif VALVE_CLOSE_POSITION >= 2
+    mcpwm_comparator_set_compare_value(
+        servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION - 2));
+#endif
     servo_ptr->state.state = SERVO_CLOSED;
     servo_ptr->state.angle = VALVE_CLOSE_POSITION;
     if (servo_id == 0)
@@ -169,12 +167,9 @@ esp_err_t move_servo(ServoId_t servo_id, uint8_t angle, uint16_t open_time_ms) {
 
   vTaskDelay(
       pdMS_TO_TICKS(300)); // Short delay to ensure the servo has time to move
-  if (servo_ptr->state.angle > angle && servo_ptr->state.angle <= 175) {
+  if (angle < SERVO_MAX_ANGLE) {
     mcpwm_comparator_set_compare_value(servo_ptr->comparator,
-                                       angle_to_duty_us(angle + 5));
-  } else if (servo_ptr->state.angle <= angle && servo_ptr->state.angle >= 5) {
-    mcpwm_comparator_set_compare_value(servo_ptr->comparator,
-                                       angle_to_duty_us(angle - 5));
+                                       angle_to_duty_us(angle + 1));
   }
   servo_ptr->state.angle = angle;
   servo_ptr->state.state = SERVO_OPEN;

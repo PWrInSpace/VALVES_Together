@@ -2,6 +2,7 @@
 #include "BoardData.h"
 #include "Solenoid.h"
 #include "auto_vent_task.h"
+#include "buzzer.h"
 #include "commands.h"
 #include "driver/gpio.h"
 #include "esp_err.h"

@@ -32,8 +32,8 @@
 //
 
 // #define SERVO_N20_CONFIG
-#define SOL_N20_SERVO_ETH_CONFIG
-// #define SOL_ETH_CONFIG
+// #define SOL_N20_SERVO_ETH_CONFIG
+#define SOL_ETH_CONFIG
 
 // #define SOL_N2_CONFIG
 

@@ -18,6 +18,15 @@ const uint8_t adressObc[] = {0x04, 0x20, 0x04,
                              0x20, 0x04, 0x20}; // dane devkita do testow
 
 bool now_send_data_log_enabled = false;
+bool obc_test_data_enabled = false;
+
+static const float OBC_TEST_PRESSURE1 = 69.69f;
+static const float OBC_TEST_PRESSURE2 = 88.88f;
+static const float OBC_TEST_BATTERY_VOLTAGE = 12.34f;
+static const float OBC_TEST_CONSUMPTION = 1.23f;
+static const float OBC_TEST_CHARGER_TEMPERATURE = 45.67f;
+static const int16_t OBC_TEST_TEMPERATURE = 25;
+static const bool OBC_TEST_IS_CHARGING = true;
 
 /**************************  PRIVATE FUNCTIONS  *******************************/
 
@@ -150,6 +159,12 @@ void obc_command_handler(const uint8_t *data, int len) {
     ESP_LOGI("ESP-NOW", "Received command: %lu with arg: %ld",
              moduleData.dataFromObc.commandNum,
              moduleData.dataFromObc.commandArg);
+    if (moduleData.dataFromObc.commandNum == OBC_TEST_COMMAND) {
+      obc_test_data_enabled = (moduleData.dataFromObc.commandArg != 0);
+      ESP_LOGI("NOW", "OBC test data %s",
+               obc_test_data_enabled ? "enabled" : "disabled");
+      return;
+    }
     chandle_valve_cmd((uint8_t)moduleData.dataFromObc.commandNum,
                       moduleData.dataFromObc.commandArg);
     return;
@@ -163,6 +178,12 @@ void obc_command_handler(const uint8_t *data, int len) {
         (((uint32_t)(rxData2.arg2)) & 0x0000FFFF);
     ESP_LOGI("ESP-NOW", "Received command: %lu with arg1: %d and arg2: %d",
              moduleData.dataFromObc.commandNum, rxData2.arg1, rxData2.arg2);
+    if (rxData2.commandNum == OBC_TEST_COMMAND) {
+      obc_test_data_enabled = (rxData2.arg1 != 0);
+      ESP_LOGI("NOW", "OBC test data %s",
+               obc_test_data_enabled ? "enabled" : "disabled");
+      return;
+    }
     chandle_valve_cmd_angle((uint8_t)rxData2.commandNum, rxData2.arg1,
                             rxData2.arg2);
     return;
@@ -184,7 +205,7 @@ void now_send_data_to_obc(void *arg) {
     dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
     dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
     dataToObc.is_charging = board_data_copy.is_charging;
-    dataToObc.temperature1 = board_data_copy.temperature[0];
+    dataToObc.temperature1 = board_data_copy.temperature[1];
     dataToObc.pressure1 = board_data_copy.pressure[2];
     dataToObc.pressure2 = board_data_copy.pressure[3];
     dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
@@ -208,9 +229,15 @@ void now_send_data_to_obc(void *arg) {
     dataToObc.auto_vent_pressure = (int32_t)(auto_vent_pressure_local * 1000);
 #endif
 
-    // dataToObc.pressure1 = 69.69f + dupa; // to test purposes, to be removed
-    // dataToObc.pressure2 = 88.88f; // to test purposes, to be removed
-    // dupa++;
+    if (obc_test_data_enabled) {
+      dataToObc.pressure1 = OBC_TEST_PRESSURE1;
+      dataToObc.pressure2 = OBC_TEST_PRESSURE2;
+      dataToObc.battery_voltage = OBC_TEST_BATTERY_VOLTAGE;
+      dataToObc.bettery_consumption = OBC_TEST_CONSUMPTION;
+      dataToObc.charger_temperature = OBC_TEST_CHARGER_TEMPERATURE;
+      dataToObc.temperature1 = OBC_TEST_TEMPERATURE;
+      dataToObc.is_charging = OBC_TEST_IS_CHARGING;
+    }
     // ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u",
     // valve1_state, valve2_state);
 

@@ -43,22 +43,22 @@ pressure_driver_init(pressure_driver_struct_t *pressure_driver) {
 
   // lewy
   pressure_driver_config.sensors[2].pressure_min = 0.0f;
-  pressure_driver_config.sensors[2].pressure_max = 80.0f;
-  pressure_driver_config.sensors[2].voltage_min = 0.375386f;
-  pressure_driver_config.sensors[2].voltage_max = 1.067033f;
+  pressure_driver_config.sensors[2].pressure_max = 60.0f;
+  pressure_driver_config.sensors[2].voltage_min = 0.373f; // 0.01f --> 0.04Bar
+  pressure_driver_config.sensors[2].voltage_max = 2.961840f;
 
   //Środkowy
   pressure_driver_config.sensors[3].pressure_min = 0.0f;
-  pressure_driver_config.sensors[3].pressure_max = 80.0f;
-  pressure_driver_config.sensors[3].voltage_min = 0.375761f;
-  pressure_driver_config.sensors[3].voltage_max = 1.063658f;
+  pressure_driver_config.sensors[3].pressure_max = 60.0f;
+  pressure_driver_config.sensors[3].voltage_min = 0.3685f;
+  pressure_driver_config.sensors[3].voltage_max = 2.952090f;
 
 #elif defined(SOL_ETH_CONFIG)
   // prawy
-  pressure_driver_config.sensors[0].pressure_min = 0.0f;
+  pressure_driver_config.sensors[0].pressure_min = 0.0f; // +0.1f --> -0.2Bar
   pressure_driver_config.sensors[0].pressure_max = 80.0f;
-  pressure_driver_config.sensors[0].voltage_min = 0.368136f;
-  pressure_driver_config.sensors[0].voltage_max = 1.035782f;
+  pressure_driver_config.sensors[0].voltage_min = 0.357f;
+  pressure_driver_config.sensors[0].voltage_max = 1.031032f;
 
   pressure_driver_config.sensors[1].pressure_min = 0.0f;
   pressure_driver_config.sensors[1].pressure_max = 350.0f;
@@ -77,7 +77,7 @@ pressure_driver_init(pressure_driver_struct_t *pressure_driver) {
   pressure_driver_config.sensors[3].voltage_min = 0.371f;
   pressure_driver_config.sensors[3].voltage_max = 0.884f;
 
-#elif defined(SOL_N2_CONFIG)
+#elif defined(SERVO_N20_CONFIG)
   // prawy
   pressure_driver_config.sensors[0].pressure_min = 0.0f;
   pressure_driver_config.sensors[0].pressure_max = 350.0f;
@@ -90,10 +90,10 @@ pressure_driver_init(pressure_driver_struct_t *pressure_driver) {
   pressure_driver_config.sensors[1].voltage_max = 4.096f;
 
   // lewy
-  pressure_driver_config.sensors[2].pressure_min = 0.0f;
-  pressure_driver_config.sensors[2].pressure_max = 60.0f;
-  pressure_driver_config.sensors[2].voltage_min = 0.371f;
-  pressure_driver_config.sensors[2].voltage_max = 0.884f;
+  pressure_driver_config.sensors[2].pressure_min = 0.0f; // +0.1f --> -0.2Bar
+  pressure_driver_config.sensors[2].pressure_max = 80.0f;
+  pressure_driver_config.sensors[2].voltage_min = 0.366f;
+  pressure_driver_config.sensors[2].voltage_max = 1.051032F;
 
   //Środkowy
   pressure_driver_config.sensors[3].pressure_min = 0.0f;
@@ -289,7 +289,7 @@ pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
 
       ESP_LOGI(TAG, "Sensor %d, voltage: %.6f V, pressure: %.6f", i, voltage[i],
                pressure[i]);
-      vTaskDelay(pdMS_TO_TICKS(1000));
+      vTaskDelay(pdMS_TO_TICKS(400));
     }
   }
 
