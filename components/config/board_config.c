@@ -46,7 +46,7 @@
 
 #define TAG "BOARD_CONFIG"
 
-void _led_delay(uint32_t _ms) { vTaskDelay(_ms / portTICK_PERIOD_MS); }
+static void _led_delay(uint32_t _ms) { vTaskDelay(_ms / portTICK_PERIOD_MS); }
 
 board_config_t config = {.board_name = CONFIG_NAME};
 

@@ -30,8 +30,8 @@ static const bool OBC_TEST_IS_CHARGING = true;
 
 /**************************  PRIVATE FUNCTIONS  *******************************/
 
-bool addressCompare(const uint8_t *addr1, const uint8_t *addr2);
-void obc_command_handler(const uint8_t *data, int len);
+static bool addressCompare(const uint8_t *addr1, const uint8_t *addr2);
+static void obc_command_handler(const uint8_t *data, int len);
 
 /**************************  CODE *********************************************/
 
@@ -141,7 +141,7 @@ bool addressCompare(const uint8_t *addr1, const uint8_t *addr2) {
   return true;
 }
 
-void obc_command_handler(const uint8_t *data, int len) {
+static void obc_command_handler(const uint8_t *data, int len) {
   DataFromObc rxData;
   DataFromObc2 rxData2;
   if (len != sizeof(DataFromObc) && len != sizeof(DataFromObc2)) {
@@ -190,7 +190,7 @@ void obc_command_handler(const uint8_t *data, int len) {
   }
 }
 
-void now_send_data_to_obc(void *arg) {
+static void now_send_data_to_obc(void *arg) {
   while (1) {
     BoardData_t board_data_copy;
     DataToObc dataToObc;

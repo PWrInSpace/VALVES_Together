@@ -18,7 +18,7 @@ float auto_vent_pressure = 0;
 TaskHandle_t auto_vent_task_handle = NULL;
 #define TAG "AUTO_VENT_TASK"
 
-float get_pressure_from_board() {
+static float get_pressure_from_board() {
   float pressures[4];
   if (get_boardData_pressures(pressures, portMAX_DELAY) != ESP_OK)
     return 0.0f;
@@ -27,7 +27,7 @@ float get_pressure_from_board() {
                        // board with n2o pressure sensor
 }
 
-float get_avg_pressure(int samples) {
+static float get_avg_pressure(int samples) {
   // time to process n saples i n*100ms
   float pressure = 0.0f;
   for (int i = 0; i < samples; i++) {

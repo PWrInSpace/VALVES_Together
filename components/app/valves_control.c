@@ -29,6 +29,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case N20_VALVE_CLOSE:
 #ifdef SERVO_N20_CONFIG
     if (close_servo(N2O_FILL_SERVO) != ESP_OK) {
@@ -39,6 +40,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case ETH_VALVE_OPEN:
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     if (open_servo(ETH_FILL_SERVO, time_ms) != ESP_OK) {
@@ -49,6 +51,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case ETH_VALVE_CLOSE:
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     if (close_servo(ETH_FILL_SERVO) != ESP_OK) {
@@ -59,25 +62,26 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
     //   case N2_VALVE_OPEN:
-    // #ifdef SERVO_N2_CONFIG
-    //     if (open_servo(N2_FILL_SERVO, time_ms) != ESP_OK) {
-    //       ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SERVO");
-    //       valve1_state = 0;
-    //     } else {
-    //       valve1_state = 1;
-    //     }
-    // #endif
-    //     break;
+    //    #ifdef SERVO_N2_CONFIG
+    //        if (open_servo(N2_FILL_SERVO, time_ms) != ESP_OK) {
+    //          ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SERVO");
+    //          valve1_state = 0;
+    //        } else {
+    //          valve1_state = 1;
+    //        }
+    //    #endif
+    //    break;
     //   case N2_VALVE_CLOSE:
-    // #ifdef SERVO_N2_CONFIG
-    //     if (close_servo(N2_FILL_SERVO) != ESP_OK) {
-    //       ESP_LOGE("VALVES_CONTROL", "Failed to close N2_FILL_SERVO");
-    //       valve1_state = 1;
-    //     } else {
-    //       valve1_state = 0;
-    //     }
-    // #endif
+    //    #ifdef SERVO_N2_CONFIG
+    //        if (close_servo(N2_FILL_SERVO) != ESP_OK) {
+    //          ESP_LOGE("VALVES_CONTROL", "Failed to close N2_FILL_SERVO");
+    //          valve1_state = 1;
+    //        } else {
+    //          valve1_state = 0;
+    //        }
+    //    #endif
     //     break;
   case N20_SOL_OPEN:
 #ifdef SOL_N20_SERVO_ETH_CONFIG
@@ -89,6 +93,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case N20_SOL_CLOSE:
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     if (open_solenoid(valves[N20_FILL_SOL].name, 0) != ESP_OK) {
@@ -99,6 +104,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case ETH_SOL_OPEN:
 #ifdef SOL_ETH_CONFIG
     if (close_sol_time(valves[ETH_FILL_SOL].name, time_ms) != ESP_OK) {
@@ -109,6 +115,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case ETH_SOL_CLOSE:
 #ifdef SOL_ETH_CONFIG
     if (open_solenoid(valves[ETH_FILL_SOL].name, 0) != ESP_OK) {
@@ -119,6 +126,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case N2_SOL_OPEN:
 #ifdef SOL_N2_CONFIG
     if (close_sol_time(valves[N2_FILL_SOL].name, time_ms) != ESP_OK) {
@@ -129,6 +137,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case N2_SOL_CLOSE:
 #ifdef SOL_N2_CONFIG
     if (open_solenoid(valves[N2_FILL_SOL].name, 0) != ESP_OK) {
@@ -139,6 +148,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     }
 #endif
     break;
+
   case VALVE_DZIDA:
     ESP_LOGI("VALVES_CONTROL", "DZIDA COMMAND RECEIVED");
 #ifdef SERVO_N20_CONFIG
@@ -159,6 +169,7 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     igniter_fire_time(igniter_cfg, time_ms);
 #endif
     break;
+
   case DUMP_VALVE_ARM:
 #ifdef SERVO_N20_CONFIG
     ESP_LOGI("VALVES_CONTROL", "Igniter arm");
@@ -219,15 +230,15 @@ void handle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle) {
 #endif
     break;
     //   case N2_VALVE_OPEN:
-    // #ifdef SERVO_N2_CONFIG
-    //     if (move_servo(N2_FILL_SERVO, angle, time_ms) != ESP_OK) {
-    //       ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SERVO");
-    //       valve2_state = 8;
-    //     } else {
-    //       valve2_state = 8;
-    //     }
-    // #endif
-    //     break;
+    //      #ifdef SERVO_N2_CONFIG
+    //        if (move_servo(N2_FILL_SERVO, angle, time_ms) != ESP_OK) {
+    //          ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SERVO");
+    //          valve2_state = 8;
+    //        } else {
+    //          valve2_state = 8;
+    //        }
+    //      #endif
+    //      break;
   default:
     ESP_LOGW("VALVES_CONTROL", "Unknown command: %lu",
              moduleData.dataFromObc.commandNum);

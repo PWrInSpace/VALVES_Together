@@ -23,23 +23,23 @@
 
 #define TAG "CONSOLE_CONFIG"
 
-int reset_device(int argc, char **argv) {
+static int reset_device(int argc, char **argv) {
   ESP_LOGI(TAG, "Resetting device...");
   esp_restart();
   return 0;
 }
 
-int run_i2c_scan(int argc, char **argv) {
+static int run_i2c_scan(int argc, char **argv) {
   i2c_scan();
   return 0;
 }
 
-int run_ltc4162_monitor(int argc, char **argv) {
+static int run_ltc4162_monitor(int argc, char **argv) {
   ltc4162_debug_monitor();
   return 0;
 }
 
-int run_igniter_continuity_check(int argc, char **argv) {
+static int run_igniter_continuity_check(int argc, char **argv) {
   igniter_continuity_t continuity;
   ESP_LOGI(TAG, "Checking igniter continuity...");
   igniter_status_t status = igniter_check_continuity(igniter_cfg, &continuity);
@@ -56,7 +56,7 @@ int run_igniter_continuity_check(int argc, char **argv) {
   return 0;
 }
 
-int run_igniter_arm(int argc, char **argv) {
+static int run_igniter_arm(int argc, char **argv) {
   igniter_status_t status = igniter_arm(igniter_cfg);
   if (status != IGNITER_OK) {
     ESP_LOGE(TAG, "Igniter arming failed with status %d", status);
@@ -66,7 +66,7 @@ int run_igniter_arm(int argc, char **argv) {
   return 0;
 }
 
-int run_igniter_disarm(int argc, char **argv) {
+static int run_igniter_disarm(int argc, char **argv) {
   igniter_status_t status = igniter_disarm(igniter_cfg);
   if (status != IGNITER_OK) {
     ESP_LOGE(TAG, "Igniter disarming failed with status %d", status);
@@ -76,7 +76,7 @@ int run_igniter_disarm(int argc, char **argv) {
   return 0;
 }
 
-int run_igniter_fire(int argc, char **argv) {
+static int run_igniter_fire(int argc, char **argv) {
   uint64_t fire_time = DUMP_VALVE_TIME_MS;
   if (argc == 2) {
     fire_time = atoi(argv[1]);
@@ -92,7 +92,7 @@ int run_igniter_fire(int argc, char **argv) {
   return 0;
 }
 
-int buzzer_play(int argc, char **argv) {
+static int buzzer_play(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: buzzer_play <sound_id>");
     ESP_LOGI(TAG, "Sound List:");
@@ -115,7 +115,7 @@ int buzzer_play(int argc, char **argv) {
   return 0;
 }
 
-int open_valve1(int argc, char **argv) {
+static int open_valve1(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: open_valve_name <duration_ms>");
     return -1;
@@ -138,7 +138,7 @@ int open_valve1(int argc, char **argv) {
   return 0;
 }
 
-int close_valve1(int argc, char **argv) {
+static int close_valve1(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   handle_valve_cmd(N20_SOL_CLOSE, 0);
@@ -154,7 +154,7 @@ int close_valve1(int argc, char **argv) {
   return 0;
 }
 
-int open_valve2(int argc, char **argv) {
+static int open_valve2(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: open_valve_name <duration_ms>");
     return -1;
@@ -177,7 +177,7 @@ int open_valve2(int argc, char **argv) {
   return 0;
 }
 
-int close_valve2(int argc, char **argv) {
+static int close_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   handle_valve_cmd(ETH_VALVE_CLOSE, 0);
@@ -193,39 +193,7 @@ int close_valve2(int argc, char **argv) {
   return 0;
 }
 
-int get_board_data_cmd(int argc, char **argv) {
-  int n = 1;
-  if (argc == 2)
-    n = atoi(argv[1]);
-
-  for (int i = 0; i < n; i++) {
-    BoardData_t data;
-    if (get_board_data(&data, portMAX_DELAY) == ESP_OK) {
-      ESP_LOGI(TAG, "-----------------------------------");
-      ESP_LOGI(TAG, "Current board data:");
-      ESP_LOGI(TAG, "Power time: %llu", data.power_time);
-      ESP_LOGI(TAG, "valve1 state: %d", valve1_state);
-      ESP_LOGI(TAG, "valve2 state: %d", valve2_state);
-      ESP_LOGI(TAG, "Temperature: %f, %f, %f", data.temperature[0],
-               data.temperature[1], data.temperature[2]);
-      ESP_LOGI(TAG, "Pressure left channel: %f", data.pressure[2]);
-      ESP_LOGI(TAG, "Pressure middle channel: %f", data.pressure[3]);
-      ESP_LOGI(TAG, "Dump valve arm: %d", data.dump_valve_arm);
-      ESP_LOGI(TAG, "Dump valve continuity: %d", data.dump_valve_cont);
-      ESP_LOGI(TAG, "Is charging: %d", data.is_charging);
-      ESP_LOGI(TAG, "------------------------------------\n\n");
-    } else {
-      ESP_LOGE(TAG, "Failed to take BoardDataSemaphore");
-      return -1;
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(1000));
-  }
-
-  return 0;
-}
-
-int set_now_send_log(int argc, char **argv) {
+static int set_now_send_log(int argc, char **argv) {
   if (argc >= 2) {
     if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
       now_send_data_log_enabled = true;
@@ -243,7 +211,7 @@ int set_now_send_log(int argc, char **argv) {
   return 0;
 }
 
-int set_obc_test_data(int argc, char **argv) {
+static int set_obc_test_data(int argc, char **argv) {
   if (argc >= 2) {
     if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
       obc_test_data_enabled = true;
@@ -260,7 +228,7 @@ int set_obc_test_data(int argc, char **argv) {
   return 0;
 }
 
-int deinit_i2c(int argc, char **argv) {
+static int deinit_i2c(int argc, char **argv) {
   esp_err_t ret = mcu_i2c_deinit();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "I2C deinitialization failed");
@@ -270,7 +238,7 @@ int deinit_i2c(int argc, char **argv) {
   return 0;
 }
 
-int init_i2c(int argc, char **argv) {
+static int init_i2c(int argc, char **argv) {
   esp_err_t ret = mcu_i2c_init();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "I2C initialization failed");
@@ -280,7 +248,7 @@ int init_i2c(int argc, char **argv) {
   return 0;
 }
 
-int open_angle(int argc, char **argv) {
+static int open_angle(int argc, char **argv) {
   if (argc < 3) {
     ESP_LOGE(TAG, "Usage: open_angle <valve_id> <angle>");
     return -1;
@@ -292,7 +260,7 @@ int open_angle(int argc, char **argv) {
 }
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-int get_auto_vent_data(int argc, char **argv) {
+static int get_auto_vent_data(int argc, char **argv) {
   float auto_vent_pressure = 0.0f;
   get_auto_vent_pressure(&auto_vent_pressure);
   ESP_LOGI(TAG, "Auto vent pressure: %f bar", auto_vent_pressure);
@@ -304,7 +272,7 @@ int get_auto_vent_data(int argc, char **argv) {
 }
 #endif
 
-int print_bd_data(int argc, char **argv) {
+static int print_bd_data(int argc, char **argv) {
   print_board_data();
   return 0;
 }
