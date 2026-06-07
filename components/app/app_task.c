@@ -42,7 +42,7 @@ esp_err_t app_task_init(void) {
   return ESP_OK;
 }
 
-esp_err_t app_task_deinit(void) {
+static esp_err_t app_task_deinit(void) {
   if (app_task_handle != NULL) {
     vTaskDelete(app_task_handle);
     app_task_handle = NULL;

@@ -20,23 +20,23 @@
 
 #define TAG "CONSOLE_CONFIG"
 
-int reset_device(int argc, char **argv) {
+static int reset_device(int argc, char **argv) {
   ESP_LOGI(TAG, "Resetting device...");
   esp_restart();
   return 0;
 }
 
-int run_i2c_scan(int argc, char **argv) {
+static int run_i2c_scan(int argc, char **argv) {
   i2c_scan();
   return 0;
 }
 
-int run_ltc4162_monitor(int argc, char **argv) {
+static int run_ltc4162_monitor(int argc, char **argv) {
   ltc4162_debug_monitor();
   return 0;
 }
 
-int run_igniter_continuity_check(int argc, char **argv) {
+static int run_igniter_continuity_check(int argc, char **argv) {
   igniter_continuity_t continuity;
   ESP_LOGI(TAG, "Checking igniter continuity...");
   igniter_status_t status = igniter_check_continuity(igniter_cfg, &continuity);
@@ -53,7 +53,7 @@ int run_igniter_continuity_check(int argc, char **argv) {
   return 0;
 }
 
-int run_igniter_arm(int argc, char **argv) {
+static int run_igniter_arm(int argc, char **argv) {
   igniter_status_t status = igniter_arm(igniter_cfg);
   if (status != IGNITER_OK) {
     ESP_LOGE(TAG, "Igniter arming failed with status %d", status);
@@ -63,7 +63,7 @@ int run_igniter_arm(int argc, char **argv) {
   return 0;
 }
 
-int run_igniter_disarm(int argc, char **argv) {
+static int run_igniter_disarm(int argc, char **argv) {
   igniter_status_t status = igniter_disarm(igniter_cfg);
   if (status != IGNITER_OK) {
     ESP_LOGE(TAG, "Igniter disarming failed with status %d", status);
@@ -73,7 +73,7 @@ int run_igniter_disarm(int argc, char **argv) {
   return 0;
 }
 
-int run_igniter_fire(int argc, char **argv) {
+static int run_igniter_fire(int argc, char **argv) {
   uint64_t fire_time = DUMP_VALVE_TIME_MS;
   if (argc == 2) {
     fire_time = atoi(argv[1]);
@@ -89,37 +89,37 @@ int run_igniter_fire(int argc, char **argv) {
   return 0;
 }
 
-int play_imperial_march(int argc, char **argv) {
+static int play_imperial_march(int argc, char **argv) {
   imperial_march();
   return 0;
 }
 
-int play_ode_to_joy(int argc, char **argv) {
+static int play_ode_to_joy(int argc, char **argv) {
   ode_to_joy();
   return 0;
 }
 
-int play_single_beep(int argc, char **argv) {
+static int play_single_beep(int argc, char **argv) {
   beep_single();
   return 0;
 }
 
-int play_double_beep(int argc, char **argv) {
+static int play_double_beep(int argc, char **argv) {
   beep_double();
   return 0;
 }
 
-int play_triple_beep(int argc, char **argv) {
+static int play_triple_beep(int argc, char **argv) {
   beep_triple();
   return 0;
 }
 
-int play_quatro_beep(int argc, char **argv) {
+static int play_quatro_beep(int argc, char **argv) {
   beep_quatro();
   return 0;
 }
 
-int open_valve1(int argc, char **argv) {
+static int open_valve1(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: open_valve_name <duration_ms>");
     return -1;
@@ -142,7 +142,7 @@ int open_valve1(int argc, char **argv) {
   return 0;
 }
 
-int close_valve1(int argc, char **argv) {
+static int close_valve1(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   chandle_valve_cmd(N20_SOL_CLOSE, 0);
@@ -158,7 +158,7 @@ int close_valve1(int argc, char **argv) {
   return 0;
 }
 
-int open_valve2(int argc, char **argv) {
+static int open_valve2(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: open_valve_name <duration_ms>");
     return -1;
@@ -181,7 +181,7 @@ int open_valve2(int argc, char **argv) {
   return 0;
 }
 
-int close_valve2(int argc, char **argv) {
+static int close_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
@@ -197,12 +197,12 @@ int close_valve2(int argc, char **argv) {
   return 0;
 }
 
-int play_harry_potter_theme(int argc, char **argv) {
+static int play_harry_potter_theme(int argc, char **argv) {
   harry_potter_theme();
   return 0;
 }
 
-int get_board_data(int argc, char **argv) {
+static int get_board_data(int argc, char **argv) {
   int n = 1;
   if (argc == 2) {
     n = atoi(argv[1]);
@@ -235,13 +235,13 @@ int get_board_data(int argc, char **argv) {
   return 0;
 }
 
-int set_calibration_mode(int argc, char **argv) {
+static int set_calibration_mode(int argc, char **argv) {
   calibration_mode = !calibration_mode;
   ESP_LOGI(TAG, "Calibration mode: %s", calibration_mode ? "ON" : "OFF");
   return 0;
 }
 
-int set_now_send_log(int argc, char **argv) {
+static int set_now_send_log(int argc, char **argv) {
   if (argc >= 2) {
     if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
       now_send_data_log_enabled = true;
@@ -259,7 +259,7 @@ int set_now_send_log(int argc, char **argv) {
   return 0;
 }
 
-int set_obc_test_data(int argc, char **argv) {
+static int set_obc_test_data(int argc, char **argv) {
   if (argc >= 2) {
     if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
       obc_test_data_enabled = true;
@@ -276,7 +276,7 @@ int set_obc_test_data(int argc, char **argv) {
   return 0;
 }
 
-int deinit_i2c(int argc, char **argv) {
+static int deinit_i2c(int argc, char **argv) {
   esp_err_t ret = mcu_i2c_deinit();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "I2C deinitialization failed");
@@ -286,7 +286,7 @@ int deinit_i2c(int argc, char **argv) {
   return 0;
 }
 
-int init_i2c(int argc, char **argv) {
+static int init_i2c(int argc, char **argv) {
   esp_err_t ret = mcu_i2c_init();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "I2C initialization failed");
@@ -296,7 +296,7 @@ int init_i2c(int argc, char **argv) {
   return 0;
 }
 
-int init_i2c_with_pins(int argc, char **argv) {
+static int init_i2c_with_pins(int argc, char **argv) {
   esp_err_t ret = mcu_i2c_init_with_pins(SDA_GPIO_ALT, SCL_GPIO_ALT);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "I2C initialization with pins failed");
@@ -306,7 +306,7 @@ int init_i2c_with_pins(int argc, char **argv) {
   return 0;
 }
 
-int open_angle(int argc, char **argv) {
+static int open_angle(int argc, char **argv) {
   if (argc < 3) {
     ESP_LOGE(TAG, "Usage: open_angle <valve_id> <angle>");
     return -1;
@@ -317,7 +317,7 @@ int open_angle(int argc, char **argv) {
   return 0;
 }
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-int get_auto_vent_data(int argc, char **argv) {
+static int get_auto_vent_data(int argc, char **argv) {
   float auto_vent_pressure = 0.0f;
   get_auto_vent_pressure(&auto_vent_pressure);
   ESP_LOGI(TAG, "Auto vent pressure: %f bar", auto_vent_pressure);
@@ -329,7 +329,7 @@ int get_auto_vent_data(int argc, char **argv) {
 }
 #endif
 
-int print_board_data(int argc, char **argv) {
+static int print_board_data(int argc, char **argv) {
   BoardData_t board_data;
   if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
     memcpy(&board_data, &boardData, sizeof(BoardData_t));
@@ -349,17 +349,17 @@ int print_board_data(int argc, char **argv) {
   return 0;
 }
 
-int play_crab_rave_melody(int argc, char **argv) {
+static int play_crab_rave_melody(int argc, char **argv) {
   crab_rave_melody();
   return 0;
 }
 
-int play_crab_rave_harmony(int argc, char **argv) {
+static int play_crab_rave_harmony(int argc, char **argv) {
   crab_rave_harmony();
   return 0;
 }
 
-int play_crab_rave_bass(int argc, char **argv) {
+static int play_crab_rave_bass(int argc, char **argv) {
   crab_rave_bass();
   return 0;
 }

@@ -10,7 +10,7 @@
 
 #define TAG "TMP1075"
 
-float convert_to_celsius(const int16_t raw) { return (float)raw / 256; }
+static float convert_to_celsius(const int16_t raw) { return (float)raw / 256; }
 
 static tmp1075_status_t write_reg_8b(tmp1075_struct_t *tmp1075,
                                      const uint8_t reg, uint8_t val) {

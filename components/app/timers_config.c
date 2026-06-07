@@ -3,7 +3,7 @@
 
 #define TAG "TIMERS"
 
-void test_timer_callback(void *arg) {
+static void test_timer_callback(void *arg) {
   ESP_LOGI(TAG, "Test timer callback executed");
 }
 

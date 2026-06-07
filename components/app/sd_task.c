@@ -26,7 +26,7 @@ SemaphoreHandle_t buffer_A_ready = NULL;
 SemaphoreHandle_t buffer_B_ready = NULL;
 SemaphoreHandle_t current_sync = NULL;
 
-void get_next_log_filename(char *out_name, size_t max_len) {
+static void get_next_log_filename(char *out_name, size_t max_len) {
   DIR *dir = opendir(MOUNT_POINT);
   struct dirent *entry;
   int max_index = 0;
@@ -99,7 +99,7 @@ esp_err_t sd_task_init(void) {
   return ESP_OK;
 }
 
-bool save_text(const char *path, BoardData_t *data) {
+static bool save_text(const char *path, BoardData_t *data) {
   FILE *f = fopen(path, "a"); // append text
   if (!f) {
     ESP_LOGE("SDCARD", "Failed to open %s for writing", path);
@@ -125,7 +125,7 @@ bool save_text(const char *path, BoardData_t *data) {
   return true;
 }
 
-bool add_header(const char *path) {
+static bool add_header(const char *path) {
   FILE *f = fopen(path, "a");
   if (!f) {
     ESP_LOGE("SDCARD", "Failed to open %s for writing", path);
@@ -142,7 +142,7 @@ bool add_header(const char *path) {
   return true;
 }
 
-void save_buffer(const char *path, BoardData_t *data) {
+static void save_buffer(const char *path, BoardData_t *data) {
   if (sd_card.mounted) {
     if (!save_text(path, data)) {
       ESP_LOGE(TAG, "Failed to save data to SD card");
@@ -186,7 +186,7 @@ void update_data_task(void *arg) {
   }
 }
 
-void save_data_task(void *arg) {
+static void save_data_task(void *arg) {
   char file_path[64];
   get_next_log_filename(file_path, sizeof(file_path));
   ESP_LOGI(TAG, "Saving to %s", file_path);
