@@ -47,7 +47,6 @@ void _led_delay(uint32_t _ms) { vTaskDelay(_ms / portTICK_PERIOD_MS); }
 board_config_t config = {.board_name = CONFIG_NAME};
 
 esp_err_t board_config_init(void) {
-
   esp_err_t err;
 
   // Initialize board data structure and semaphore
@@ -115,7 +114,7 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  err = ltc4162_init();
+  err = ltc4162_init(&LTC4162_DEFAULT_CONFIG());
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "LTC4162 initialization failed");
     ESP_LOGW(TAG, "Connect vbat or vin");
