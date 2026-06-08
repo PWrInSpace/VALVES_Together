@@ -114,7 +114,7 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  err = ltc4162_init(&LTC4162_DEFAULT_CONFIG());
+  err = ltc4162_init(&LTC4162_DEFAULT_CONFIG(GPIO_NUM_NC));
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "LTC4162 initialization failed");
     ESP_LOGW(TAG, "Connect vbat or vin");

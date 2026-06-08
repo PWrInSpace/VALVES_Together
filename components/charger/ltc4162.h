@@ -6,11 +6,11 @@
 #include "mcu_i2c_config.h"
 
 #define LTC4162_I2C_ADDRESS 0x68
-#define LTC4162_DEFAULT_CONFIG() (ltc4162_config_t){ \
+#define LTC4162_DEFAULT_CONFIG(INT_PIN) (ltc4162_config_t){ \
     .i2c_address = LTC4162_I2C_ADDRESS, \
     .i2c_read = _mcu_i2c_read, \
     .i2c_write = _mcu_i2c_write, \
-    .int_pin = GPIO_NUM_NC \
+    .int_pin = INT_PIN \
 }
 
 typedef bool (*i2c_read_fn)(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len);
