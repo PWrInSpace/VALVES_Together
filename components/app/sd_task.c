@@ -1,5 +1,6 @@
 #include "sd_task.h"
 #include "BoardData.h"
+#include "auto_vent_task.h"
 #include "buzzer.h"
 #include "buzzer_task.h"
 #include "esp_log.h"
@@ -106,6 +107,22 @@ static bool save_text(const char *path, BoardData_t *data) {
   }
 
   for (uint32_t i = 0; i < BUFFER_SAMPLES; i++) {
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+    fprintf(f,
+            "%llu,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%d"
+            ",%d,%d,%d\n",
+            (unsigned long long)data[i].power_time, data[i].temperature[0],
+            data[i].temperature[1], data[i].temperature[2], data[i].pressure[0],
+            data[i].pressure[2], data[i].pressure[3], data[i].termistor,
+            data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
+            valve2_state, data[i].chargerData.vbat, data[i].chargerData.vin,
+            data[i].chargerData.ibat, data[i].chargerData.iin,
+            data[i].chargerData.die_temp, data[i].chargerData.vout,
+            data[i].chargerData.charger_status,
+            data[i].chargerData.charger_state, moduleData.obcState,
+            data[i].auto_vent_activated, data[i].auto_vent_triggered,
+            data[i].auto_vent_pressure);
+#else
     fprintf(f,
             "%llu,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%d"
             "\n",
@@ -118,6 +135,7 @@ static bool save_text(const char *path, BoardData_t *data) {
             data[i].chargerData.die_temp, data[i].chargerData.vout,
             data[i].chargerData.charger_status,
             data[i].chargerData.charger_state, moduleData.obcState);
+#endif
   }
 
   fclose(f);
@@ -131,10 +149,17 @@ static bool add_header(const char *path) {
     return false;
   }
   fprintf(f, "Log file for configuration: %s\n", CONFIG_NAME);
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+  fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
+             "DumpValveCont,DumpValveArm,Valve1State,Valve2State,"
+             "Vbat,Vin,Ibat,Iin,DieTemp,Vout,ChargerStatus,ChargerState,"
+             "ObcState,AutoVentActivated,AutoVentTriggered,AutoVentPressure\n");
+#else
   fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
              "DumpValveCont,DumpValveArm,Valve1State,Valve2State,"
              "Vbat,Vin,Ibat,Iin,DieTemp,Vout,ChargerStatus,ChargerState,"
              "ObcState\n");
+#endif
 
   fclose(f);
   ESP_LOGI("SDCARD", "Header added to %s", path);
@@ -156,8 +181,19 @@ void update_data_task(void *arg) {
     BoardData_t boardDataCopy;
 
     if (get_board_data(&boardDataCopy, portMAX_DELAY) != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to get board data");
       continue;
     }
+
+#ifdef SOL_N20_SERVO_ETH_CONFIG // TODO dziala ale trzeba to kiedys zrobic
+                                // lepiej, autovent task nie updatuje tych
+                                // danych
+    boardDataCopy.auto_vent_activated = is_auto_vent_active;
+    boardDataCopy.auto_vent_triggered = is_triggered;
+    float avp = 0.0f;
+    get_auto_vent_pressure(&avp);
+    boardDataCopy.auto_vent_pressure = (int32_t)(avp * 1000);
+#endif
 
     if (xSemaphoreTake(current_mutex, portMAX_DELAY) == pdTRUE) {
       current_buffer[counter] = boardDataCopy;
@@ -180,7 +216,7 @@ void update_data_task(void *arg) {
       counter = 0;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(moduleData.stateTimes[moduleData.obcState]/100));
   }
 }
 

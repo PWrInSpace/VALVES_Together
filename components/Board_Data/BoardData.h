@@ -20,6 +20,7 @@ typedef struct {
   bool is_charging;
   bool auto_vent_activated;
   bool auto_vent_triggered;
+  int32_t auto_vent_pressure;
   ltc4162_charger_data_t chargerData;
 } BoardData_t;
 #else
