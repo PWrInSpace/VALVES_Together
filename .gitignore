@@ -56,3 +56,5 @@ dkms.conf
 build
 sdkconfig
 sdkconfig.old
+wykresy/data/LOG_*.CSV
+wykresy/2025*

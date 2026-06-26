@@ -6,8 +6,8 @@
 ///===-----------------------------------------------------------------------------------------===//
 ///
 /// \file
-/// This file contains implementation of the system configuration including mcu config, can api config
-/// and hardware config to be implemented by user
+/// This file contains implementation of the system configuration including mcu
+/// config, can api config and hardware config to be implemented by user
 ///===-----------------------------------------------------------------------------------------===//
 
 #include "board_config.h"
@@ -19,48 +19,156 @@
 
 #include "esp_log.h"
 
+#include "BoardData.h"
+#include "auto_vent_task.h"
+#include "buzzer.h"
 #include "console_config.h"
+#include "igniter_driver.h"
+#include "igniter_task.h"
+#include "ltc4162.h"
+#include "mcu_adc_config.h"
+#include "mcu_gpio_config.h"
+#include "mcu_i2c_config.h"
 #include "mcu_spi_config.h"
+#include "measure_task.h"
+#include "now.h"
+#include "pressure_driver.h"
+#include "sd_task.h"
+#include "servo_config.h"
+#include "solenoid_config.h"
+#include "thermocouple_config.h"
+#include "thermocouple_task.h"
 #include "timers_config.h"
+#include "valve_board_config.h"
 
 #define TAG "BOARD_CONFIG"
 
-void _led_delay(uint32_t _ms) {
-    vTaskDelay(_ms / portTICK_PERIOD_MS);
-}
+void _led_delay(uint32_t _ms) { vTaskDelay(_ms / portTICK_PERIOD_MS); }
 
-board_config_t config = {
-    .board_name = "VALVES_Together_BOARD", //CHANGE TO REAL BOARD NAME
-};
+board_config_t config = {.board_name = CONFIG_NAME};
 
 esp_err_t board_config_init(void) {
 
-    esp_err_t err;
-    
-    err = console_config_init();
+  esp_err_t err;
 
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Console initialization failed");
-        return err;
-    }
+  // Initialize board data structure and semaphore
+  err = board_data_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Board data initialization failed");
+    return err;
+  }
 
-    err = mcu_spi_init();
+  err = mcu_gpio_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "GPIO initialization failed");
+    return err;
+  }
 
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "SPI initialization failed");
-        return err;
-    }
+  err = mcu_spi_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "SPI initialization failed");
+    return err;
+  }
+#ifdef SERVO_N20_CONFIG
+  err = thermocouple_config_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Thermocouple initialization failed");
+    return err;
+  }
+#endif
 
-    if(!timers_init())
-    {
-        ESP_LOGE(TAG, "Failed to initialize timers");
-        return ESP_FAIL;
-    }
+  if (!timers_init()) {
+    ESP_LOGE(TAG, "Failed to initialize timers");
+    return ESP_FAIL;
+  }
 
+  if (nowInit()) {
+    nowAddPeer(adressObc, 1);
+    uint8_t mac[6];
+    esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
+    ESP_LOGI("MAC address", "MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  } else {
+    ESP_LOGE(TAG, "ESP-NOW initialization failed");
+    return ESP_FAIL;
+  }
 
-    return ESP_OK;
+  err = valves_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Valves initialization failed");
+    return err;
+  }
 
-    //*********** ADD HARDWARE CONFIGURATION HERE ***********//
+  err = init_multiple_servos();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Servo configuration failed");
+    vTaskDelete(NULL);
+  }
 
-    
+  err = mcu_i2c_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "I2C initialization failed");
+    vTaskDelete(NULL);
+  }
+
+  err = console_config_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Console configuration failed");
+    vTaskDelete(NULL);
+  }
+
+  err = ltc4162_init();
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "LTC4162 initialization failed");
+    ESP_LOGW(TAG, "Connect vbat or vin");
+  }
+
+  err = buzzer_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Buzzer initialization failed");
+    vTaskDelete(NULL);
+  }
+
+  if (mcu_adc_init() != ESP_OK) {
+    ESP_LOGE(TAG, "ADC initialization failed");
+    return ESP_FAIL;
+  }
+
+  err = igniter_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Igniter initialization failed");
+    vTaskDelete(NULL);
+  }
+
+  pressure_driver_status_t ret_press;
+  ret_press = pressure_driver_init(&(pressure_driver_config));
+  if (ret_press != PRESSURE_DRIVER_OK) {
+    ESP_LOGE(TAG, "Failed to initialize pressure driver");
+    return ESP_FAIL;
+  } else {
+    ESP_LOGI(TAG, "Pressure driver 1 initialized");
+  }
+
+  if (sd_task_init() != ESP_OK) {
+    ESP_LOGE(TAG, "SD card task initialization failed");
+    // return ESP_FAIL;
+  }
+
+  createNowSendTask();
+#ifdef SERVO_N20_CONFIG
+  run_igniter_task();
+#endif
+  run_measure_task();
+#ifdef SERVO_N20_CONFIG
+  if (!run_thermocouple_task()) {
+    ESP_LOGE(TAG, "Failed to start thermocouple task");
+    return ESP_FAIL;
+  }
+#endif
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+  run_auto_vent_task();
+#endif
+  return ESP_OK;
+
+  //*********** ADD HARDWARE CONFIGURATION HERE ***********//
 }

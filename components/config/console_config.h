@@ -6,8 +6,9 @@
 ///===-----------------------------------------------------------------------------------------===//
 ///
 /// \file
-/// This file contains declaration of the system console configuration, including initialization
-/// and available commands for debugging/testing purposes.
+/// This file contains declaration of the system console configuration,
+/// including initialization and available commands for debugging/testing
+/// purposes.
 ///===-----------------------------------------------------------------------------------------===//
 #ifndef PWRINSPACE_CONSOLE_CONFIG_H_
 #define PWRINSPACE_CONSOLE_CONFIG_H_

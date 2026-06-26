@@ -15,36 +15,33 @@
 #include <stdbool.h>
 
 #include "driver/gpio.h"
-#include "driver/spi_common.h"
 #include "driver/sdspi_host.h"
+#include "driver/spi_common.h"
 #include "esp_log.h"
 #include "esp_rom_gpio.h"
-#include "freertos/task.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "freertos/task.h"
 #include "rom/gpio.h"
 #include "sdkconfig.h"
 #include "soc/gpio_struct.h"
-
-#define MCU_SPI_DEFAULT_CONFIG()                   \
-  {                                                \
-    .host_id = SDSPI_DEFAULT_HOST,                          \
-    .bus_config = {.miso_io_num = CONFIG_SPI_MISO, \
-                   .mosi_io_num = CONFIG_SPI_MOSI, \
-                   .sclk_io_num = CONFIG_SPI_SCK,  \
-                   .quadwp_io_num = -1,            \
-                   .quadhd_io_num = -1,            \
-                   .max_transfer_sz = 4000},       \
-    .dev_config = {.clock_speed_hz = 400000,       \
-                   .mode = 0,                      \
-                   .spics_io_num = -1,             \
-                   .queue_size = 1,                \
-                   .flags = 0,                     \
-                   .pre_cb = NULL},                \
-    .spi_init_flag = false,                        \
+#define MCU_SPI_DEFAULT_CONFIG()                                               \
+  {                                                                            \
+    .host_id = SDSPI_DEFAULT_HOST,                                             \
+    .bus_config = {.miso_io_num = 13,                                          \
+                   .mosi_io_num = 11,                                          \
+                   .sclk_io_num = 12,                                          \
+                   .quadwp_io_num = -1,                                        \
+                   .quadhd_io_num = -1,                                        \
+                   .max_transfer_sz = 4000},                                   \
+    .dev_config = {.clock_speed_hz = 400000,                                   \
+                   .mode = 0,                                                  \
+                   .spics_io_num = -1,                                         \
+                   .queue_size = 1,                                            \
+                   .flags = 0,                                                 \
+                   .pre_cb = NULL},                                            \
+    .spi_init_flag = false,                                                    \
   }
-
-extern SemaphoreHandle_t mutex_spi;
 
 typedef struct {
   spi_host_device_t host_id;
@@ -65,28 +62,7 @@ esp_err_t mcu_spi_init(void);
 /**
  * \brief Deinitializes the SPI bus
  * \return ESP_OK on success, ESP_FAIL otherwise
-*/
+ */
 esp_err_t mcu_spi_deinit(void);
 
-
-
-// bool _ads1256_add_device(void);  
-
-// typedef struct ads1256_spi_transmit_t
-// {
-//   const uint8_t* tx_data;  
-//   size_t tx_len;            
-//   uint8_t cs_pin; 
-//   bool rx_enabled;
-// } ads1256_spi_transmit_t;
-
-// /**
-//  * \brief SPI transmit function for ADS1256
-//  * \param[in] ads1256_spi_transmit_t structure
-//  * \param[out] rx_data output buffer
-//  * \param[in] rx_len length of output buffer
-//  */
-// bool _ads1256_spi_transmit(ads1256_spi_transmit_t* ads_transmit, uint8_t* rx_data, size_t rx_len);
-
-// bool _ads1256_spi_transmit_queued(const uint8_t* tx_data, size_t tx_len, uint8_t* rx_data, size_t rx_len);
 #endif /* PWRINSPACE_MCU_SPI_CONFIG_H_ */
