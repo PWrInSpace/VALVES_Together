@@ -17,6 +17,8 @@ static bool LTC_initialized = false;
 #define LTC4162_REG_EN_LIMIT_ALERTS 0x0D
 #define LTC4162_REG_EN_CHARGER_STATE_ALERTS 0x0E
 #define LTC4162_REG_EN_CHARGE_STATUS_ALERTS 0x0F
+#define LTC4162_REG_CHARGER_STATE 0x34
+#define LTC4162_REG_CHARGE_STATUS 0x35
 #define LTC4162_REG_LIMIT_ALERTS 0x36
 #define LTC4162_REG_CHARGER_STATE_ALERTS 0x37
 #define LTC4162_REG_CHARGE_STATUS_ALERTS 0x38
@@ -324,8 +326,8 @@ esp_err_t ltc4162_debug_monitor(void) {
 
     /* ---------- CHARGER STATE & STATUS---------- */
 
-    int16_t charger_state = read_reg16(0x34);
-    int16_t charge_status = read_reg16(0x35);
+    int16_t charger_state = read_reg16(LTC4162_REG_CHARGER_STATE);
+    int16_t charge_status = read_reg16(LTC4162_REG_CHARGE_STATUS);
 
     ESP_LOGI(TAG, "Charger state: 0x%04X (%s)", charger_state, ltc4162_charger_state_to_str((ltc4162_charger_state_t)charger_state));
     ESP_LOGI(TAG, "Charge status: 0x%04X (%s)", charge_status, ltc4162_charge_status_to_str((ltc4162_charge_status_t)charge_status));
