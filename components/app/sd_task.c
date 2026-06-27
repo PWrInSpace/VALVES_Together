@@ -215,7 +215,7 @@ void update_data_task(void *arg) {
       counter = 0;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(moduleData.stateTimes[moduleData.obcState]));
+    vTaskDelay(pdMS_TO_TICKS(moduleData.sdStateTimes[moduleData.obcState]));
   }
 }
 
