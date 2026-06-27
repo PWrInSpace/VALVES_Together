@@ -410,8 +410,8 @@ int edit_flash(int argc, char **argv) {
 // |--- Commands for pressure sensors calibration ---|
 
 const char *pressure_sensors_names[] = {
-  "P1",
-  "P2",
+  "P",
+  "Thermistor",
   "L",
   "S",
 };
