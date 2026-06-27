@@ -13,6 +13,7 @@ volatile ModuleData moduleData = {
     .dataToObc = {true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     .obcState = 0,
     .stateTimes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    .sdStateTimes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
 volatile uint8_t valve1_state = 0;
@@ -45,6 +46,26 @@ esp_err_t board_data_init(void) {
 
   memcpy((uint8_t *)moduleData.stateTimes, (uint8_t *)stateTimes,
          sizeof(stateTimes));
+
+  uint16_t sdStateTimes[16] = {SD_INIT_PERIOD,
+                               SD_IDLE_PERIOD,
+                               SD_RECOVERY_ARM_PERIOD,
+                               SD_FUELING_PERIOD,
+                               SD_PRESSURIZING_PERIOD,
+                               SD_ARMED_TO_LAUNCH_PERIOD,
+                               SD_RDY_TO_LAUNCH_PERIOD,
+                               SD_COUNTDOWN_PERIOD,
+                               SD_LIFT_OFF_PERIOD,
+                               SD_BURN_PERIOD,
+                               SD_FLIGHT_PERIOD,
+                               SD_FIRST_STAGE_REC_PERIOD,
+                               SD_SECOND_STAGE_REC_PERIOD,
+                               SD_ON_GROUND_PERIOD,
+                               SD_HOLD_PERIOD,
+                               SD_ABORT_PERIOD};
+  
+  memcpy((uint8_t *)moduleData.sdStateTimes, (uint8_t *)sdStateTimes,
+         sizeof(sdStateTimes));
 
   return ESP_OK;
 }
