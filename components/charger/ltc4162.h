@@ -61,8 +61,33 @@ typedef enum {
     LTC4162_ALERT_VIN_UVCL_ACTIVE = (1 << 3),       // Input Under-Voltage Charge Limit loop is actively throttling current due to weak input source
     LTC4162_ALERT_IIN_LIMIT_ACTIVE = (1 << 2),      // Input current limit reached; charge current is reduced to prioritize system load
     LTC4162_ALERT_THERMAL_REG_ACTIVE = (1 << 1),    // Die temperature reached 115°C; hardware is reducing charge current to prevent overheating
-    LTC4162_ALERT_PROG_I_LIMIT_ACTIVE = (1 << 0)    // Main programmed charge current regulation loop (Icharge loop) has become active
+    LTC4162_ALERT_PROG_I_LIMIT_ACTIVE = (1 << 0)    // Main programmed charge current regulation loop (I-charge loop) has become active
 } ltc4162_alert_status_t;
+
+typedef enum {
+    LTC4162_CHARGER_STATE_NONE = 0x0000,
+    LTC4162_CHARGER_BAT_DETECT_FAILED = (1 << 12),      // Battery detection test failed to determine battery presence
+    LTC4162_CHARGER_BATTERY_DETECTION = (1 << 11),      // Charger has initiated the battery presence detection sequence
+    LTC4162_CHARGER_SUSPENDED = (1 << 8),               // Charging has been suspended programmatically or due to safety triggers
+    LTC4162_CHARGER_PRECHARGE = (1 << 7),               // Pre-charge phase has started (low-current charging for deeply discharged cells)
+    LTC4162_CHARGER_CC_CV_CHARGE = (1 << 6),            // Charger transitioned into Constant-Current (CC) or Constant-Voltage (CV) mode
+    LTC4162_CHARGER_NTC_PAUSE = (1 << 5),               // Battery temperature is outside the safe JEITA profile range
+    LTC4162_CHARGER_TIMER_TERMINATION = (1 << 4),       // Maximum allowable safety time for CV phase elapsed
+    LTC4162_CHARGER_C_OVER_X_TERMINATION = (1 << 3),    // Charge current fell below the full-charge threshold
+    LTC4162_CHARGER_MAX_CHARGE_TIME = (1 << 2),         // Maximum total safety charge time has been exceeded
+    LTC4162_CHARGER_BAT_MISSING_FAULT = (1 << 1),       // No battery detected while trying to initiate a charge cycle
+    LTC4162_CHARGER_BAT_SHORT_FAULT = (1 << 0)          // A shorted cell or short-circuit condition was detected on the battery
+} ltc4162_charger_state_t;
+
+typedef enum {
+    LTC4162_CHARGE_STATUS_OFF = 0,                          // Charger is off
+    LTC4162_CHARGE_STATUS_CONSTANT_VOLTAGE = (1 << 0),      // Constant-Voltage (CV) regulation loop is active
+    LTC4162_CHARGE_STATUS_CONSTANT_CURRENT = (1 << 1),      // Constant-Current (CC) regulation loop is active
+    LTC4162_CHARGE_STATUS_IIN_LIMIT_ACTIVE = (1 << 2),      // Input current limit loop is active
+    LTC4162_CHARGE_STATUS_VIN_UVCL_ACTIVE = (1 << 3),       // Input under-voltage current limit loop is active
+    LTC4162_CHARGE_STATUS_THERMAL_REG_ACTIVE = (1 << 4),    // Thermal regulation loop is active (reducing current due to temperature)
+    LTC4162_CHARGE_STATUS_ILIM_REG_ACTIVE = (1 << 5)        // Output current limit loop is active
+} ltc4162_charge_status_t;
 
 typedef struct {
     float vbat;
@@ -125,5 +150,8 @@ esp_err_t ltc4162_set_suspend(bool suspend);
 esp_err_t ltc4162_debug_monitor(void);
 esp_err_t ltc4162_read_register(uint8_t reg, uint8_t *data, uint8_t len);
 esp_err_t ltc4162_write_register(uint8_t reg, uint8_t *data, uint8_t len);
+
+const char* ltc4162_charger_state_to_str(ltc4162_charger_state_t state);
+const char* ltc4162_charge_status_to_str(ltc4162_charge_status_t status);
 
 #endif /* ltc4162_h */

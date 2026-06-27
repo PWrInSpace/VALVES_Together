@@ -322,26 +322,49 @@ esp_err_t ltc4162_debug_monitor(void) {
     if (sys & (1 << 0))
         ESP_LOGI(TAG, "INTVCC OK");
 
-    /* ---------- CHARGER STATE ---------- */
+    /* ---------- CHARGER STATE & STATUS---------- */
 
     int16_t charger_state = read_reg16(0x34);
     int16_t charge_status = read_reg16(0x35);
 
-    ESP_LOGI(TAG, "Charger state: 0x%04X", charger_state);
-    ESP_LOGI(TAG, "Charge status: 0x%04X", charge_status);
-
-    if (charger_state == 64)
-        ESP_LOGI(TAG, "State: CC/CV Charge");
-    else if (charger_state == 128)
-        ESP_LOGI(TAG, "State: Precharge");
-    else if (charger_state == 256)
-        ESP_LOGI(TAG, "State: Suspended");
-
-    if (charge_status & 0x02)
-        ESP_LOGI(TAG, "Mode: Constant Current");
-    if (charge_status & 0x01)
-        ESP_LOGI(TAG, "Mode: Constant Voltage");
+    ESP_LOGI(TAG, "Charger state: 0x%04X (%s)", charger_state, ltc4162_charger_state_to_str((ltc4162_charger_state_t)charger_state));
+    ESP_LOGI(TAG, "Charge status: 0x%04X (%s)", charge_status, ltc4162_charge_status_to_str((ltc4162_charge_status_t)charge_status));
 
     ESP_LOGI(TAG, "===== END DEBUG =====");
     return ESP_OK;
+}
+
+// |--- STRING CONVERSION UTILITIES ---|
+
+const char* ltc4162_charger_state_to_str(ltc4162_charger_state_t state) {
+    // Individual bits in charger state register are mutually exclusive
+    switch (state) {
+        case LTC4162_CHARGER_STATE_NONE: return "None";
+        case LTC4162_CHARGER_BAT_DETECT_FAILED: return "Battery Detection Failed";
+        case LTC4162_CHARGER_BATTERY_DETECTION: return "Battery Detection";
+        case LTC4162_CHARGER_SUSPENDED: return "Suspended";
+        case LTC4162_CHARGER_PRECHARGE: return "Precharge";
+        case LTC4162_CHARGER_CC_CV_CHARGE: return "CC/CV Charge";
+        case LTC4162_CHARGER_NTC_PAUSE: return "NTC Pause";
+        case LTC4162_CHARGER_TIMER_TERMINATION: return "Timer Termination";
+        case LTC4162_CHARGER_C_OVER_X_TERMINATION: return "C/X Termination";
+        case LTC4162_CHARGER_MAX_CHARGE_TIME: return "Max Charge Time Fault";
+        case LTC4162_CHARGER_BAT_MISSING_FAULT: return "Battery Missing Fault";
+        case LTC4162_CHARGER_BAT_SHORT_FAULT: return "Battery Short Fault";
+        default: return "Unknown State";
+    }
+}
+
+const char* ltc4162_charge_status_to_str(ltc4162_charge_status_t status) {
+    // Individual bits in charge status register are mutually exclusive
+    switch (status) {
+        case LTC4162_CHARGE_STATUS_OFF: return "Charger Off";
+        case LTC4162_CHARGE_STATUS_CONSTANT_VOLTAGE: return "Constant Voltage";
+        case LTC4162_CHARGE_STATUS_CONSTANT_CURRENT: return "Constant Current";
+        case LTC4162_CHARGE_STATUS_IIN_LIMIT_ACTIVE: return "Input Current Limit Active";
+        case LTC4162_CHARGE_STATUS_VIN_UVCL_ACTIVE: return "Input UVCL Active";
+        case LTC4162_CHARGE_STATUS_THERMAL_REG_ACTIVE: return "Thermal Regulation Active";
+        case LTC4162_CHARGE_STATUS_ILIM_REG_ACTIVE: return "Output Current Limit Active";
+        default: return "Unknown Status";
+    }
 }
