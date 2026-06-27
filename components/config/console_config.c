@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "esp_log.h"
 #include "esp_system.h"
 
@@ -11,6 +13,7 @@
 #include "i2c_scan.h"
 #include "igniter_driver.h"
 #include "ltc4162.h"
+#include "now.h"
 #include "pressure_driver.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
@@ -271,7 +274,7 @@ int open_angle(int argc, char **argv) {
   handle_valve_cmd_angle(valve_id, 0, angle);
   return 0;
 }
-
+#ifdef SOL_N20_SERVO_ETH_CONFIG
 int get_auto_vent_data(int argc, char **argv) {
   float auto_vent_pressure = 0.0f;
   get_auto_vent_pressure(&auto_vent_pressure);
@@ -282,6 +285,7 @@ int get_auto_vent_data(int argc, char **argv) {
   ESP_LOGI(TAG, "Auto vent triggered: %d", is_triggered);
   return 0;
 }
+#endif
 
 int print_board_data(int argc, char **argv) {
   BoardData_t board_data;
@@ -305,6 +309,22 @@ int print_board_data(int argc, char **argv) {
   return 0;
 }
 
+int play_crab_rave_melody(int argc, char **argv) {
+  crab_rave_melody();
+  return 0;
+}
+
+int play_crab_rave_harmony(int argc, char **argv) {
+  crab_rave_harmony();
+  return 0;
+}
+
+int play_crab_rave_bass(int argc, char **argv) {
+  crab_rave_bass();
+  return 0;
+}
+
+#ifdef SOL_N20_SERVO_ETH_CONFIG
 int auto_vent_on(int argc, char **argv) {
   if (argc < 2) {
     ESP_LOGE(TAG, "Usage: auto_vent_on <pressure>");
@@ -568,7 +588,10 @@ static esp_console_cmd_t cmd[] = {
     {"play_double_beep", "Play a double beep on the buzzer", NULL, play_double_beep, NULL, NULL, NULL},
     {"play_triple_beep", "Play a triple beep on the buzzer", NULL, play_triple_beep, NULL, NULL, NULL},
     {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
-    {"get_board_data", "Print current board data to console", NULL, get_board_data_cmd, NULL, NULL, NULL},
+    {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
+    {"set_calibration_mode", "Toggle calibration mode for pressure sensors", NULL, set_calibration_mode, NULL, NULL, NULL},
+    {"now_send_log", "Enable/disable ESP-NOW data-to-OBC debug log (on|off or toggle)", NULL, set_now_send_log, NULL, NULL, NULL},
+    {"obc_test_data", "Enable/disable test data in ESP-NOW packets to OBC (on|off or toggle)", NULL, set_obc_test_data, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
     {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
@@ -584,6 +607,10 @@ static esp_console_cmd_t cmd[] = {
 
     {"calibrate", "Calibrate specific sensor for provided pressure", NULL, press_calibrate, NULL, NULL, NULL},
     {"tare", "Calibrate all or chosen pressure sensors for 0 bar", NULL, press_tare, NULL, NULL, NULL},
+    {"play_crab_rave_melody", "Play Crab Rave Melody on the buzzer", NULL, play_crab_rave_melody, NULL, NULL, NULL},
+    {"play_crab_rave_harmony", "Play Crab Rave Harmony on the buzzer", NULL, play_crab_rave_harmony, NULL, NULL, NULL},
+    {"play_crab_rave_bass", "Play Crab Rave Bass on the buzzer", NULL, play_crab_rave_bass, NULL, NULL, NULL},
+    
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG
     {"open_sol_n2o", "Open N2O solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},

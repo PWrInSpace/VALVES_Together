@@ -72,7 +72,8 @@ typedef struct {
   uint8_t fault;
 } max31856_cfg;
 
-bool max31856_init(max31856_cfg *max31856, uint8_t cs_pin);
+bool max31856_init(max31856_cfg *max31856, uint8_t cs_pin,
+                   spi_host_device_t host_id);
 void thermocouple_set_type(max31856_cfg *max31856,
                            max31856_thermocoupletype_t tc_type);
 max31856_thermocoupletype_t thermocouple_get_type(max31856_cfg *max31856);
