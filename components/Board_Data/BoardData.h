@@ -31,6 +31,7 @@ typedef struct {
   bool is_charging;
   bool auto_vent_activated;
   bool auto_vent_triggered;
+  int32_t auto_vent_pressure;
   ChargerData_t chargerData;
 } BoardData_t;
 #else
@@ -83,6 +84,25 @@ typedef enum {
   HOLD_PERIOD = 1000,
   ABORT_PERIOD = 4000,
 } Periods;
+
+typedef enum {
+  SD_INIT_PERIOD = 1000,
+  SD_IDLE_PERIOD = 1000,
+  SD_RECOVERY_ARM_PERIOD = 1000,
+  SD_FUELING_PERIOD = 500,
+  SD_PRESSURIZING_PERIOD = 500,
+  SD_ARMED_TO_LAUNCH_PERIOD = 500,
+  SD_RDY_TO_LAUNCH_PERIOD = 500,
+  SD_COUNTDOWN_PERIOD = 100,
+  SD_LIFT_OFF_PERIOD = 100,
+  SD_BURN_PERIOD = 100,
+  SD_FLIGHT_PERIOD = 100,
+  SD_FIRST_STAGE_REC_PERIOD = 100,
+  SD_SECOND_STAGE_REC_PERIOD = 100,
+  SD_ON_GROUND_PERIOD = 1000,
+  SD_HOLD_PERIOD = 500,
+  SD_ABORT_PERIOD = 1000,
+} SdPeriods;
 
 typedef enum {
   INIT = 0,
@@ -146,6 +166,7 @@ typedef struct {
   DataToObc dataToObc;
   uint8_t obcState;
   uint16_t stateTimes[16];
+  uint16_t sdStateTimes[16];
 } ModuleData;
 
 esp_err_t board_data_init(void);
