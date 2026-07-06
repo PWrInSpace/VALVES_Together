@@ -6,7 +6,7 @@
 
 const char *TAG = "MAX31856";
 
-void max31856_write_register(spi_device_handle_t spi_handle, uint8_t cs_pin,
+static void max31856_write_register(spi_device_handle_t spi_handle, uint8_t cs_pin,
                              uint8_t address, uint8_t data) {
   esp_err_t ret;
   spi_transaction_t spi_transaction;
@@ -26,7 +26,7 @@ void max31856_write_register(spi_device_handle_t spi_handle, uint8_t cs_pin,
   gpio_set_level(cs_pin, 1);
 }
 
-uint8_t max31856_read_register(spi_device_handle_t spi_handle, uint8_t cs_pin,
+static uint8_t max31856_read_register(spi_device_handle_t spi_handle, uint8_t cs_pin,
                                uint8_t address) {
   esp_err_t ret;
   spi_transaction_t spi_transaction;
@@ -48,7 +48,7 @@ uint8_t max31856_read_register(spi_device_handle_t spi_handle, uint8_t cs_pin,
   return reg_value;
 }
 
-uint8_t max31856_read_fast_register(spi_device_handle_t spi_handle,
+static uint8_t max31856_read_fast_register(spi_device_handle_t spi_handle,
                                     uint8_t cs_pin, uint8_t address) {
   esp_err_t ret;
   spi_transaction_t spi_transaction;
@@ -66,7 +66,7 @@ uint8_t max31856_read_fast_register(spi_device_handle_t spi_handle,
   return reg_value;
 }
 
-uint16_t max31856_read_register16(spi_device_handle_t spi_handle,
+static uint16_t max31856_read_register16(spi_device_handle_t spi_handle,
                                   uint8_t cs_pin, uint8_t address) {
   esp_err_t ret;
   spi_transaction_t spi_transaction;
@@ -96,7 +96,7 @@ uint16_t max31856_read_register16(spi_device_handle_t spi_handle,
   return reg_value;
 }
 
-uint32_t max31856_read_register24(spi_device_handle_t spi_handle,
+static uint32_t max31856_read_register24(spi_device_handle_t spi_handle,
                                   uint8_t cs_pin, uint8_t address) {
   esp_err_t ret;
   spi_transaction_t spi_transaction;
@@ -133,7 +133,7 @@ uint32_t max31856_read_register24(spi_device_handle_t spi_handle,
   return reg_value;
 }
 
-void max31856_oneshot_temperature(spi_device_handle_t spi_handle,
+static void max31856_oneshot_temperature(spi_device_handle_t spi_handle,
                                   uint8_t cs_pin) {
   max31856_write_register(spi_handle, cs_pin, MAX31856_CJTO_REG, 0x00);
   uint8_t val = max31856_read_register(spi_handle, cs_pin, MAX31856_CR0_REG);

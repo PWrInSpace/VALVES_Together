@@ -11,7 +11,7 @@ TaskHandle_t charger_task_handle = NULL;
 #define I2C_MUTEX_TIMEOUT_MS 10
 #define BOARDDATA_MUTEX_TIMEOUT_MS 10
 
-void pressure_task(void *arg) {
+static void pressure_task(void *arg) {
   while (1) {
     if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
         pdTRUE) {
@@ -30,7 +30,7 @@ void pressure_task(void *arg) {
   }
 }
 
-void charger_task(void *arg) {
+static void charger_task(void *arg) {
   while (1) {
     if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
         pdTRUE) {
