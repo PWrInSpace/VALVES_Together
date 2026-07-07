@@ -4,21 +4,10 @@
 #include "freertos/semphr.h"
 #include "servo_config.h"
 #include "solenoid_config.h"
+#include "ltc4162.h"
 #include "stdbool.h"
 #include <inttypes.h>
 #include <stdint.h>
-
-typedef struct {
-  float vbat;
-  float vin;
-  float ibat;
-  float iin;
-  float die_temp;
-  float vout;
-  bool charger_status;
-  bool charger_state;
-
-} ChargerData_t;
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
 typedef struct {
@@ -31,7 +20,7 @@ typedef struct {
   bool is_charging;
   bool auto_vent_activated;
   bool auto_vent_triggered;
-  ChargerData_t chargerData;
+  ltc4162_charger_data_t chargerData;
 } BoardData_t;
 #else
 
@@ -43,7 +32,7 @@ typedef struct {
   bool dump_valve_arm;
   bool dump_valve_cont;
   bool is_charging;
-  ChargerData_t chargerData;
+  ltc4162_charger_data_t chargerData;
 
 } BoardData_t;
 
