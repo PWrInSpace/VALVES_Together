@@ -13,16 +13,12 @@ TaskHandle_t charger_task_handle = NULL;
 
 void pressure_task(void *arg) {
   while (1) {
-    if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
-        pdTRUE) {
-      if (xSemaphoreTake(BoardDataSemaphore,
-                         pdMS_TO_TICKS(BOARDDATA_MUTEX_TIMEOUT_MS)) == pdTRUE) {
-        pressure_driver_read_pressures(&pressure_driver_config,
-                                       boardData.pressure);
-        // ESP_LOGI(TAG, "Pressure readings: %f, %f, %f", boardData.pressure[0],
-        // boardData.pressure[1], boardData.pressure[2]);
-        xSemaphoreGive(BoardDataSemaphore);
-      }
+    if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) == pdTRUE) {
+      float temp_pressures[4];
+
+      pressure_driver_read_pressures(&pressure_driver_config, temp_pressures, 5);
+      set_boardData_pressures(temp_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
+
       xSemaphoreGive(mcu_i2c_mutex);
     }
 
@@ -51,19 +47,23 @@ void charger_task(void *arg) {
       vTaskDelay(pdMS_TO_TICKS(10));
 
       if (read_charger_data(&charger_data) == ESP_OK) {
-        if (xSemaphoreTake(BoardDataSemaphore,
-                           pdMS_TO_TICKS(BOARDDATA_MUTEX_TIMEOUT_MS)) ==
-            pdTRUE) {
-          boardData.chargerData.vbat = charger_data.vbat;
-          boardData.chargerData.vin = charger_data.vin;
-          boardData.chargerData.ibat = charger_data.ibat;
-          boardData.chargerData.iin = charger_data.iin;
-          boardData.chargerData.die_temp = charger_data.die_temp;
-          boardData.chargerData.vout = charger_data.vout;
-          boardData.chargerData.charger_status = charger_data.charger_status;
-          boardData.chargerData.charger_state = charger_data.charger_state;
-          boardData.is_charging = charger_data.charger_state;
-          xSemaphoreGive(BoardDataSemaphore);
+        ltc4162_charger_data_t new_charger_data = {
+          .vbat = charger_data.vbat,
+          .vin = charger_data.vin,
+          .ibat = charger_data.ibat,
+          .iin = charger_data.iin,
+          .die_temp = charger_data.die_temp,
+          .vout = charger_data.vout,
+          .charger_status = charger_data.charger_status,
+          .charger_state = charger_data.charger_state
+        };
+
+        BoardData_t new_bd;
+        if (get_board_data(&new_bd, BOARDDATA_MUTEX_TIMEOUT_MS) == ESP_OK) {
+          new_bd.is_charging = charger_data.charger_state;
+          new_bd.chargerData = new_charger_data;
+
+          set_board_data(new_bd, BOARDDATA_MUTEX_TIMEOUT_MS);
         }
       }
 

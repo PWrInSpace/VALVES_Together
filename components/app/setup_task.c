@@ -28,11 +28,7 @@
 static TaskHandle_t setup_task_handle = NULL;
 
 void setup_task(void *arg) {
-  esp_err_t err;
-
-  err = board_config_init();
-
-  if (err != ESP_OK) {
+  if (board_config_init() != ESP_OK) {
     ESP_LOGE(TAG, "Board configuration failed");
     vTaskDelete(NULL);
   }

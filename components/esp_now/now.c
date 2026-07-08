@@ -14,19 +14,30 @@
 
 /**************************  PRIVATE VARIABLES  *******************************/
 // Adres OBC:
-const uint8_t adressObc[] = {0x04, 0x20, 0x04,
+const uint8_t addressObc[] = {0x04, 0x20, 0x04,
                              0x20, 0x04, 0x20}; // dane devkita do testow
+
+bool now_send_data_log_enabled = false;
+bool obc_test_data_enabled = false;
+
+static const float OBC_TEST_PRESSURE1 = 69.69f;
+static const float OBC_TEST_PRESSURE2 = 88.88f;
+static const float OBC_TEST_BATTERY_VOLTAGE = 12.34f;
+static const float OBC_TEST_CONSUMPTION = 1.23f;
+static const float OBC_TEST_CHARGER_TEMPERATURE = 45.67f;
+static const int16_t OBC_TEST_TEMPERATURE = 25;
+static const bool OBC_TEST_IS_CHARGING = true;
 
 /**************************  PRIVATE FUNCTIONS  *******************************/
 
-bool adressCompare(const uint8_t *addr1, const uint8_t *addr2);
+bool addressCompare(const uint8_t *addr1, const uint8_t *addr2);
 void obc_command_handler(const uint8_t *data, int len);
 
 /**************************  CODE *********************************************/
 
 // static int dupa = 1;
 
-bool nowInit() {
+esp_err_t nowInit() {
 
   nvs_flash_init();
   esp_netif_init();
@@ -61,14 +72,14 @@ bool nowInit() {
   esp_wifi_start();
 
   if (esp_now_init())
-    return false;
+    return ESP_FAIL;
 
   esp_now_register_send_cb(OnDataSent);
   esp_now_register_recv_cb(OnDataRecv);
 
   ESP_LOGI("NOW", "ESP-NOW initialized");
 
-  return true;
+  return ESP_OK;
 }
 
 bool nowAddPeer(const uint8_t *address, uint8_t channel) {
@@ -95,7 +106,7 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData,
 
   // ESP_LOGI("NOW", "Received data from OBC");
 
-  if (adressCompare(info->src_addr, adressObc)) {
+  if (addressCompare(info->src_addr, addressObc)) {
 
     // ESP_LOGI("NOW", "Data received from OBC in length: %d", len);
 
@@ -119,7 +130,7 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData,
   }
 }
 
-bool adressCompare(const uint8_t *addr1, const uint8_t *addr2) {
+bool addressCompare(const uint8_t *addr1, const uint8_t *addr2) {
 
   for (int8_t i = 0; i < 6; i++) {
 
@@ -148,7 +159,13 @@ void obc_command_handler(const uint8_t *data, int len) {
     ESP_LOGI("ESP-NOW", "Received command: %lu with arg: %ld",
              moduleData.dataFromObc.commandNum,
              moduleData.dataFromObc.commandArg);
-    chandle_valve_cmd(moduleData.dataFromObc.commandNum,
+    if (moduleData.dataFromObc.commandNum == OBC_TEST_COMMAND) {
+      obc_test_data_enabled = (moduleData.dataFromObc.commandArg != 0);
+      ESP_LOGI("NOW", "OBC test data %s",
+               obc_test_data_enabled ? "enabled" : "disabled");
+      return;
+    }
+    handle_valve_cmd((uint8_t)moduleData.dataFromObc.commandNum,
                       moduleData.dataFromObc.commandArg);
     return;
   }
@@ -161,7 +178,13 @@ void obc_command_handler(const uint8_t *data, int len) {
         (((uint32_t)(rxData2.arg2)) & 0x0000FFFF);
     ESP_LOGI("ESP-NOW", "Received command: %lu with arg1: %d and arg2: %d",
              moduleData.dataFromObc.commandNum, rxData2.arg1, rxData2.arg2);
-    chandle_valve_cmd_angle(moduleData.dataFromObc.commandNum, rxData2.arg1,
+    if (rxData2.commandNum == OBC_TEST_COMMAND) {
+      obc_test_data_enabled = (rxData2.arg1 != 0);
+      ESP_LOGI("NOW", "OBC test data %s",
+               obc_test_data_enabled ? "enabled" : "disabled");
+      return;
+    }
+    handle_valve_cmd_angle((uint8_t)rxData2.commandNum, rxData2.arg1,
                             rxData2.arg2);
     return;
   }
@@ -171,22 +194,21 @@ void now_send_data_to_obc(void *arg) {
   while (1) {
     BoardData_t board_data_copy;
     DataToObc dataToObc;
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-      memcpy(&board_data_copy, (const void *)&boardData, sizeof(BoardData_t));
-      xSemaphoreGive(BoardDataSemaphore);
-    } else {
+
+    if (get_board_data(&board_data_copy, portMAX_DELAY) != ESP_OK) {
       ESP_LOGE("NOW", "Failed to take BoardData semaphore");
       continue;
     }
+
     dataToObc.waken_up = true;
     dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
     dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
     dataToObc.is_charging = board_data_copy.is_charging;
-    dataToObc.temperature1 = board_data_copy.temperature[0];
+    dataToObc.temperature1 = board_data_copy.temperature[1];
     dataToObc.pressure1 = board_data_copy.pressure[2];
     dataToObc.pressure2 = board_data_copy.pressure[3];
     dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
-    dataToObc.bettery_consumption =
+    dataToObc.battery_consumption =
         (fabsf(board_data_copy.chargerData.ibat) >
          fabsf(board_data_copy.chargerData.iin))
             ? fabsf(board_data_copy.chargerData.ibat)
@@ -206,9 +228,15 @@ void now_send_data_to_obc(void *arg) {
     dataToObc.auto_vent_pressure = (int32_t)(auto_vent_pressure_local * 1000);
 #endif
 
-    // dataToObc.pressure1 = 69.69f + dupa; // to test purposes, to be removed
-    // dataToObc.pressure2 = 88.88f; // to test purposes, to be removed
-    // dupa++;
+    if (obc_test_data_enabled) {
+      dataToObc.pressure1 = OBC_TEST_PRESSURE1;
+      dataToObc.pressure2 = OBC_TEST_PRESSURE2;
+      dataToObc.battery_voltage = OBC_TEST_BATTERY_VOLTAGE;
+      dataToObc.battery_consumption = OBC_TEST_CONSUMPTION;
+      dataToObc.charger_temperature = OBC_TEST_CHARGER_TEMPERATURE;
+      dataToObc.temperature1 = OBC_TEST_TEMPERATURE;
+      dataToObc.is_charging = OBC_TEST_IS_CHARGING;
+    }
     // ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u",
     // valve1_state, valve2_state);
 
@@ -222,14 +250,14 @@ void now_send_data_to_obc(void *arg) {
              "  pressure1           = %.2f\n"
              "  pressure2           = %.2f\n"
              "  battery_voltage     = %.2f\n"
-             "  bettery_consumption = %.2f\n"
+             "  battery_consumption = %.2f\n"
              "  charger_temperature = %.2f\n"
              "  valve1_state        = %u\n"
              "  valve2_state        = %u",
              dataToObc.waken_up, dataToObc.dump_valve_arm,
              dataToObc.dump_valve_cont, dataToObc.is_charging,
              dataToObc.temperature1, dataToObc.pressure1, dataToObc.pressure2,
-             dataToObc.battery_voltage, dataToObc.bettery_consumption,
+             dataToObc.battery_voltage, dataToObc.battery_consumption,
              dataToObc.charger_temperature,
              (unsigned int)dataToObc.valve1_state,
              (unsigned int)dataToObc.valve2_state);
@@ -242,7 +270,7 @@ void now_send_data_to_obc(void *arg) {
              dataToObc.auto_vent_pressure);
 #endif
 
-    if (esp_now_send(adressObc, (uint8_t *)&dataToObc, sizeof(DataToObc)) !=
+    if (esp_now_send(addressObc, (uint8_t *)&dataToObc, sizeof(DataToObc)) !=
         ESP_OK) {
       ESP_LOGE("NOW", "Error sending data to OBC");
     }

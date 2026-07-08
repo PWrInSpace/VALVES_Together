@@ -107,7 +107,9 @@ bool save_text(const char *path, BoardData_t *data) {
   }
 
   for (uint32_t i = 0; i < BUFFER_SAMPLES; i++) {
-    fprintf(f, "%llu,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%d,%d\n",
+    fprintf(f,
+            "%llu,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%d"
+            "\n",
             (unsigned long long)data[i].power_time, data[i].temperature[0],
             data[i].temperature[1], data[i].temperature[2], data[i].pressure[0],
             data[i].pressure[2], data[i].pressure[3], data[i].termistor,
@@ -116,7 +118,7 @@ bool save_text(const char *path, BoardData_t *data) {
             data[i].chargerData.ibat, data[i].chargerData.iin,
             data[i].chargerData.die_temp, data[i].chargerData.vout,
             data[i].chargerData.charger_status,
-            data[i].chargerData.charger_state);
+            data[i].chargerData.charger_state, moduleData.obcState);
   }
 
   fclose(f);
@@ -132,7 +134,8 @@ bool add_header(const char *path) {
   fprintf(f, "Log file for configuration: %s\n", CONFIG_NAME);
   fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
              "DumpValveCont,DumpValveArm,Valve1State,Valve2State,"
-             "Vbat,Vin,Ibat,Iin,DieTemp,Vout,ChargerStatus,ChargerState\n");
+             "Vbat,Vin,Ibat,Iin,DieTemp,Vout,ChargerStatus,ChargerState,"
+             "ObcState\n");
 
   fclose(f);
   ESP_LOGI("SDCARD", "Header added to %s", path);
@@ -153,9 +156,8 @@ void update_data_task(void *arg) {
   while (1) {
     BoardData_t boardDataCopy;
 
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-      memcpy(&boardDataCopy, &boardData, sizeof(BoardData_t));
-      xSemaphoreGive(BoardDataSemaphore);
+    if (get_board_data(&boardDataCopy, portMAX_DELAY) != ESP_OK) {
+      continue;
     }
 
     if (xSemaphoreTake(current_mutex, portMAX_DELAY) == pdTRUE) {

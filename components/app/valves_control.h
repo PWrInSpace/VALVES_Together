@@ -4,7 +4,7 @@
 #include "esp_err.h"
 #include <stdint.h>
 
-void chandle_valve_cmd(uint8_t cmd, int time_ms);
-void chandle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle);
+void handle_valve_cmd(uint8_t cmd, int time_ms);
+void handle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle);
 
 #endif

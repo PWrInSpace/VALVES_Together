@@ -28,4 +28,4 @@ esp_err_t rgb_led_set_color(led_color_t color);
 
 esp_err_t rgb_turn_off(void);
 
-#endif
+#endif // rgb_led_h

@@ -6,6 +6,7 @@
 #include "solenoid_config.h"
 #include "ltc4162.h"
 #include "stdbool.h"
+#include <inttypes.h>
 #include <stdint.h>
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
@@ -39,8 +40,6 @@ typedef struct {
 
 extern volatile uint8_t valve1_state;
 extern volatile uint8_t valve2_state;
-extern BoardData_t boardData;
-extern SemaphoreHandle_t BoardDataSemaphore;
 
 typedef struct {
   uint32_t commandNum;
@@ -57,15 +56,15 @@ typedef enum {
   INIT_PERIOD = 4000,
   IDLE_PERIOD = 4000,
   RECOVERY_ARM_PERIOD = 4000,
-  FUELING_PERIOD = 500,
-  PRESSURIZING_PERIOD = 100,
+  FUELING_PERIOD = 1000,
+  PRESSURIZING_PERIOD = 1000,
   ARMED_TO_LAUNCH_PERIOD = 1000,
   RDY_TO_LAUNCH_PERIOD = 1000,
   COUNTDOWN_PERIOD = 500,
-  LIFT_OFF_PERIOD = 100,
-  BURN_PERIOD = 100,
-  FLIGHT_PERIOD = 100,
-  FIRST_STAGE_REC_PERIOD = 250,
+  LIFT_OFF_PERIOD = 500,
+  BURN_PERIOD = 500,
+  FLIGHT_PERIOD = 500,
+  FIRST_STAGE_REC_PERIOD = 500,
   SECOND_STAGE_REC_PERIOD = 500,
   ON_GROUND_PERIOD = 4000,
   HOLD_PERIOD = 1000,
@@ -108,7 +107,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 
@@ -124,7 +123,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 #endif
@@ -138,5 +137,20 @@ typedef struct {
 
 esp_err_t board_data_init(void);
 uint64_t power_time();
+
+esp_err_t get_board_data(BoardData_t* data, uint32_t mutexTimeout);
+esp_err_t set_board_data(BoardData_t data, uint32_t mutexTimeout);
+
+esp_err_t get_boardData_charger_data(ltc4162_charger_data_t *data, uint32_t mutexTimeout);
+esp_err_t set_boardData_charger_data(ltc4162_charger_data_t data, uint32_t mutexTimeout);
+
+esp_err_t get_boardData_pressures(float pressures[4], uint32_t mutexTimeout);
+esp_err_t set_boardData_pressures(float pressures[4], uint32_t mutexTimeout);
+
+esp_err_t get_boardData_temperatures(float temperatures[3], uint32_t mutexTimeout);
+esp_err_t set_boardData_temperatures(float temperatures[3], uint32_t mutexTimeout);
+
+esp_err_t get_boardData_power_time(uint64_t *power_time, uint32_t mutexTimeout);
+esp_err_t set_boardData_power_time(uint64_t power_time, uint32_t mutexTimeout);
 
 extern volatile ModuleData moduleData;

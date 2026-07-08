@@ -39,6 +39,7 @@
 #include "timers_config.h"
 #include "valve_board_config.h"
 #include "RGB_led_driver.h"
+#include "flash.h"
 
 #define TAG "BOARD_CONFIG"
 
@@ -67,10 +68,24 @@ esp_err_t board_config_init(void) {
     ESP_LOGE(TAG, "SPI initialization failed");
     return err;
   }
+#ifdef SERVO_N20_CONFIG
+  err = thermocouple_config_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Thermocouple initialization failed");
+    return err;
+  }
+#endif
 
-  if (!timers_init()) {
+  err = timers_init();
+  if (err != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialize timers");
     return ESP_FAIL;
+  }
+
+  err = flash_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "NVS initialization failed");
+    return err;
   }
 
   err = rgb_led_init();
@@ -80,7 +95,7 @@ esp_err_t board_config_init(void) {
   }
 
   if (nowInit()) {
-    nowAddPeer(adressObc, 1);
+    nowAddPeer(addressObc, 1);
     uint8_t mac[6];
     esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
     ESP_LOGI("MAC address", "MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
@@ -126,7 +141,8 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  if (mcu_adc_init() != ESP_OK) {
+  err = mcu_adc_init();
+  if (err != ESP_OK) {
     ESP_LOGE(TAG, "ADC initialization failed");
     return ESP_FAIL;
   }
@@ -158,7 +174,12 @@ esp_err_t board_config_init(void) {
   run_igniter_task();
 #endif
   run_measure_task();
-#
+#ifdef SERVO_N20_CONFIG
+  if (!run_thermocouple_task()) {
+    ESP_LOGE(TAG, "Failed to start thermocouple task");
+    return ESP_FAIL;
+  }
+#endif
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   run_auto_vent_task();
 #endif

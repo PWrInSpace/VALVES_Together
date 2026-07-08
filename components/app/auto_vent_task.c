@@ -19,13 +19,11 @@ TaskHandle_t auto_vent_task_handle = NULL;
 #define TAG "AUTO_VENT_TASK"
 
 float get_pressure_from_board() {
-  if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-    float pressure = boardData.pressure[2]; // left pressure channel on N20 vent
-                                            // board with n2o pressure sensor
-    xSemaphoreGive(BoardDataSemaphore);
-    return pressure;
-  }
-  return 0.0f;
+  float pressures[4];
+  if (get_boardData_pressures(pressures, portMAX_DELAY) != ESP_OK) return 0.0f;
+
+  return pressures[2]; // left pressure channel on N20 vent 
+                       // board with n2o pressure sensor
 }
 
 float get_avg_pressure(int samples) {
@@ -84,7 +82,7 @@ void auto_vent_task(void *arg) {
       avg_pressure = get_avg_pressure(50); // 5 seconds to process 50 samples
       get_auto_vent_pressure(&auto_vent_pressure_local);
       if (avg_pressure > auto_vent_pressure_local) {
-        chandle_valve_cmd(N20_SOL_OPEN, AUTO_VENT_OPEN_TIME_MS);
+        handle_valve_cmd(N20_SOL_OPEN, AUTO_VENT_OPEN_TIME_MS);
         is_triggered = true;
         vTaskDelay(pdMS_TO_TICKS(AUTO_VENT_TRIGGERED_STATUS_MS));
         is_triggered = false;
