@@ -17,10 +17,15 @@
 
 #include "BoardData.h"
 #include "esp_log.h"
+#include "flash.h"
 
 /************************** PRIVATE VARIABLES *******************************/
 
 static const char *TAG = "SERVO CONTROL";
+static data_config_t flash_config = {0};
+
+#define VALVE_CLOSE_POSITION flash_config.servo_calibr.close_pos
+#define VALVE_OPEN_POSITION flash_config.servo_calibr.open_pos
 
 // Servo configurations
 
@@ -47,9 +52,9 @@ static void close_servo_callback(TimerHandle_t xTimer) {
 #if defined(SOL_N20_SERVO_ETH_CONFIG)
     mcpwm_comparator_set_compare_value(
         servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION - 1));
-#elif VALVE_CLOSE_POSITION >= 2
-    mcpwm_comparator_set_compare_value(
-        servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION - 2));
+// #elif VALVE_CLOSE_POSITION >= 2
+//     mcpwm_comparator_set_compare_value(
+//         servo_ptr->comparator, angle_to_duty_us(VALVE_CLOSE_POSITION - 2));
 #endif
     servo_ptr->state.state = SERVO_CLOSED;
     servo_ptr->state.angle = VALVE_CLOSE_POSITION;
@@ -65,6 +70,11 @@ static void close_servo_callback(TimerHandle_t xTimer) {
 uint16_t servo_init(ServoId_t servo_id) {
   if (servo_id >= SERVO_COUNT) {
     ESP_LOGE(TAG, "Invalid servo ID: %d", servo_id);
+    return EXIT_FAILURE;
+  }
+
+  if (flash_read(&flash_config) != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to read servo configuration values from NVS memory");
     return EXIT_FAILURE;
   }
 

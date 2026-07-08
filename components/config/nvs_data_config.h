@@ -22,5 +22,9 @@
     DATA(sensor_3_volt_0, float, PRESSURE_DRIVER_DEFAULT_MIN_VOLTAGE)         \
     DATA(sensor_3_volt_1, float, PRESSURE_DRIVER_DEFAULT_MAX_VOLTAGE)         \
     DATA(sensor_3_press_1, float, PRESSURE_DRIVER_DEFAULT_MAX_PRESSURE)       \
-    SECTION_END(press_calibr)
+    SECTION_END(press_calibr)                                                 \
+    SECTION_BEGIN(servo_calibr)                                               \
+    DATA(open_pos, uint8_t, 0)                                                \
+    DATA(close_pos, uint8_t, 101)                                             \
+    SECTION_END(servo_calibr)
 // jeżeli ktokolwiek usunie tą linie to kompilator zacznie drzeć ryja, chyba że dodasz pustą linię po ostatniej definicji :)

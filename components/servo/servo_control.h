@@ -23,20 +23,6 @@
 #define SERVO_TIMEBASE_PERIOD 20000 // 20000 ticks, 20ms
 
 #define DEFAULT_POS_ANGLE 90 // Angle of the default position for servos
-
-#ifdef SERVO_N20_CONFIG
-#define VALVE_CLOSE_POSITION 101U
-#define VALVE_OPEN_POSITION 0U
-// #elif defined(SERVO_N2_CONFIG)
-// #define VALVE_CLOSE_POSITION 30U
-// #define VALVE_OPEN_POSITION 127U
-#elif defined(SOL_N20_SERVO_ETH_CONFIG)
-#define VALVE_CLOSE_POSITION 67U
-#define VALVE_OPEN_POSITION 163U
-#else
-#define VALVE_CLOSE_POSITION 5U
-#define VALVE_OPEN_POSITION 5U
-#endif
 #define MOVE_WITHOUT_TIMER (uint16_t)0
 
 #include "driver/mcpwm_prelude.h"
