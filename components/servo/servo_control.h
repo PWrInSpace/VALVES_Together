@@ -66,6 +66,12 @@ typedef enum {
 typedef enum {
   SERVO_COUNT // Number of servos
 } ServoId_t;
+
+#elif defined(TEMP_3_SOL_CONFIG)
+typedef enum {
+  SERVO_COUNT // Number of servos
+} ServoId_t;
+
 #endif
 
 /************************** PUBLIC VARIABLES **********************************/

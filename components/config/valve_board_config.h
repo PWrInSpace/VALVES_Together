@@ -33,7 +33,8 @@
 
 // #define SERVO_N20_CONFIG
 // #define SOL_N20_SERVO_ETH_CONFIG
-#define SOL_ETH_CONFIG
+// #define SOL_ETH_CONFIG
+#define TEMP_3_SOL_CONFIG // Solenoid 3 in place of dump valve
 
 // #define SOL_N2_CONFIG
 
@@ -45,6 +46,8 @@
 #define CONFIG_NAME "SERVO_N20_CONFIG"
 #elif defined(SOL_N2_CONFIG)
 #define CONFIG_NAME "SOL_N2_CONFIG"
+#elif defined(TEMP_3_SOL_CONFIG)
+#define CONFIG_NAME "TEMP_3_SOL_CONFIG"
 #else
 #error "No valve configuration defined! Please define one of: SERVO_N20_CONFIG"
 #endif
@@ -62,9 +65,9 @@ Solenoid DONE
 Charging data dodac taska
 Dump Valve DONE
 SD DONE
+RGB DONE
 
 Buzzer
 Press
 Thermocouple
-RGB
 */

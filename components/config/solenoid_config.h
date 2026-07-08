@@ -39,6 +39,18 @@ static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
 
 };
 
+#elif defined(TEMP_3_SOL_CONFIG)
+
+typedef enum {
+  // define rest of solenoids, idk jakie
+  TEMP_3_SOL,
+  NUM_OF_SOLENOIDS
+} ValveName;
+
+static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
+  [TEMP_3_SOL] = GPIO_NUM_21, // dump valve pin
+};
+
 #else
 
 typedef enum {

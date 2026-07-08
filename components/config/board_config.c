@@ -23,8 +23,6 @@
 #include "auto_vent_task.h"
 #include "buzzer.h"
 #include "console_config.h"
-#include "igniter_driver.h"
-#include "igniter_task.h"
 #include "ltc4162.h"
 #include "mcu_adc_config.h"
 #include "mcu_gpio_config.h"
@@ -40,6 +38,11 @@
 #include "valve_board_config.h"
 #include "RGB_led_driver.h"
 #include "flash.h"
+
+#ifndef TEMP_3_SOL_CONFIG
+#include "igniter_driver.h"
+#include "igniter_task.h"
+#endif
 
 #define TAG "BOARD_CONFIG"
 
@@ -147,11 +150,13 @@ esp_err_t board_config_init(void) {
     return ESP_FAIL;
   }
 
+#ifndef TEMP_3_SOL_CONFIG
   err = igniter_init();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "Igniter initialization failed");
     vTaskDelete(NULL);
   }
+#endif
 
   pressure_driver_status_t ret_press;
   ret_press = pressure_driver_init(&(pressure_driver_config));
@@ -171,7 +176,9 @@ esp_err_t board_config_init(void) {
 
   createNowSendTask();
 #ifdef SERVO_N20_CONFIG
+#ifndef TEMP_3_SOL_CONFIG
   run_igniter_task();
+#endif
 #endif
   run_measure_task();
 #ifdef SERVO_N20_CONFIG

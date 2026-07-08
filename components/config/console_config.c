@@ -9,13 +9,15 @@
 #include "console.h"
 #include "console_config.h"
 #include "i2c_scan.h"
-#include "igniter_driver.h"
 #include "ltc4162.h"
 #include "pressure_driver.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
 #include "flash.h"
 #include "now.h"
+#ifndef TEMP_3_SOL_CONFIG
+#include "igniter_driver.h"
+#endif
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -35,6 +37,7 @@ int run_ltc4162_monitor(int argc, char **argv) {
   return 0;
 }
 
+#ifndef TEMP_3_SOL_CONFIG
 int run_igniter_continuity_check(int argc, char **argv) {
   igniter_continuity_t continuity;
   ESP_LOGI(TAG, "Checking igniter continuity...");
@@ -87,6 +90,7 @@ int run_igniter_fire(int argc, char **argv) {
 
   return 0;
 }
+#endif
 
 int play_imperial_march(int argc, char **argv) {
   imperial_march();
@@ -612,10 +616,14 @@ static esp_console_cmd_t cmd[] = {
     {"reset", "Reset the device", NULL, reset_device, NULL, NULL, NULL},
     {"i2c_scan", "Scan the I2C bus for devices", NULL, run_i2c_scan, NULL, NULL, NULL},
     {"ltc_monitor", "Run LTC4162 debug monitor", NULL, run_ltc4162_monitor, NULL, NULL, NULL},
+
+    #ifndef TEMP_3_SOL_CONFIG
     {"igniter_continuity", "Check igniter continuity", NULL, run_igniter_continuity_check, NULL, NULL, NULL},
     {"igniter_arm", "Arm the igniter", NULL, run_igniter_arm, NULL, NULL, NULL},
     {"igniter_disarm", "Disarm the igniter", NULL, run_igniter_disarm, NULL, NULL, NULL},
     {"igniter_fire", "Fire the igniter", NULL, run_igniter_fire, NULL, NULL, NULL},
+    #endif
+
     {"play_imperial_march", "Play the Imperial March on the buzzer", NULL, play_imperial_march, NULL, NULL, NULL},
     {"play_ode_to_joy", "Play Ode to Joy on the buzzer", NULL, play_ode_to_joy, NULL, NULL, NULL},
     {"play_harry_potter_theme", "Play Harry Potter theme on the buzzer", NULL, play_harry_potter_theme, NULL, NULL, NULL},
@@ -663,6 +671,8 @@ static esp_console_cmd_t cmd[] = {
     #elif defined(SOL_N2_CONFIG)
     {"open_sol_n2", "Open N2 solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
     {"close_sol_n2", "Close N2 solenoid", NULL, close_valve1, NULL, NULL, NULL},
+    #elif defined(TEMP_3_SOL_CONFIG)
+    // add commands if needed
     #else
     #error "No valve configuration defined!"
     #endif

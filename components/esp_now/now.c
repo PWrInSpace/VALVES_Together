@@ -65,6 +65,8 @@ esp_err_t nowInit() {
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x77};
 #elif defined(SOL_ETH_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x88};
+#elif defined(TEMP_3_SOL_CONFIG)
+  uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x99}; // TODO: ustalic tu coś, dałem cokolwiek
 #endif
 
   ESP_ERROR_CHECK(esp_wifi_set_mac(WIFI_IF_STA, custom_mac));
