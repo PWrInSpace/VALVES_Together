@@ -32,18 +32,6 @@ void charger_task(void *arg) {
         pdTRUE) {
       ltc4162_charger_data_t charger_data = {0};
 
-      if (mcu_i2c_deinit() != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to deinit I2C");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
-
-      if (mcu_i2c_init_with_pins(SDA_GPIO_ALT, SCL_GPIO_ALT) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to init I2C with alt pins");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
-
       vTaskDelay(pdMS_TO_TICKS(10));
 
       if (read_charger_data(&charger_data) == ESP_OK) {
@@ -69,17 +57,6 @@ void charger_task(void *arg) {
 
       // ltc4162_debug_monitor();
 
-      if (mcu_i2c_deinit() != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to deinit I2C");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
-
-      if (mcu_i2c_init_with_pins(SDA_GPIO, SCL_GPIO) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to init I2C with default pins");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
       xSemaphoreGive(mcu_i2c_mutex);
     }
 

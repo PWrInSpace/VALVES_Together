@@ -22,10 +22,8 @@
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
-#define SDA_GPIO 20
-#define SCL_GPIO 19
-#define SDA_GPIO_ALT 19
-#define SCL_GPIO_ALT 20
+#define SDA_GPIO 19
+#define SCL_GPIO 20
 #define CONFIG_I2C_MASTER_PORT_NUM I2C_NUM_0
 #define CONFIG_I2C_MASTER_FREQUENCY 100000
 #define CONFIG_I2C_MASTER_TIMEOUT_MS 1000

@@ -325,16 +325,6 @@ int init_i2c(int argc, char **argv) {
   return 0;
 }
 
-int init_i2c_with_pins(int argc, char **argv) {
-  esp_err_t ret = mcu_i2c_init_with_pins(SDA_GPIO_ALT, SCL_GPIO_ALT);
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "I2C initialization with pins failed");
-    return -1;
-  }
-  ESP_LOGI(TAG, "I2C initialized with pins successfully");
-  return 0;
-}
-
 int open_angle(int argc, char **argv) {
   if (argc < 3) {
     ESP_LOGE(TAG, "Usage: open_angle <valve_id> <angle>");
@@ -682,7 +672,6 @@ static esp_console_cmd_t cmd[] = {
     {"obc_test_data", "Enable/disable test data in ESP-NOW packets to OBC (on|off or toggle)", NULL, set_obc_test_data, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
-    {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
     {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
     {"print_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
 
