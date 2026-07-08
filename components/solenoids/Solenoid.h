@@ -4,10 +4,12 @@
 #include <driver/gpio.h>
 
 typedef enum { VALVE_OFF = 0, VALVE_ON = 1 } ValveState;
+typedef enum { VALVE_NO = 0, VALVE_NC = 1 } ValveType;
 
 typedef struct {
   int name; // enum
   ValveState state;
+  ValveType type;
   gpio_num_t gpio_pin;
 } Valve;
 

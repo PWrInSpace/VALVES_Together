@@ -17,6 +17,8 @@
 #include "pressure_driver.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
+#include "flash.h"
+#include "now.h"
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -128,13 +130,13 @@ int open_valve1(int argc, char **argv) {
   int duration_ms = atoi(argv[1]);
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(N20_SOL_OPEN, duration_ms);
+  handle_valve_cmd(N20_SOL_OPEN, duration_ms);
 #elif defined(SOL_N2_CONFIG)
-  chandle_valve_cmd(N2_SOL_OPEN, duration_ms);
+  handle_valve_cmd(N2_SOL_OPEN, duration_ms);
 #elif defined(SERVO_N20_CONFIG)
-  chandle_valve_cmd(N20_VALVE_OPEN, duration_ms);
+  handle_valve_cmd(N20_VALVE_OPEN, duration_ms);
 #elif defined(SOL_ETH_CONFIG)
-  chandle_valve_cmd(ETH_SOL_OPEN, duration_ms);
+  handle_valve_cmd(ETH_SOL_OPEN, duration_ms);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -145,13 +147,13 @@ int open_valve1(int argc, char **argv) {
 int close_valve1(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(N20_SOL_CLOSE, 0);
+  handle_valve_cmd(N20_SOL_CLOSE, 0);
 #elif defined(SOL_N2_CONFIG)
-  chandle_valve_cmd(N2_SOL_CLOSE, 0);
+  handle_valve_cmd(N2_SOL_CLOSE, 0);
 #elif defined(SERVO_N20_CONFIG)
-  chandle_valve_cmd(N20_VALVE_CLOSE, 0);
+  handle_valve_cmd(N20_VALVE_CLOSE, 0);
 #elif defined(SOL_ETH_CONFIG)
-  chandle_valve_cmd(ETH_SOL_CLOSE, 0);
+  handle_valve_cmd(ETH_SOL_CLOSE, 0);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
 #endif
@@ -167,7 +169,7 @@ int open_valve2(int argc, char **argv) {
   int duration_ms = atoi(argv[1]);
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(ETH_VALVE_OPEN, duration_ms);
+  handle_valve_cmd(ETH_VALVE_OPEN, duration_ms);
 #elif defined(SOL_ETH_CONFIG)
   ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
 #elif defined(SERVO_N20_CONFIG)
@@ -184,7 +186,7 @@ int open_valve2(int argc, char **argv) {
 int close_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-  chandle_valve_cmd(ETH_VALVE_CLOSE, 0);
+  handle_valve_cmd(ETH_VALVE_CLOSE, 0);
 #elif defined(SOL_ETH_CONFIG)
   ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
 #elif defined(SERVO_N20_CONFIG)
@@ -202,28 +204,26 @@ int play_harry_potter_theme(int argc, char **argv) {
   return 0;
 }
 
-int get_board_data(int argc, char **argv) {
+int get_board_data_cmd(int argc, char **argv) {
   int n = 1;
-  if (argc == 2) {
-    n = atoi(argv[1]);
-  }
-  for (int i = 0; i < n; i++) {
+  if (argc == 2) n = atoi(argv[1]);
 
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
+  for (int i = 0; i < n; i++) {
+    BoardData_t data;
+    if (get_board_data(&data, portMAX_DELAY) == ESP_OK) {
       ESP_LOGI(TAG, "-----------------------------------");
       ESP_LOGI(TAG, "Current board data:");
-      ESP_LOGI(TAG, "Power time: %llu", boardData.power_time);
+      ESP_LOGI(TAG, "Power time: %llu", data.power_time);
       ESP_LOGI(TAG, "valve1 state: %d", valve1_state);
       ESP_LOGI(TAG, "valve2 state: %d", valve2_state);
-      ESP_LOGI(TAG, "Temperature: %f, %f, %f", boardData.temperature[0],
-               boardData.temperature[1], boardData.temperature[2]);
-      ESP_LOGI(TAG, "Pressure left channel: %f", boardData.pressure[2]);
-      ESP_LOGI(TAG, "Pressure middle channel: %f", boardData.pressure[3]);
-      ESP_LOGI(TAG, "Dump valve arm: %d", boardData.dump_valve_arm);
-      ESP_LOGI(TAG, "Dump valve continuity: %d", boardData.dump_valve_cont);
-      ESP_LOGI(TAG, "Is charging: %d", boardData.is_charging);
+      ESP_LOGI(TAG, "Temperature: %f, %f, %f", data.temperature[0],
+               data.temperature[1], data.temperature[2]);
+      ESP_LOGI(TAG, "Pressure left channel: %f", data.pressure[2]);
+      ESP_LOGI(TAG, "Pressure middle channel: %f", data.pressure[3]);
+      ESP_LOGI(TAG, "Dump valve arm: %d", data.dump_valve_arm);
+      ESP_LOGI(TAG, "Dump valve continuity: %d", data.dump_valve_cont);
+      ESP_LOGI(TAG, "Is charging: %d", data.is_charging);
       ESP_LOGI(TAG, "------------------------------------\n\n");
-      xSemaphoreGive(BoardDataSemaphore);
     } else {
       ESP_LOGE(TAG, "Failed to take BoardDataSemaphore");
       return -1;
@@ -235,9 +235,38 @@ int get_board_data(int argc, char **argv) {
   return 0;
 }
 
-int set_calibration_mode(int argc, char **argv) {
-  calibration_mode = !calibration_mode;
-  ESP_LOGI(TAG, "Calibration mode: %s", calibration_mode ? "ON" : "OFF");
+int set_now_send_log(int argc, char **argv) {
+  if (argc >= 2) {
+    if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
+      now_send_data_log_enabled = true;
+    } else if (strcmp(argv[1], "off") == 0 || strcmp(argv[1], "0") == 0) {
+      now_send_data_log_enabled = false;
+    } else {
+      ESP_LOGE(TAG, "Usage: now_send_log [on|off]");
+      return -1;
+    }
+  } else {
+    now_send_data_log_enabled = !now_send_data_log_enabled;
+  }
+  ESP_LOGI(TAG, "NOW send data log: %s",
+           now_send_data_log_enabled ? "ON" : "OFF");
+  return 0;
+}
+
+int set_obc_test_data(int argc, char **argv) {
+  if (argc >= 2) {
+    if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
+      obc_test_data_enabled = true;
+    } else if (strcmp(argv[1], "off") == 0 || strcmp(argv[1], "0") == 0) {
+      obc_test_data_enabled = false;
+    } else {
+      ESP_LOGE(TAG, "Usage: obc_test_data [on|off]");
+      return -1;
+    }
+  } else {
+    obc_test_data_enabled = !obc_test_data_enabled;
+  }
+  ESP_LOGI(TAG, "OBC test data: %s", obc_test_data_enabled ? "ON" : "OFF");
   return 0;
 }
 
@@ -313,9 +342,10 @@ int open_angle(int argc, char **argv) {
   }
   uint8_t valve_id = atoi(argv[1]);
   int angle = atoi(argv[2]);
-  chandle_valve_cmd_angle(valve_id, 0, angle);
+  handle_valve_cmd_angle(valve_id, 0, angle);
   return 0;
 }
+
 #ifdef SOL_N20_SERVO_ETH_CONFIG
 int get_auto_vent_data(int argc, char **argv) {
   float auto_vent_pressure = 0.0f;
@@ -331,10 +361,12 @@ int get_auto_vent_data(int argc, char **argv) {
 
 int print_board_data(int argc, char **argv) {
   BoardData_t board_data;
-  if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-    memcpy(&board_data, &boardData, sizeof(BoardData_t));
-    xSemaphoreGive(BoardDataSemaphore);
+
+  if (get_board_data(&board_data, portMAX_DELAY) != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to get Board Data\n");
+    return 0;
   }
+
   ESP_LOGI(TAG, "-----------------------------------");
   ESP_LOGI(TAG, "Board data:");
   ESP_LOGI(TAG, "Power time: %llu", board_data.power_time);
@@ -349,6 +381,22 @@ int print_board_data(int argc, char **argv) {
   return 0;
 }
 
+int play_crab_rave_melody(int argc, char **argv) {
+  crab_rave_melody();
+  return 0;
+}
+
+int play_crab_rave_harmony(int argc, char **argv) {
+  crab_rave_harmony();
+  return 0;
+}
+
+int play_crab_rave_bass(int argc, char **argv) {
+  crab_rave_bass();
+  return 0;
+}
+
+#ifdef SOL_N20_SERVO_ETH_CONFIG
 int play_crab_rave_melody(int argc, char **argv) {
   crab_rave_melody();
   return 0;
@@ -380,6 +428,235 @@ int auto_vent_off(int argc, char **argv) {
   return 0;
 }
 #endif
+
+// |--- Commands for Flash memory module ---|
+
+void print_config(const data_config_t *cfg, const char *label) {
+  printf("%s\n", label);
+  flash_print_config(*cfg);
+  printf("\n");
+}
+
+int read_flash(int argc, char **argv) {
+  data_config_t data;
+  if (flash_read(&data) != ESP_OK) {
+    printf("Couldn't retrieve data from flash memory\n");
+    return 0;
+  }
+
+  print_config(&data, "Memory contents:");
+  return 0;
+}
+
+int get_runtime_config(int argc, char **argv) {
+  data_config_t data;
+  flash_get_runtime_config(&data);
+  print_config(&data, "Runtime config:");
+  return 0;
+}
+
+int save_flash(int argc, char **argv) {
+  esp_err_t ret;
+  ret = flash_commit();
+
+  if (ret != ESP_OK) {
+    printf("Couldn't save data to flash memory\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully saved data to flash memory\n");
+  return 0;
+}
+
+int restore_defaults(int argc, char **argv) {
+  esp_err_t ret;
+  ret = flash_restore_defaults();
+
+  if (ret != ESP_OK) {
+    printf("Couldn't restore config default values\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully restored config default values. Remember to use `save_config` to save your changes\n");
+  return 0;
+}
+
+int erase_flash(int argc, char **argv) {
+  if (strcmp(argv[1], "Y") != 0) {
+    printf("Flash erase cancelled. You need to pass 'Y' as argument to confirm.\n");
+    return 0;
+  }
+
+  esp_err_t ret = flash_erase_config();
+  if (ret != ESP_OK) {
+    printf("Couldn't erase flash contents\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully erased flash contents\n");
+  return 0;
+}
+
+int edit_flash(int argc, char **argv) {
+  if (argc < 3) {
+    printf("Usage: edit_flash <field> <value>\n");
+    return 0;
+  }
+
+  const char *field = argv[1];
+  const char *value = argv[2];
+  
+  esp_err_t ret = flash_edit_field(field, value);
+  if (ret != ESP_OK) {
+    printf("Couldn't edit provided field\nErr: %s\n", esp_err_to_name(ret));
+    return 0;
+  }
+
+  printf("Successfully edited runtime config. Remember to use `save_config` to save your changes\n");
+  return 0;
+}
+
+// |--- Commands for pressure sensors calibration ---|
+
+const char *pressure_sensors_names[] = {
+  "P1",
+  "P2",
+  "L",
+  "S",
+};
+
+static esp_err_t parse_float(const char *value, float *out) {
+  if (!value || !out) return ESP_ERR_INVALID_ARG;
+  char *endptr = NULL;
+  *out = strtof(value, &endptr);
+  if (*endptr != '\0') return ESP_ERR_INVALID_ARG;
+  return ESP_OK;
+}
+
+int press_tare(int argc, char **argv) {
+  const char *field = NULL;
+  int sensor_num = -1;
+  if (argc > 1) {
+    field = argv[1];
+
+    size_t n = sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
+    for (size_t i = 0; i < n; i++) {
+      if (strcmp(pressure_sensors_names[i], field) == 0) {
+        sensor_num = i;
+        break; 
+      }
+    }
+  }
+
+  data_config_t new_config;
+  if (flash_get_runtime_config(&new_config) != ESP_OK) {
+    printf("Couldn't retrieve runtime config\n");
+    return 0;
+  }
+
+  float *config_fields[PRESSURE_DRIVER_SENSOR_COUNT] = {
+    &new_config.press_calibr.sensor_0_volt_0,
+    &new_config.press_calibr.sensor_1_volt_0,
+    &new_config.press_calibr.sensor_2_volt_0,
+    &new_config.press_calibr.sensor_3_volt_0,
+  };
+
+  if (sensor_num >= 0) {
+    float mv;
+    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv, 5) != PRESSURE_DRIVER_OK)  {
+      printf("Calibration failed while taring %s sensor.", pressure_sensors_names[sensor_num]);
+      return 0;
+    }
+    *config_fields[sensor_num] = mv;
+  } else {
+    for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
+      float mv;
+      if (tare_pressure_sensor(&pressure_driver_config, i, &mv, 5) != PRESSURE_DRIVER_OK) {
+        printf("Calibration failed while taring %s sensor.", pressure_sensors_names[i]);
+        return 0;
+      }
+      *config_fields[i] = mv;
+    }
+  }
+
+  if (flash_edit_config(new_config) != ESP_OK) {
+    printf("Failed to save calibration values into runtime config\n");
+    return 0;
+  }
+
+  if (sensor_num != -1) {
+    printf("Successfully calibrated %s sensor for pressure of 0 bars. Remember to use `save_config` to save your changes\n", pressure_sensors_names[sensor_num]);
+  } else {
+    printf("Successfully calibrated all sensors for pressure of 0 bars. Remember to use `save_config` to save your changes\n");
+  }
+  return 0;
+}
+
+int press_calibrate(int argc, char **argv) {
+  if (argc < 3) {
+    printf("Usage: calibrate <sensor> <value>\n");
+
+    size_t s_count = sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
+    printf("Available sensors:\n");
+    for (int i = 0; i < s_count; i++) printf("- %s\n", pressure_sensors_names[i]);
+
+    return 0;
+  }
+
+  const char *field = argv[1];
+  const char *value = argv[2];
+  float pressure;
+
+  if (parse_float(value, &pressure) != ESP_OK) {
+    printf("Couldn't parse provided pressure\n");
+    return 0;
+  }
+
+  data_config_t new_config;
+  if (flash_get_runtime_config(&new_config) != ESP_OK) {
+    printf("Couldn't retrieve runtime config\n");
+    return 0;
+  }
+
+  struct {
+    const char *key;
+    float *ptrs[2];
+  } sensor_map[] = {
+    {pressure_sensors_names[0], {&new_config.press_calibr.sensor_0_volt_1, &new_config.press_calibr.sensor_0_press_1}},
+    {pressure_sensors_names[1], {&new_config.press_calibr.sensor_1_volt_1, &new_config.press_calibr.sensor_1_press_1}},
+    {pressure_sensors_names[2], {&new_config.press_calibr.sensor_2_volt_1, &new_config.press_calibr.sensor_2_press_1}},
+    {pressure_sensors_names[3], {&new_config.press_calibr.sensor_3_volt_1, &new_config.press_calibr.sensor_3_press_1}}
+  };
+  size_t n = sizeof(sensor_map) / sizeof(sensor_map[0]);
+
+  float *voltage_1 = NULL, *pressure_1 = NULL;
+  int sensor_num = 0;
+  for (size_t i = 0; i < n; i++) {
+    if (strcmp(sensor_map[i].key, field) == 0) {
+      voltage_1 = sensor_map[i].ptrs[0];
+      pressure_1 = sensor_map[i].ptrs[1];
+      sensor_num = i;
+      break; 
+    }
+  }
+
+  if (voltage_1 == NULL || pressure_1 == NULL) {
+    printf("Couldn't parse provided field argument\n");
+    return 0;
+  }
+
+  calibrate_pressure_sensor(&pressure_driver_config, sensor_num, pressure, voltage_1, 5);
+  *pressure_1 = pressure;
+
+  if (flash_edit_config(new_config) != ESP_OK) {
+    printf("Failed to save calibration values into runtime config\n");
+    return 0;
+  }
+
+  printf("Successfully calibrated %s sensor for pressure of %g bars. Remember to use `save_config` to save your changes\n", field, pressure);
+  return 0;
+}
+
 // Place for the console configuration
 
 // clang-format off
@@ -400,8 +677,7 @@ static esp_console_cmd_t cmd[] = {
     {"play_double_beep", "Play a double beep on the buzzer", NULL, play_double_beep, NULL, NULL, NULL},
     {"play_triple_beep", "Play a triple beep on the buzzer", NULL, play_triple_beep, NULL, NULL, NULL},
     {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
-    {"get_board_data", "Print current board data to console", NULL, get_board_data, NULL, NULL, NULL},
-    {"set_calibration_mode", "Toggle calibration mode for pressure sensors", NULL, set_calibration_mode, NULL, NULL, NULL},
+    {"get_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
     {"now_send_log", "Enable/disable ESP-NOW data-to-OBC debug log (on|off or toggle)", NULL, set_now_send_log, NULL, NULL, NULL},
     {"obc_test_data", "Enable/disable test data in ESP-NOW packets to OBC (on|off or toggle)", NULL, set_obc_test_data, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
@@ -409,6 +685,16 @@ static esp_console_cmd_t cmd[] = {
     {"init_i2c_with_pins", "Initialize the I2C bus with custom SDA/SCL pins", NULL, init_i2c_with_pins, NULL, NULL, NULL},
     {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
     {"print_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
+
+    {"read_flash", "Reads and displays saved data in flash memory.", NULL, read_flash, NULL, NULL, NULL},
+    {"display_config", "Displays current state of runtime config.\nThis command does NOT display flash memory contents, to see current flash memory contents use `read_flash`.", NULL, get_runtime_config, NULL, NULL, NULL},
+    {"save_config", "Saves runtime config edited by User to flash memory.", NULL, save_flash, NULL, NULL, NULL},
+    {"edit_config", "Sets the provided field in runtime config to provided value.", NULL, edit_flash, NULL, NULL, NULL},
+    {"restore_config", "Restores all default values and saves them into runtime config.\nUse `save_config` to save the runtime config to flash memory.", NULL, restore_defaults, NULL, NULL, NULL},
+    {"erase_flash", "Erases flash memory partition that is holding config data.\nTo erase stored data you need to type `erase_flash Y` to ensure that flash won't be erased by accident.\nThere is no need to run `save_flash` after this function finishes.", NULL, erase_flash, NULL, NULL, NULL},
+
+    {"calibrate", "Calibrate specific sensor for provided pressure", NULL, press_calibrate, NULL, NULL, NULL},
+    {"tare", "Calibrate all or chosen pressure sensors for 0 bar", NULL, press_tare, NULL, NULL, NULL},
     {"play_crab_rave_melody", "Play Crab Rave Melody on the buzzer", NULL, play_crab_rave_melody, NULL, NULL, NULL},
     {"play_crab_rave_harmony", "Play Crab Rave Harmony on the buzzer", NULL, play_crab_rave_harmony, NULL, NULL, NULL},
     {"play_crab_rave_bass", "Play Crab Rave Bass on the buzzer", NULL, play_crab_rave_bass, NULL, NULL, NULL},

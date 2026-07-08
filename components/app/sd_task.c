@@ -156,9 +156,8 @@ void update_data_task(void *arg) {
   while (1) {
     BoardData_t boardDataCopy;
 
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-      memcpy(&boardDataCopy, &boardData, sizeof(BoardData_t));
-      xSemaphoreGive(BoardDataSemaphore);
+    if (get_board_data(&boardDataCopy, portMAX_DELAY) != ESP_OK) {
+      continue;
     }
 
     if (xSemaphoreTake(current_mutex, portMAX_DELAY) == pdTRUE) {

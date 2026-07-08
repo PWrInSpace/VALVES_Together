@@ -40,8 +40,6 @@ typedef struct {
 
 extern volatile uint8_t valve1_state;
 extern volatile uint8_t valve2_state;
-extern BoardData_t boardData;
-extern SemaphoreHandle_t BoardDataSemaphore;
 
 typedef struct {
   uint32_t commandNum;
@@ -109,7 +107,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 
@@ -125,7 +123,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 #endif
@@ -139,5 +137,20 @@ typedef struct {
 
 esp_err_t board_data_init(void);
 uint64_t power_time();
+
+esp_err_t get_board_data(BoardData_t* data, uint32_t mutexTimeout);
+esp_err_t set_board_data(BoardData_t data, uint32_t mutexTimeout);
+
+esp_err_t get_boardData_charger_data(ltc4162_charger_data_t *data, uint32_t mutexTimeout);
+esp_err_t set_boardData_charger_data(ltc4162_charger_data_t data, uint32_t mutexTimeout);
+
+esp_err_t get_boardData_pressures(float pressures[4], uint32_t mutexTimeout);
+esp_err_t set_boardData_pressures(float pressures[4], uint32_t mutexTimeout);
+
+esp_err_t get_boardData_temperatures(float temperatures[3], uint32_t mutexTimeout);
+esp_err_t set_boardData_temperatures(float temperatures[3], uint32_t mutexTimeout);
+
+esp_err_t get_boardData_power_time(uint64_t *power_time, uint32_t mutexTimeout);
+esp_err_t set_boardData_power_time(uint64_t power_time, uint32_t mutexTimeout);
 
 extern volatile ModuleData moduleData;
