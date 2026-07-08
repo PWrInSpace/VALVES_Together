@@ -232,7 +232,7 @@ void now_send_data_to_obc(void *arg) {
       dataToObc.pressure1 = OBC_TEST_PRESSURE1;
       dataToObc.pressure2 = OBC_TEST_PRESSURE2;
       dataToObc.battery_voltage = OBC_TEST_BATTERY_VOLTAGE;
-      dataToObc.bettery_consumption = OBC_TEST_CONSUMPTION;
+      dataToObc.battery_consumption = OBC_TEST_CONSUMPTION;
       dataToObc.charger_temperature = OBC_TEST_CHARGER_TEMPERATURE;
       dataToObc.temperature1 = OBC_TEST_TEMPERATURE;
       dataToObc.is_charging = OBC_TEST_IS_CHARGING;
