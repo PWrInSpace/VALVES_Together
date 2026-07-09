@@ -8,13 +8,15 @@ BoardData_t boardData;
 SemaphoreHandle_t BoardDataSemaphore;
 volatile ModuleData moduleData = {
     .dataFromObc = {0, 0},
-    .dataToObc = {true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    .dataToObc = {true},
     .obcState = 0,
     .stateTimes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
 
 volatile uint8_t valve1_state = 0;
 volatile uint8_t valve2_state = 0;
+volatile uint8_t valve3_state = 0;
+
 uint64_t start_time_us;
 
 esp_err_t board_data_init(void) {

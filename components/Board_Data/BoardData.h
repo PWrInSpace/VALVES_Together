@@ -40,6 +40,7 @@ typedef struct {
 
 extern volatile uint8_t valve1_state;
 extern volatile uint8_t valve2_state;
+extern volatile uint8_t valve3_state;
 
 typedef struct {
   uint32_t commandNum;
@@ -103,6 +104,21 @@ typedef struct DataToObc {
   int16_t ox_temperature;
   uint8_t valve1_state : 2; // 0 - closed, 1 - open
   uint8_t valve2_state : 2; // 0 - closed, 1 - open
+  int16_t temperature1;
+  float pressure1;
+  float pressure2;
+  float battery_voltage;
+  float battery_consumption;
+  float charger_temperature;
+} DataToObc;
+
+#elif defined(TEMP_3_SOL_CONFIG)
+typedef struct DataToObc {
+  bool waken_up : 1;
+  bool is_charging : 1;     // 0 not charging, 1 charging
+  uint8_t valve1_state : 2; // 0 - closed, 1 - open
+  uint8_t valve2_state : 2; // 0 - closed, 1 - open
+  uint8_t valve3_state : 2; // 0 - closed, 1 - open
   int16_t temperature1;
   float pressure1;
   float pressure2;

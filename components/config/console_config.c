@@ -217,12 +217,16 @@ int get_board_data_cmd(int argc, char **argv) {
       ESP_LOGI(TAG, "Power time: %llu", data.power_time);
       ESP_LOGI(TAG, "valve1 state: %d", valve1_state);
       ESP_LOGI(TAG, "valve2 state: %d", valve2_state);
+#ifdef TEMP_3_SOL_CONFIG
+      ESP_LOGI(TAG, "valve3 state: %d", valve3_state);
+#else
+      ESP_LOGI(TAG, "Dump valve arm: %d", data.dump_valve_arm);
+      ESP_LOGI(TAG, "Dump valve continuity: %d", data.dump_valve_cont);
+#endif
       ESP_LOGI(TAG, "Temperature: %f, %f, %f", data.temperature[0],
                data.temperature[1], data.temperature[2]);
       ESP_LOGI(TAG, "Pressure left channel: %f", data.pressure[2]);
       ESP_LOGI(TAG, "Pressure middle channel: %f", data.pressure[3]);
-      ESP_LOGI(TAG, "Dump valve arm: %d", data.dump_valve_arm);
-      ESP_LOGI(TAG, "Dump valve continuity: %d", data.dump_valve_cont);
       ESP_LOGI(TAG, "Is charging: %d", data.is_charging);
       ESP_LOGI(TAG, "------------------------------------\n\n");
     } else {

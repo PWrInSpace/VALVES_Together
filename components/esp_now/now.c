@@ -202,9 +202,7 @@ void now_send_data_to_obc(void *arg) {
       continue;
     }
 
-    dataToObc.waken_up = true;
-    dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
-    dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
+    dataToObc.waken_up = true;  
     dataToObc.is_charging = board_data_copy.is_charging;
     dataToObc.temperature1 = board_data_copy.temperature[1];
     dataToObc.pressure1 = board_data_copy.pressure[2];
@@ -218,6 +216,13 @@ void now_send_data_to_obc(void *arg) {
     dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
     dataToObc.valve1_state = valve1_state;
     dataToObc.valve2_state = valve2_state;
+#ifdef TEMP_3_SOL_CONFIG
+    dataToObc.valve3_state = valve3_state;
+#else
+    dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
+    dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
+#endif
+
 #ifdef SOL_ETH_CONFIG
     dataToObc.pressure1 = board_data_copy.pressure[0];
 #endif
@@ -245,8 +250,6 @@ void now_send_data_to_obc(void *arg) {
     ESP_LOGI("NOW",
              "Sending data to OBC:\n"
              "  waken_up            = %d\n"
-             "  dump_valve_arm      = %d\n"
-             "  dump_valve_cont     = %d\n"
              "  is_charging         = %d\n"
              "  temperature1        = %d\n"
              "  pressure1           = %.2f\n"
@@ -256,13 +259,22 @@ void now_send_data_to_obc(void *arg) {
              "  charger_temperature = %.2f\n"
              "  valve1_state        = %u\n"
              "  valve2_state        = %u",
-             dataToObc.waken_up, dataToObc.dump_valve_arm,
-             dataToObc.dump_valve_cont, dataToObc.is_charging,
+             dataToObc.waken_up, dataToObc.is_charging,
              dataToObc.temperature1, dataToObc.pressure1, dataToObc.pressure2,
              dataToObc.battery_voltage, dataToObc.battery_consumption,
              dataToObc.charger_temperature,
              (unsigned int)dataToObc.valve1_state,
              (unsigned int)dataToObc.valve2_state);
+#ifdef TEMP_3_SOL_CONFIG
+    ESP_LOGI("NOW",
+             "\n  valve3_state        = %u\n",
+             (unsigned int)dataToObc.valve3_state);
+#else
+    ESP_LOGI("NOW",
+             "\n  dump_valve_arm      = %d\n"
+             "  dump_valve_cont     = %d\n", 
+             dataToObc.dump_valve_arm, dataToObc.dump_valve_cont);
+#endif
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     ESP_LOGI("NOW",
              "\n  auto_vent_activated = %d\n"

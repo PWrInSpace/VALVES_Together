@@ -61,6 +61,8 @@ static void timer_callback(void *arg) {
     valve1_state = 0;
   else if (*valve_name == 1)
     valve2_state = 0;
+  else if (*valve_name == 2)
+    valve3_state = 0;
 
   free(valve_name); // Zwolnij pamięć
 }
@@ -84,6 +86,8 @@ static void timer_open_callback(void *arg) {
     valve1_state = 0;
   else if (*valve_name == 1)
     valve2_state = 0;
+  else if (*valve_name == 2)
+      valve3_state = 0;
 
   free(valve_name); // Zwolnij pamięć
 }

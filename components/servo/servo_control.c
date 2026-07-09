@@ -62,6 +62,8 @@ static void close_servo_callback(TimerHandle_t xTimer) {
       valve1_state = 0;
     else if (servo_id == 1)
       valve2_state = 0;
+    else if (servo_id == 2)
+      valve3_state = 0;
     ESP_LOGI(TAG, "Servo %d closed after timeout", servo_id);
   }
 }
