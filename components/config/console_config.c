@@ -15,7 +15,7 @@
 #include "valves_control.h"
 #include "flash.h"
 #include "now.h"
-#ifndef TEMP_3_SOL_CONFIG
+#ifndef SOL_ETH_N2_SERVO_N2_CONFIG
 #include "igniter_driver.h"
 #endif
 
@@ -37,7 +37,7 @@ int run_ltc4162_monitor(int argc, char **argv) {
   return 0;
 }
 
-#ifndef TEMP_3_SOL_CONFIG
+#ifndef SOL_ETH_N2_SERVO_N2_CONFIG
 int run_igniter_continuity_check(int argc, char **argv) {
   igniter_continuity_t continuity;
   ESP_LOGI(TAG, "Checking igniter continuity...");
@@ -217,7 +217,7 @@ int get_board_data_cmd(int argc, char **argv) {
       ESP_LOGI(TAG, "Power time: %llu", data.power_time);
       ESP_LOGI(TAG, "valve1 state: %d", valve1_state);
       ESP_LOGI(TAG, "valve2 state: %d", valve2_state);
-#ifdef TEMP_3_SOL_CONFIG
+#ifdef SOL_ETH_N2_SERVO_N2_CONFIG
       ESP_LOGI(TAG, "valve3 state: %d", valve3_state);
 #else
       ESP_LOGI(TAG, "Dump valve arm: %d", data.dump_valve_arm);
@@ -621,7 +621,7 @@ static esp_console_cmd_t cmd[] = {
     {"i2c_scan", "Scan the I2C bus for devices", NULL, run_i2c_scan, NULL, NULL, NULL},
     {"ltc_monitor", "Run LTC4162 debug monitor", NULL, run_ltc4162_monitor, NULL, NULL, NULL},
 
-    #ifndef TEMP_3_SOL_CONFIG
+    #ifndef SOL_ETH_N2_SERVO_N2_CONFIG
     {"igniter_continuity", "Check igniter continuity", NULL, run_igniter_continuity_check, NULL, NULL, NULL},
     {"igniter_arm", "Arm the igniter", NULL, run_igniter_arm, NULL, NULL, NULL},
     {"igniter_disarm", "Disarm the igniter", NULL, run_igniter_disarm, NULL, NULL, NULL},
@@ -675,7 +675,7 @@ static esp_console_cmd_t cmd[] = {
     #elif defined(SOL_N2_CONFIG)
     {"open_sol_n2", "Open N2 solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
     {"close_sol_n2", "Close N2 solenoid", NULL, close_valve1, NULL, NULL, NULL},
-    #elif defined(TEMP_3_SOL_CONFIG)
+    #elif defined(SOL_ETH_N2_SERVO_N2_CONFIG)
     // add commands if needed
     #else
     #error "No valve configuration defined!"

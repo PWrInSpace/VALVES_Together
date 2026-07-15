@@ -31,10 +31,32 @@
 //  SERVO N20       | SERVO_N20_CONFIG           --GPIO47    valve1_state
 //
 
+// SETUP EuRoC 2026
+//////////////////////////////////////////////////////////////////
+//  SCENARIO 2 - jedna płytka w górnej klatce
+//
+//  PCB 1                               | SOL_ETH_N2_SERVO_N2_CONFIG
+//  SOLENOID ETH                        | GPIO36    valve1_state
+//  SERVO N2                            | GPIO35    valve2_state
+//  SOLENOID N2                         | GPIO37    valve3_state
+//
+//  --------------------------------------------------------------
+//                      butla ETH
+//  --------------------------------------------------------------
+//                                      | SOL_N20_SERVO_ETH_CONFIG
+//  SOLENOID N2O                        | GPIO36    valve1_state
+//  SERVO N20                           | GPIO34    valve2_state
+//  --------------------------------------------------------------
+//                      butla N20
+//  --------------------------------------------------------------
+//                                      | SERVO_N20_CONFIG
+//  SERVO N20                           | GPIO36    valve1_state 
+
+
 // #define SERVO_N20_CONFIG
 // #define SOL_N20_SERVO_ETH_CONFIG
 // #define SOL_ETH_CONFIG
-#define TEMP_3_SOL_CONFIG // Solenoid 3 in place of dump valve
+#define SOL_ETH_N2_SERVO_N2_CONFIG // Solenoid 3 in place of dump valve
 
 // #define SOL_N2_CONFIG
 
@@ -46,8 +68,8 @@
 #define CONFIG_NAME "SERVO_N20_CONFIG"
 #elif defined(SOL_N2_CONFIG)
 #define CONFIG_NAME "SOL_N2_CONFIG"
-#elif defined(TEMP_3_SOL_CONFIG)
-#define CONFIG_NAME "TEMP_3_SOL_CONFIG"
+#elif defined(SOL_ETH_N2_SERVO_N2_CONFIG)
+#define CONFIG_NAME "SOL_ETH_N2_SERVO_N2_CONFIG"
 #else
 #error "No valve configuration defined! Please define one of: SERVO_N20_CONFIG"
 #endif

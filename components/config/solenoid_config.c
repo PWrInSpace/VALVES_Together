@@ -22,6 +22,13 @@ Valve valves[NUM_OF_SOLENOIDS] = {
     [N20_FILL_SOL] = {.name = N20_FILL_SOL, .type = VALVE_NO},
 };
 
+#elif defined(SOL_ETH_N2_SERVO_N2_CONFIG)
+
+Valve valves[NUM_OF_SOLENOIDS] = {
+    [ETH_FILL_SOL] = {.name = ETH_FILL_SOL, .type = VALVE_NO},
+    [N2_FILL_SOL] = {.name = N2_FILL_SOL, .type = VALVE_NO},
+};
+
 #else
 
 Valve valves[NUM_OF_SOLENOIDS] = {};

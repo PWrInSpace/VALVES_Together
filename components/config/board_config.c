@@ -39,7 +39,7 @@
 #include "RGB_led_driver.h"
 #include "flash.h"
 
-#ifndef TEMP_3_SOL_CONFIG
+#ifndef SOL_ETH_N2_SERVO_N2_CONFIG
 #include "igniter_driver.h"
 #include "igniter_task.h"
 #endif
@@ -150,7 +150,7 @@ esp_err_t board_config_init(void) {
     return ESP_FAIL;
   }
 
-#ifndef TEMP_3_SOL_CONFIG
+#ifndef SOL_ETH_N2_SERVO_N2_CONFIG
   err = igniter_init();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "Igniter initialization failed");
@@ -176,7 +176,7 @@ esp_err_t board_config_init(void) {
 
   createNowSendTask();
 #ifdef SERVO_N20_CONFIG
-#ifndef TEMP_3_SOL_CONFIG
+#ifndef SOL_ETH_N2_SERVO_N2_CONFIG
   run_igniter_task();
 #endif
 #endif

@@ -35,20 +35,21 @@ typedef enum {
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-    [N20_FILL_SOL] = GPIO_NUM_48,
+    [N20_FILL_SOL] = GPIO_NUM_36,
 
 };
 
-#elif defined(TEMP_3_SOL_CONFIG)
+#elif defined(SOL_ETH_N2_SERVO_N2_CONFIG)
 
 typedef enum {
-  // define rest of solenoids, idk jakie
-  TEMP_3_SOL,
+  ETH_FILL_SOL,
+  N2_FILL_SOL,
   NUM_OF_SOLENOIDS
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-  [TEMP_3_SOL] = GPIO_NUM_21, // dump valve pin
+  [ETH_FILL_SOL] = GPIO_NUM_36,
+  [N2_FILL_SOL] = GPIO_NUM_37,
 };
 
 #else

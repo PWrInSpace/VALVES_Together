@@ -112,7 +112,7 @@ typedef struct DataToObc {
   float charger_temperature;
 } DataToObc;
 
-#elif defined(TEMP_3_SOL_CONFIG)
+#elif defined(SOL_ETH_N2_SERVO_N2_CONFIG)
 typedef struct DataToObc {
   bool waken_up : 1;
   bool is_charging : 1;     // 0 not charging, 1 charging

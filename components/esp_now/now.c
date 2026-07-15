@@ -65,7 +65,7 @@ esp_err_t nowInit() {
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x77};
 #elif defined(SOL_ETH_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x88};
-#elif defined(TEMP_3_SOL_CONFIG)
+#elif defined(SOL_ETH_N2_SERVO_N2_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x99}; // TODO: ustalic tu coś, dałem cokolwiek
 #endif
 
@@ -216,7 +216,7 @@ void now_send_data_to_obc(void *arg) {
     dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
     dataToObc.valve1_state = valve1_state;
     dataToObc.valve2_state = valve2_state;
-#ifdef TEMP_3_SOL_CONFIG
+#ifdef SOL_ETH_N2_SERVO_N2_CONFIG
     dataToObc.valve3_state = valve3_state;
 #else
     dataToObc.dump_valve_arm = board_data_copy.dump_valve_arm;
@@ -265,7 +265,7 @@ void now_send_data_to_obc(void *arg) {
              dataToObc.charger_temperature,
              (unsigned int)dataToObc.valve1_state,
              (unsigned int)dataToObc.valve2_state);
-#ifdef TEMP_3_SOL_CONFIG
+#ifdef SOL_ETH_N2_SERVO_N2_CONFIG
     ESP_LOGI("NOW",
              "\n  valve3_state        = %u\n",
              (unsigned int)dataToObc.valve3_state);
