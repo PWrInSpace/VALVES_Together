@@ -29,8 +29,8 @@
   {                                                                            \
     .host_id = SDSPI_DEFAULT_HOST,                                             \
     .bus_config = {.miso_io_num = 13,                                          \
-                   .mosi_io_num = 11,                                          \
-                   .sclk_io_num = 12,                                          \
+                   .mosi_io_num = 21,                                          \
+                   .sclk_io_num = 14,                                          \
                    .quadwp_io_num = -1,                                        \
                    .quadhd_io_num = -1,                                        \
                    .max_transfer_sz = 4000},                                   \

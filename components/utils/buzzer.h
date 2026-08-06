@@ -3,7 +3,7 @@
 
 #include "esp_err.h"
 
-#define BUZZER_GPIO 36
+#define BUZZER_GPIO 42
 
 // Octave 4
 #define NOTE_C4 262
