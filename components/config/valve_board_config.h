@@ -3,38 +3,42 @@
 
 #define DUMP_VALVE_TIME_MS 1000
 
-// SETUP NOMINALNY
-//  -------------
-//      N2
-//  -------------
+// SETUP
+//  --------------------------------------------------------------
+//                      butla N2
+//  --------------------------------------------------------------
+//  SCENARIO 1 - dwie płytki w górnej klatce
 //
-//  SOLENOID N2         | SOL N2_CONFIG       --GPIO47    valve1_state - brak
-//  pressure
+//  PCB 1                               | SOL_ETH_SERVO_N2_CONFIG
+//  SOLENOID ETH                        | GPIO36    valve1_state
+//  SERVO N2                            | GPIO35    valve2_state
 //
-//  SOLENOID ETH        | SOL_ETH_CONFIG      --GPIO47    valve1_state - press1
-//  to press N2
+//  PCB 2                               | SOL_N2_CONFIG
+//  SOLENOID N2                         | GPIO36    valve1_state
 //
-//  -------------
-//      ETH
-//  -------------
+//////////////////////////////////////////////////////////////////
+//  SCENARIO 2 - jedna płytka w górnej klatce
 //
-//  SOLENOID N2O    |                            --GPIO48    valve1_state
-//  -press1 to press N2O SERVO ETH       | SOL_N20_SERVO_ETH_CONFIG   --GPIO47
-//  valve2_state   -press2 to press ETH
-//  -------------
+//  PCB 1                               | SOL_ETH_N2_SERVO_N2_CONFIG
+//  SOLENOID ETH                        | GPIO36    valve1_state
+//  SERVO N2                            | GPIO35    valve2_state
+//  SOLENOID N2                         | GPIO37    valve3_state
 //
-//
-//      N20
-//
-//  -------------
-//
-//  SERVO N20       | SERVO_N20_CONFIG           --GPIO47    valve1_state
-//
+//  --------------------------------------------------------------
+//                      butla ETH
+//  --------------------------------------------------------------
+//                                      | SOL_N20_SERVO_ETH_CONFIG
+//  SOLENOID N2O                        | GPIO36    valve1_state
+//  SERVO N20                           | GPIO35    valve2_state
+//  --------------------------------------------------------------
+//                      butla N20
+//  --------------------------------------------------------------
+//                                      | SERVO_N20_CONFIG
+//  SERVO N20                           | GPIO36    valve1_state
 
-// #define SERVO_N20_CONFIG
+#define SERVO_N20_CONFIG
 // #define SOL_N20_SERVO_ETH_CONFIG
-#define SOL_ETH_CONFIG
-
+// #define SOL_ETH_CONFIG
 // #define SOL_N2_CONFIG
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG

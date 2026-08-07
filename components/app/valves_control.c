@@ -143,12 +143,12 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     ESP_LOGI("VALVES_CONTROL", "DZIDA COMMAND RECEIVED");
 #ifdef SERVO_N20_CONFIG
     vTaskDelay(pdMS_TO_TICKS(100));
-    chandle_valve_cmd(N20_VALVE_OPEN, 0);
+    handle_valve_cmd(N20_VALVE_OPEN, 0);
 #endif
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     vTaskDelay(pdMS_TO_TICKS(160));
-    chandle_valve_cmd(ETH_VALVE_OPEN, 0);
+    handle_valve_cmd(ETH_VALVE_OPEN, 0);
 #endif
 
     break;
