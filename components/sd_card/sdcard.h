@@ -7,23 +7,23 @@
 #include <sys/stat.h>
 #include <sys/unistd.h>
 
+#include "driver/sdmmc_host.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
-#include "driver/sdmmc_host.h"
 
 #define SDCARD_MOUNT_POINT "/sdcard"
 #define SD_CREATE_FILE_PREFIX(usr_path) SDCARD_MOUNT_POINT "/" usr_path
 // 8 is a placeholder for _number_.txt
 #define PATH_FLIE_SIZE(usr_path) sizeof(SD_CREATE_FILE_PREFIX(usr_path)) + 8
 
-// TODO: Ustawić właściwe piny
-#define SD_CLK_PIN 21
-#define SD_CMD_PIN 14
-#define SD_D0_PIN 47
-#define SD_D1_PIN 48
-#define SD_D2_PIN 12
-#define SD_D3_PIN 13
-#define SD_CD_PIN GPIO_NUM_NC  // GPIO_NUM_NC oznacza brak pinu Card Detect (zawsze włożona)
+#define SD_CLK_PIN 14
+#define SD_CMD_PIN 21
+#define SD_D0_PIN 13
+#define SD_D1_PIN 12
+#define SD_D2_PIN 48
+#define SD_D3_PIN 47
+#define SD_CD_PIN                                                              \
+  GPIO_NUM_NC // GPIO_NUM_NC oznacza brak pinu Card Detect (zawsze włożona)
 
 typedef struct {
   sdmmc_card_t *card;

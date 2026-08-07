@@ -7,9 +7,11 @@
 #include "auto_vent_task.h"
 #include "board_config.h"
 #include "buzzer.h"
+#include "buzzer_task.h"
 #include "commands.h"
 #include "console.h"
 #include "console_config.h"
+#include "flash.h"
 #include "i2c_scan.h"
 #include "igniter_driver.h"
 #include "ltc4162.h"
@@ -17,8 +19,6 @@
 #include "pressure_driver.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
-#include "flash.h"
-#include "now.h"
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -91,33 +91,26 @@ int run_igniter_fire(int argc, char **argv) {
   return 0;
 }
 
-int play_imperial_march(int argc, char **argv) {
-  imperial_march();
-  return 0;
-}
-
-int play_ode_to_joy(int argc, char **argv) {
-  ode_to_joy();
-  return 0;
-}
-
-int play_single_beep(int argc, char **argv) {
-  beep_single();
-  return 0;
-}
-
-int play_double_beep(int argc, char **argv) {
-  beep_double();
-  return 0;
-}
-
-int play_triple_beep(int argc, char **argv) {
-  beep_triple();
-  return 0;
-}
-
-int play_quatro_beep(int argc, char **argv) {
-  beep_quatro();
+int buzzer_play(int argc, char **argv) {
+  if (argc < 2) {
+    ESP_LOGE(TAG, "Usage: buzzer_play <sound_id>");
+    ESP_LOGI(TAG, "Sound List:");
+    ESP_LOGI(TAG, "1: SOUND_ALL_OK");
+    ESP_LOGI(TAG, "2: SOUND_CHARGER_CONNECTED");
+    ESP_LOGI(TAG, "3: SOUND_CHARGER_DISCONNECTED");
+    ESP_LOGI(TAG, "4: SOUND_LOW_BATTERY");
+    ESP_LOGI(TAG, "5: SOUND_INIT_ERROR");
+    ESP_LOGI(TAG, "6: SOUND_SINGLE_BEEP");
+    ESP_LOGI(TAG, "7: SOUND_DOUBLE_BEEP");
+    ESP_LOGI(TAG, "8: SOUND_TRIPLE_BEEP");
+    ESP_LOGI(TAG, "9: SOUND_QUADRUPLE_BEEP");
+    ESP_LOGI(TAG, "10: SOUND_IMPERIAL_MARCH");
+    ESP_LOGI(TAG, "11: SOUND_ODE_TO_JOY");
+    ESP_LOGI(TAG, "12: SOUND_HARRY_POTTER_THEME");
+    return -1;
+  }
+  sound_id_t sound_id = atoi(argv[1]);
+  play_sound(sound_id);
   return 0;
 }
 
@@ -199,14 +192,10 @@ int close_valve2(int argc, char **argv) {
   return 0;
 }
 
-int play_harry_potter_theme(int argc, char **argv) {
-  harry_potter_theme();
-  return 0;
-}
-
 int get_board_data_cmd(int argc, char **argv) {
   int n = 1;
-  if (argc == 2) n = atoi(argv[1]);
+  if (argc == 2)
+    n = atoi(argv[1]);
 
   for (int i = 0; i < n; i++) {
     BoardData_t data;
@@ -232,41 +221,6 @@ int get_board_data_cmd(int argc, char **argv) {
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 
-  return 0;
-}
-
-int set_now_send_log(int argc, char **argv) {
-  if (argc >= 2) {
-    if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
-      now_send_data_log_enabled = true;
-    } else if (strcmp(argv[1], "off") == 0 || strcmp(argv[1], "0") == 0) {
-      now_send_data_log_enabled = false;
-    } else {
-      ESP_LOGE(TAG, "Usage: now_send_log [on|off]");
-      return -1;
-    }
-  } else {
-    now_send_data_log_enabled = !now_send_data_log_enabled;
-  }
-  ESP_LOGI(TAG, "NOW send data log: %s",
-           now_send_data_log_enabled ? "ON" : "OFF");
-  return 0;
-}
-
-int set_obc_test_data(int argc, char **argv) {
-  if (argc >= 2) {
-    if (strcmp(argv[1], "on") == 0 || strcmp(argv[1], "1") == 0) {
-      obc_test_data_enabled = true;
-    } else if (strcmp(argv[1], "off") == 0 || strcmp(argv[1], "0") == 0) {
-      obc_test_data_enabled = false;
-    } else {
-      ESP_LOGE(TAG, "Usage: obc_test_data [on|off]");
-      return -1;
-    }
-  } else {
-    obc_test_data_enabled = !obc_test_data_enabled;
-  }
-  ESP_LOGI(TAG, "OBC test data: %s", obc_test_data_enabled ? "ON" : "OFF");
   return 0;
 }
 
@@ -371,37 +325,6 @@ int print_board_data(int argc, char **argv) {
   return 0;
 }
 
-int play_crab_rave_melody(int argc, char **argv) {
-  crab_rave_melody();
-  return 0;
-}
-
-int play_crab_rave_harmony(int argc, char **argv) {
-  crab_rave_harmony();
-  return 0;
-}
-
-int play_crab_rave_bass(int argc, char **argv) {
-  crab_rave_bass();
-  return 0;
-}
-
-#ifdef SOL_N20_SERVO_ETH_CONFIG
-int play_crab_rave_melody(int argc, char **argv) {
-  crab_rave_melody();
-  return 0;
-}
-
-int play_crab_rave_harmony(int argc, char **argv) {
-  crab_rave_harmony();
-  return 0;
-}
-
-int play_crab_rave_bass(int argc, char **argv) {
-  crab_rave_bass();
-  return 0;
-}
-
 #ifdef SOL_N20_SERVO_ETH_CONFIG
 int auto_vent_on(int argc, char **argv) {
   if (argc < 2) {
@@ -450,7 +373,8 @@ int save_flash(int argc, char **argv) {
   ret = flash_commit();
 
   if (ret != ESP_OK) {
-    printf("Couldn't save data to flash memory\nErr: %s\n", esp_err_to_name(ret));
+    printf("Couldn't save data to flash memory\nErr: %s\n",
+           esp_err_to_name(ret));
     return 0;
   }
 
@@ -463,17 +387,20 @@ int restore_defaults(int argc, char **argv) {
   ret = flash_restore_defaults();
 
   if (ret != ESP_OK) {
-    printf("Couldn't restore config default values\nErr: %s\n", esp_err_to_name(ret));
+    printf("Couldn't restore config default values\nErr: %s\n",
+           esp_err_to_name(ret));
     return 0;
   }
 
-  printf("Successfully restored config default values. Remember to use `save_config` to save your changes\n");
+  printf("Successfully restored config default values. Remember to use "
+         "`save_config` to save your changes\n");
   return 0;
 }
 
 int erase_flash(int argc, char **argv) {
   if (strcmp(argv[1], "Y") != 0) {
-    printf("Flash erase cancelled. You need to pass 'Y' as argument to confirm.\n");
+    printf("Flash erase cancelled. You need to pass 'Y' as argument to "
+           "confirm.\n");
     return 0;
   }
 
@@ -495,31 +422,34 @@ int edit_flash(int argc, char **argv) {
 
   const char *field = argv[1];
   const char *value = argv[2];
-  
+
   esp_err_t ret = flash_edit_field(field, value);
   if (ret != ESP_OK) {
     printf("Couldn't edit provided field\nErr: %s\n", esp_err_to_name(ret));
     return 0;
   }
 
-  printf("Successfully edited runtime config. Remember to use `save_config` to save your changes\n");
+  printf("Successfully edited runtime config. Remember to use `save_config` to "
+         "save your changes\n");
   return 0;
 }
 
 // |--- Commands for pressure sensors calibration ---|
 
 const char *pressure_sensors_names[] = {
-  "P1",
-  "P2",
-  "L",
-  "S",
+    "P1",
+    "P2",
+    "L",
+    "S",
 };
 
 static esp_err_t parse_float(const char *value, float *out) {
-  if (!value || !out) return ESP_ERR_INVALID_ARG;
+  if (!value || !out)
+    return ESP_ERR_INVALID_ARG;
   char *endptr = NULL;
   *out = strtof(value, &endptr);
-  if (*endptr != '\0') return ESP_ERR_INVALID_ARG;
+  if (*endptr != '\0')
+    return ESP_ERR_INVALID_ARG;
   return ESP_OK;
 }
 
@@ -529,11 +459,12 @@ int press_tare(int argc, char **argv) {
   if (argc > 1) {
     field = argv[1];
 
-    size_t n = sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
+    size_t n =
+        sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
     for (size_t i = 0; i < n; i++) {
       if (strcmp(pressure_sensors_names[i], field) == 0) {
         sensor_num = i;
-        break; 
+        break;
       }
     }
   }
@@ -545,24 +476,28 @@ int press_tare(int argc, char **argv) {
   }
 
   float *config_fields[PRESSURE_DRIVER_SENSOR_COUNT] = {
-    &new_config.press_calibr.sensor_0_volt_0,
-    &new_config.press_calibr.sensor_1_volt_0,
-    &new_config.press_calibr.sensor_2_volt_0,
-    &new_config.press_calibr.sensor_3_volt_0,
+      &new_config.press_calibr.sensor_0_volt_0,
+      &new_config.press_calibr.sensor_1_volt_0,
+      &new_config.press_calibr.sensor_2_volt_0,
+      &new_config.press_calibr.sensor_3_volt_0,
   };
 
   if (sensor_num >= 0) {
     float mv;
-    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv, 5) != PRESSURE_DRIVER_OK)  {
-      printf("Calibration failed while taring %s sensor.", pressure_sensors_names[sensor_num]);
+    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv, 5) !=
+        PRESSURE_DRIVER_OK) {
+      printf("Calibration failed while taring %s sensor.",
+             pressure_sensors_names[sensor_num]);
       return 0;
     }
     *config_fields[sensor_num] = mv;
   } else {
     for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
       float mv;
-      if (tare_pressure_sensor(&pressure_driver_config, i, &mv, 5) != PRESSURE_DRIVER_OK) {
-        printf("Calibration failed while taring %s sensor.", pressure_sensors_names[i]);
+      if (tare_pressure_sensor(&pressure_driver_config, i, &mv, 5) !=
+          PRESSURE_DRIVER_OK) {
+        printf("Calibration failed while taring %s sensor.",
+               pressure_sensors_names[i]);
         return 0;
       }
       *config_fields[i] = mv;
@@ -575,9 +510,12 @@ int press_tare(int argc, char **argv) {
   }
 
   if (sensor_num != -1) {
-    printf("Successfully calibrated %s sensor for pressure of 0 bars. Remember to use `save_config` to save your changes\n", pressure_sensors_names[sensor_num]);
+    printf("Successfully calibrated %s sensor for pressure of 0 bars. Remember "
+           "to use `save_config` to save your changes\n",
+           pressure_sensors_names[sensor_num]);
   } else {
-    printf("Successfully calibrated all sensors for pressure of 0 bars. Remember to use `save_config` to save your changes\n");
+    printf("Successfully calibrated all sensors for pressure of 0 bars. "
+           "Remember to use `save_config` to save your changes\n");
   }
   return 0;
 }
@@ -586,9 +524,11 @@ int press_calibrate(int argc, char **argv) {
   if (argc < 3) {
     printf("Usage: calibrate <sensor> <value>\n");
 
-    size_t s_count = sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
+    size_t s_count =
+        sizeof(pressure_sensors_names) / sizeof(pressure_sensors_names[0]);
     printf("Available sensors:\n");
-    for (int i = 0; i < s_count; i++) printf("- %s\n", pressure_sensors_names[i]);
+    for (int i = 0; i < s_count; i++)
+      printf("- %s\n", pressure_sensors_names[i]);
 
     return 0;
   }
@@ -611,12 +551,18 @@ int press_calibrate(int argc, char **argv) {
   struct {
     const char *key;
     float *ptrs[2];
-  } sensor_map[] = {
-    {pressure_sensors_names[0], {&new_config.press_calibr.sensor_0_volt_1, &new_config.press_calibr.sensor_0_press_1}},
-    {pressure_sensors_names[1], {&new_config.press_calibr.sensor_1_volt_1, &new_config.press_calibr.sensor_1_press_1}},
-    {pressure_sensors_names[2], {&new_config.press_calibr.sensor_2_volt_1, &new_config.press_calibr.sensor_2_press_1}},
-    {pressure_sensors_names[3], {&new_config.press_calibr.sensor_3_volt_1, &new_config.press_calibr.sensor_3_press_1}}
-  };
+  } sensor_map[] = {{pressure_sensors_names[0],
+                     {&new_config.press_calibr.sensor_0_volt_1,
+                      &new_config.press_calibr.sensor_0_press_1}},
+                    {pressure_sensors_names[1],
+                     {&new_config.press_calibr.sensor_1_volt_1,
+                      &new_config.press_calibr.sensor_1_press_1}},
+                    {pressure_sensors_names[2],
+                     {&new_config.press_calibr.sensor_2_volt_1,
+                      &new_config.press_calibr.sensor_2_press_1}},
+                    {pressure_sensors_names[3],
+                     {&new_config.press_calibr.sensor_3_volt_1,
+                      &new_config.press_calibr.sensor_3_press_1}}};
   size_t n = sizeof(sensor_map) / sizeof(sensor_map[0]);
 
   float *voltage_1 = NULL, *pressure_1 = NULL;
@@ -626,7 +572,7 @@ int press_calibrate(int argc, char **argv) {
       voltage_1 = sensor_map[i].ptrs[0];
       pressure_1 = sensor_map[i].ptrs[1];
       sensor_num = i;
-      break; 
+      break;
     }
   }
 
@@ -635,7 +581,8 @@ int press_calibrate(int argc, char **argv) {
     return 0;
   }
 
-  calibrate_pressure_sensor(&pressure_driver_config, sensor_num, pressure, voltage_1, 5);
+  calibrate_pressure_sensor(&pressure_driver_config, sensor_num, pressure,
+                            voltage_1, 5);
   *pressure_1 = pressure;
 
   if (flash_edit_config(new_config) != ESP_OK) {
@@ -643,7 +590,9 @@ int press_calibrate(int argc, char **argv) {
     return 0;
   }
 
-  printf("Successfully calibrated %s sensor for pressure of %g bars. Remember to use `save_config` to save your changes\n", field, pressure);
+  printf("Successfully calibrated %s sensor for pressure of %g bars. Remember "
+         "to use `save_config` to save your changes\n",
+         field, pressure);
   return 0;
 }
 
@@ -660,13 +609,7 @@ static esp_console_cmd_t cmd[] = {
     {"igniter_arm", "Arm the igniter", NULL, run_igniter_arm, NULL, NULL, NULL},
     {"igniter_disarm", "Disarm the igniter", NULL, run_igniter_disarm, NULL, NULL, NULL},
     {"igniter_fire", "Fire the igniter", NULL, run_igniter_fire, NULL, NULL, NULL},
-    {"play_imperial_march", "Play the Imperial March on the buzzer", NULL, play_imperial_march, NULL, NULL, NULL},
-    {"play_ode_to_joy", "Play Ode to Joy on the buzzer", NULL, play_ode_to_joy, NULL, NULL, NULL},
-    {"play_harry_potter_theme", "Play Harry Potter theme on the buzzer", NULL, play_harry_potter_theme, NULL, NULL, NULL},
-    {"play_single_beep", "Play a single beep on the buzzer", NULL, play_single_beep, NULL, NULL, NULL},
-    {"play_double_beep", "Play a double beep on the buzzer", NULL, play_double_beep, NULL, NULL, NULL},
-    {"play_triple_beep", "Play a triple beep on the buzzer", NULL, play_triple_beep, NULL, NULL, NULL},
-    {"play_quatro_beep", "Play a quatro beep on the buzzer", NULL, play_quatro_beep, NULL, NULL, NULL},
+    {"buzzer_play", "Play a sound on the buzzer", NULL, buzzer_play, NULL, NULL, NULL},
     {"get_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
     {"now_send_log", "Enable/disable ESP-NOW data-to-OBC debug log (on|off or toggle)", NULL, set_now_send_log, NULL, NULL, NULL},
     {"obc_test_data", "Enable/disable test data in ESP-NOW packets to OBC (on|off or toggle)", NULL, set_obc_test_data, NULL, NULL, NULL},
@@ -684,9 +627,6 @@ static esp_console_cmd_t cmd[] = {
 
     {"calibrate", "Calibrate specific sensor for provided pressure", NULL, press_calibrate, NULL, NULL, NULL},
     {"tare", "Calibrate all or chosen pressure sensors for 0 bar", NULL, press_tare, NULL, NULL, NULL},
-    {"play_crab_rave_melody", "Play Crab Rave Melody on the buzzer", NULL, play_crab_rave_melody, NULL, NULL, NULL},
-    {"play_crab_rave_harmony", "Play Crab Rave Harmony on the buzzer", NULL, play_crab_rave_harmony, NULL, NULL, NULL},
-    {"play_crab_rave_bass", "Play Crab Rave Bass on the buzzer", NULL, play_crab_rave_bass, NULL, NULL, NULL},
     
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG

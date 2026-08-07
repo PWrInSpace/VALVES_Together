@@ -2,6 +2,7 @@
 #define SOLENOID_CONFIG_H
 
 #include "Solenoid.h"
+#include "mcu_pinout.h"
 #include "valve_board_config.h"
 
 #ifdef SOL_ETH_CONFIG
@@ -12,7 +13,7 @@ typedef enum {
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-    [ETH_FILL_SOL] = GPIO_NUM_48,
+    [ETH_FILL_SOL] = _VALVE1_GPIO,
 };
 
 #elif defined(SOL_N2_CONFIG)
@@ -23,7 +24,7 @@ typedef enum {
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-    [N2_FILL_SOL] = GPIO_NUM_48,
+    [N2_FILL_SOL] = _VALVE1_GPIO,
 };
 
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
@@ -35,7 +36,7 @@ typedef enum {
 } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
-    [N20_FILL_SOL] = GPIO_NUM_48,
+    [N20_FILL_SOL] = _VALVE1_GPIO,
 
 };
 

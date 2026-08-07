@@ -15,7 +15,8 @@
 #include "system_timer.h"
 
 void handle_valve_cmd(uint8_t cmd, int time_ms) {
-  ESP_LOGI("VALVES_CONTROL", "Handling valve command: %d with time: %d ms", cmd, time_ms);
+  ESP_LOGI("VALVES_CONTROL", "Handling valve command: %d with time: %d ms", cmd,
+           time_ms);
 
   switch (cmd) {
   case N20_VALVE_OPEN:
@@ -150,39 +151,40 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     chandle_valve_cmd(ETH_VALVE_OPEN, 0);
 #endif
 
-      break;
+    break;
 
-    case DUMP_VALVE_FIRE:
-      #ifdef SERVO_N20_CONFIG
-      ESP_LOGI("VALVES_CONTROL", "Igniter FIRE! on time %d", time_ms);
-      igniter_fire_time(igniter_cfg, time_ms);
-      #endif
-      break;
-    case DUMP_VALVE_ARM:
-      #ifdef SERVO_N20_CONFIG
-      ESP_LOGI("VALVES_CONTROL", "Igniter arm");
-      igniter_arm(igniter_cfg);
-      #endif
-      break;
+  case DUMP_VALVE_FIRE:
+#ifdef SERVO_N20_CONFIG
+    ESP_LOGI("VALVES_CONTROL", "Igniter FIRE! on time %d", time_ms);
+    igniter_fire_time(igniter_cfg, time_ms);
+#endif
+    break;
+  case DUMP_VALVE_ARM:
+#ifdef SERVO_N20_CONFIG
+    ESP_LOGI("VALVES_CONTROL", "Igniter arm");
+    igniter_arm(igniter_cfg);
+#endif
+    break;
 
-    case DUMP_VALVE_DISARM:
-      #ifdef SERVO_N20_CONFIG
-      ESP_LOGI("VALVES_CONTROL", "Igniter disarm");
-      igniter_disarm(igniter_cfg);
-      #endif
-      break;
+  case DUMP_VALVE_DISARM:
+#ifdef SERVO_N20_CONFIG
+    ESP_LOGI("VALVES_CONTROL", "Igniter disarm");
+    igniter_disarm(igniter_cfg);
+#endif
+    break;
 
-  #ifdef SOL_N20_SERVO_ETH_CONFIG
-    case AUTO_VENT_SET:
-      set_auto_vent_on((float)time_ms / 1000.0f);
-      break;
-    case AUTO_VENT_OFF:
-      set_auto_vent_off();
-      break;
-  #endif
-    default:
-      ESP_LOGW("VALVES_CONTROL", "Unknown command: %lu", moduleData.dataFromObc.commandNum);
-      break;
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+  case AUTO_VENT_SET:
+    set_auto_vent_on((float)time_ms / 1000.0f);
+    break;
+  case AUTO_VENT_OFF:
+    set_auto_vent_off();
+    break;
+#endif
+  default:
+    ESP_LOGW("VALVES_CONTROL", "Unknown command: %lu",
+             moduleData.dataFromObc.commandNum);
+    break;
   }
 }
 

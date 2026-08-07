@@ -37,7 +37,8 @@ esp_err_t set_valve_state(int name, ValveState state) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  if (valves[name].type == VALVE_NO) state ^= 1;
+  if (valves[name].type == VALVE_NO)
+    state ^= 1;
   esp_err_t err = gpio_set_level(valves[name].gpio_pin, state);
 
   return err;
@@ -52,7 +53,8 @@ static void timer_callback(void *arg) {
   // Zamknij zawór po czasie
   esp_err_t err = set_valve_state(*valve_name, VALVE_OFF);
   if (err != ESP_OK) {
-    ESP_LOGE("Solenoid", "Failed to close solenoid %d: %s", *valve_name, esp_err_to_name(err));
+    ESP_LOGE("Solenoid", "Failed to close solenoid %d: %s", *valve_name,
+             esp_err_to_name(err));
   } else {
     ESP_LOGI("Solenoid", "Solenoid %d closed after timeout", *valve_name);
   }

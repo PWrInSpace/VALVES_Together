@@ -27,7 +27,7 @@ bool sys_timer_init(sys_timer_t *timers, size_t number_of_timers) {
   memcpy(gb.timers, timers, sizeof(sys_timer_t) * number_of_timers);
   gb.number_of_timers = number_of_timers;
 
-  esp_timer_init();
+  // esp_timer_init();
 
   esp_timer_create_args_t args;
   ESP_LOGI(TAG, "Timers number %d", number_of_timers);

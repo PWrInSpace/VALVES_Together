@@ -12,7 +12,9 @@ esp_err_t timers_init(void) {
                            .timer_callback_fnc = test_timer_callback,
                            .timer_arg = NULL}};
 
-  return (sys_timer_init(timers, sizeof(timers) / sizeof(timers[0])) ? ESP_OK : ESP_FAIL);
+  return (sys_timer_init(timers, sizeof(timers) / sizeof(timers[0]))
+              ? ESP_OK
+              : ESP_FAIL);
 }
 
 esp_err_t start_test_timer(void) {

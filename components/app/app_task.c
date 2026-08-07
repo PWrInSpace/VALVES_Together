@@ -16,6 +16,7 @@
 
 #include "BoardData.h"
 #include "buzzer.h"
+#include "buzzer_task.h"
 #include "commands.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -53,28 +54,30 @@ esp_err_t app_task_deinit(void) {
 
 void app_task(void *arg) {
 
+  vTaskDelay(pdMS_TO_TICKS(1000));
+
 #ifdef SERVO_N20_CONFIG
   ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
   vTaskDelay(pdMS_TO_TICKS(1000));
-  beep_single();
+  play_buzzer_sound(SOUND_SINGLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
   handle_valve_cmd(N20_VALVE_CLOSE, 0);
 #elif defined(SOL_N2_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_N2_CONFIG defined");
   vTaskDelay(pdMS_TO_TICKS(3000));
-  beep_quatro();
+  play_buzzer_sound(SOUND_QUADRUPLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
   handle_valve_cmd(N2_SOL_CLOSE, 0);
 #elif defined(SOL_ETH_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_ETH_CONFIG defined");
   vTaskDelay(pdMS_TO_TICKS(1000));
-  beep_triple();
+  play_buzzer_sound(SOUND_TRIPLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
   handle_valve_cmd(ETH_SOL_CLOSE, 0);
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
   vTaskDelay(pdMS_TO_TICKS(1000));
-  beep_double();
+  play_buzzer_sound(SOUND_DOUBLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
   handle_valve_cmd(N20_SOL_CLOSE, 0);
   vTaskDelay(pdMS_TO_TICKS(1000));

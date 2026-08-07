@@ -74,10 +74,7 @@ esp_err_t sd_task_init(void) {
   current_mutex = mutex_A;
   current_sync = buffer_A_ready;
 
-  sd_card_config_t config = {
-    .mount_point = MOUNT_POINT,
-    .cd_pin = -1
-  };
+  sd_card_config_t config = {.mount_point = MOUNT_POINT, .cd_pin = -1};
 
   if (!SD_init(&sd_card, &config)) {
     ESP_LOGE("SD_TASK", "Failed to initialize SD card");

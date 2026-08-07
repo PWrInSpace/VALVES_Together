@@ -20,9 +20,12 @@
 #include "esp_log.h"
 
 #include "BoardData.h"
+#include "RGB_led_driver.h"
 #include "auto_vent_task.h"
 #include "buzzer.h"
+#include "buzzer_task.h"
 #include "console_config.h"
+#include "flash.h"
 #include "igniter_driver.h"
 #include "igniter_task.h"
 #include "ltc4162.h"
@@ -40,8 +43,6 @@
 #include "thermocouple_task.h"
 #include "timers_config.h"
 #include "valve_board_config.h"
-#include "RGB_led_driver.h"
-#include "flash.h"
 
 #define TAG "BOARD_CONFIG"
 
@@ -65,11 +66,16 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
-  err = mcu_spi_init();
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "SPI initialization failed");
-    return err;
+  if (!run_buzzer_task()) {
+    ESP_LOGE(TAG, "Buzzer task initialization failed");
+    return ESP_FAIL;
   }
+
+  // err = mcu_spi_init();
+  // if (err != ESP_OK) {
+  //   ESP_LOGE(TAG, "SPI initialization failed");
+  //   return err;
+  // }
 #ifdef SERVO_N20_CONFIG
   err = thermocouple_config_init();
   if (err != ESP_OK) {
@@ -96,7 +102,7 @@ esp_err_t board_config_init(void) {
     // return err;
   }
 
-  if (nowInit()) {
+  if (nowInit() == ESP_OK) {
     nowAddPeer(addressObc, 1);
     uint8_t mac[6];
     esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);

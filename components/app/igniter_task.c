@@ -17,7 +17,8 @@ void igniter_task(void *arg) {
 
     BoardData_t new_bd;
     if (get_board_data(&new_bd, portMAX_DELAY) == ESP_OK) {
-      new_bd.dump_valve_arm = (igniter_cfg->state == IGNITER_STATE_ARMED) ? 1 : 0;
+      new_bd.dump_valve_arm =
+          (igniter_cfg->state == IGNITER_STATE_ARMED) ? 1 : 0;
       new_bd.dump_valve_cont = (continuity == IGNITER_CONTINUITY_OK) ? 1 : 0;
 
       set_board_data(new_bd, portMAX_DELAY);

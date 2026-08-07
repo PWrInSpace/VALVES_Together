@@ -50,8 +50,9 @@ esp_err_t board_data_init(void) {
 uint64_t power_time() { return (esp_timer_get_time() - start_time_us); }
 
 esp_err_t get_board_data(BoardData_t *data, uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
   *data = boardData;
   xSemaphoreGive(BoardDataSemaphore);
 
@@ -59,26 +60,31 @@ esp_err_t get_board_data(BoardData_t *data, uint32_t mutexTimeout) {
 }
 
 esp_err_t set_board_data(BoardData_t data, uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
   boardData = data;
   xSemaphoreGive(BoardDataSemaphore);
 
   return ESP_OK;
 }
 
-esp_err_t get_boardData_charger_data(ltc4162_charger_data_t *data, uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
+esp_err_t get_boardData_charger_data(ltc4162_charger_data_t *data,
+                                     uint32_t mutexTimeout) {
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
   *data = boardData.chargerData;
   xSemaphoreGive(BoardDataSemaphore);
 
   return ESP_OK;
 }
 
-esp_err_t set_boardData_charger_data(ltc4162_charger_data_t data, uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
+esp_err_t set_boardData_charger_data(ltc4162_charger_data_t data,
+                                     uint32_t mutexTimeout) {
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
   boardData.chargerData = data;
   xSemaphoreGive(BoardDataSemaphore);
 
@@ -86,44 +92,56 @@ esp_err_t set_boardData_charger_data(ltc4162_charger_data_t data, uint32_t mutex
 }
 
 esp_err_t set_boardData_pressures(float pressures[4], uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
-  for (int i = 0; i < 4; i++) boardData.pressure[i] = pressures[i];
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
+  for (int i = 0; i < 4; i++)
+    boardData.pressure[i] = pressures[i];
   xSemaphoreGive(BoardDataSemaphore);
 
   return ESP_OK;
 }
 
 esp_err_t get_boardData_pressures(float pressures[4], uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
-  for (int i = 0; i < 4; i++) pressures[i] = boardData.pressure[i];
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
+  for (int i = 0; i < 4; i++)
+    pressures[i] = boardData.pressure[i];
   xSemaphoreGive(BoardDataSemaphore);
 
   return ESP_OK;
 }
 
-esp_err_t set_boardData_temperatures(float temperatures[3], uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
-  for (int i = 0; i < 3; i++) boardData.temperature[i] = temperatures[i];
+esp_err_t set_boardData_temperatures(float temperatures[3],
+                                     uint32_t mutexTimeout) {
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
+  for (int i = 0; i < 3; i++)
+    boardData.temperature[i] = temperatures[i];
   xSemaphoreGive(BoardDataSemaphore);
 
   return ESP_OK;
 }
 
-esp_err_t get_boardData_temperatures(float temperatures[3], uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
-  for (int i = 0; i < 3; i++) temperatures[i] = boardData.temperature[i];
+esp_err_t get_boardData_temperatures(float temperatures[3],
+                                     uint32_t mutexTimeout) {
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
+  for (int i = 0; i < 3; i++)
+    temperatures[i] = boardData.temperature[i];
   xSemaphoreGive(BoardDataSemaphore);
 
   return ESP_OK;
 }
 
-esp_err_t get_boardData_power_time(uint64_t *power_time, uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
+esp_err_t get_boardData_power_time(uint64_t *power_time,
+                                   uint32_t mutexTimeout) {
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
   *power_time = boardData.power_time;
   xSemaphoreGive(BoardDataSemaphore);
 
@@ -131,8 +149,9 @@ esp_err_t get_boardData_power_time(uint64_t *power_time, uint32_t mutexTimeout) 
 }
 
 esp_err_t set_boardData_power_time(uint64_t power_time, uint32_t mutexTimeout) {
-  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE) return ESP_ERR_TIMEOUT;
-  
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
   boardData.power_time = power_time;
   xSemaphoreGive(BoardDataSemaphore);
 

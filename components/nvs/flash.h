@@ -1,38 +1,42 @@
 #ifndef PWRINSPACE_FLASH_H
 #define PWRINSPACE_FLASH_H
 
-#include "nvs.h"
-#include <stdint.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
 #include "esp_err.h"
 #include "esp_log.h"
-#include "nvs_flash.h"
-#include "nvs_data_config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "nvs.h"
+#include "nvs_data_config.h"
+#include "nvs_flash.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define NVS_NAMESPACE "app_storage"
 #define BLOB_KEY "calibr_config"
 
 // Make sure that NVS_NAMESPACE and BLOB_KEY don't exceed NVS_KEY_NAME_MAX_SIZE
-static_assert(sizeof(NVS_NAMESPACE) <= NVS_KEY_NAME_MAX_SIZE, "NVS_NAMESPACE exceeds NVS_KEY_NAME_MAX_SIZE");
-static_assert(sizeof(BLOB_KEY) <= NVS_KEY_NAME_MAX_SIZE, "BLOB_KEY exceeds NVS_KEY_NAME_MAX_SIZE");
+static_assert(sizeof(NVS_NAMESPACE) <= NVS_KEY_NAME_MAX_SIZE,
+              "NVS_NAMESPACE exceeds NVS_KEY_NAME_MAX_SIZE");
+static_assert(sizeof(BLOB_KEY) <= NVS_KEY_NAME_MAX_SIZE,
+              "BLOB_KEY exceeds NVS_KEY_NAME_MAX_SIZE");
 
 // Generate struct automatically using macro
 typedef struct {
-    #define DATA(name, type, default_val) type name;
-    #define DATA_ARRAY(name, type, size, default_val) type name[size];
-    #define SECTION_BEGIN(name) struct {
-    #define SECTION_END(name) } name;
+#define DATA(name, type, default_val) type name;
+#define DATA_ARRAY(name, type, size, default_val) type name[size];
+#define SECTION_BEGIN(name) struct {
+#define SECTION_END(name)                                                      \
+  }                                                                            \
+  name;
 
-    CONFIG_FIELDS
+  CONFIG_FIELDS
 
-    #undef DATA
-    #undef DATA_ARRAY
-    #undef SECTION_BEGIN
-    #undef SECTION_END
+#undef DATA
+#undef DATA_ARRAY
+#undef SECTION_BEGIN
+#undef SECTION_END
 } data_config_t;
 
 /**
@@ -68,7 +72,8 @@ esp_err_t flash_restore_defaults(void);
 /**
  * @brief Read configuration from flash.
  * @param out_config [out] pointer to configuration structure
- * @return `ESP_OK` if successful, error code if failed (structure zeroed on failure)
+ * @return `ESP_OK` if successful, error code if failed (structure zeroed on
+ * failure)
  */
 esp_err_t flash_read(data_config_t *out_config);
 

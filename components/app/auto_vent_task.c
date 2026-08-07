@@ -20,9 +20,10 @@ TaskHandle_t auto_vent_task_handle = NULL;
 
 float get_pressure_from_board() {
   float pressures[4];
-  if (get_boardData_pressures(pressures, portMAX_DELAY) != ESP_OK) return 0.0f;
+  if (get_boardData_pressures(pressures, portMAX_DELAY) != ESP_OK)
+    return 0.0f;
 
-  return pressures[2]; // left pressure channel on N20 vent 
+  return pressures[2]; // left pressure channel on N20 vent
                        // board with n2o pressure sensor
 }
 
