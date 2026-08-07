@@ -136,6 +136,7 @@ typedef struct {
 } ModuleData;
 
 esp_err_t board_data_init(void);
+void print_board_data(void);
 uint64_t power_time();
 
 esp_err_t get_board_data(BoardData_t *data, uint32_t mutexTimeout);

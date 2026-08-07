@@ -1,5 +1,7 @@
 #include "sd_task.h"
 #include "BoardData.h"
+#include "buzzer.h"
+#include "buzzer_task.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "mcu_spi_config.h"

@@ -4,6 +4,8 @@
 #include <esp_err.h>
 #include <string.h>
 
+#define TAG "BoardData"
+
 BoardData_t boardData;
 SemaphoreHandle_t BoardDataSemaphore;
 volatile ModuleData moduleData = {
@@ -48,6 +50,28 @@ esp_err_t board_data_init(void) {
 }
 
 uint64_t power_time() { return (esp_timer_get_time() - start_time_us); }
+
+void print_board_data(void) {
+  BoardData_t bd_data;
+  get_board_data(&bd_data, portMAX_DELAY);
+
+  ESP_LOGI(TAG, "--------------------------------");
+  ESP_LOGI(TAG, "Power time: %llu", bd_data.power_time);
+  // ESP_LOGI(TAG, "Temperature 1: %s", boardData.temperature[0]);
+  // ESP_LOGI(TAG, "Temperature 2: %s", boardData.temperature[1]);
+  // ESP_LOGI(TAG, "Temperature 3: %s", boardData.temperature[2]);
+  ESP_LOGI(TAG, "Pressure L = %f S = %f R1 = %f R2 = %f", bd_data.pressure[1],
+           bd_data.pressure[2], bd_data.pressure[3], bd_data.pressure[0]);
+  ESP_LOGI(TAG, "valve1_state = %d valve2_state = %d", valve1_state,
+           valve2_state);
+  ESP_LOGI(TAG, "Is charging: %s", bd_data.is_charging ? "true" : "false");
+  ESP_LOGI(TAG, "VINT = %f", bd_data.chargerData.vin_supply);
+  ESP_LOGI(TAG, "VEXT = %f", bd_data.chargerData.vext_supply);
+  ESP_LOGI(TAG, "Charge temperature = %f C", bd_data.chargerData.die_temp);
+  ESP_LOGI(TAG, "Current - ibat = %f A", bd_data.chargerData.ibat);
+  ESP_LOGI(TAG, "Current - iin = %f A", bd_data.chargerData.iin);
+  ESP_LOGI(TAG, "--------------------------------");
+}
 
 esp_err_t get_board_data(BoardData_t *data, uint32_t mutexTimeout) {
   if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)

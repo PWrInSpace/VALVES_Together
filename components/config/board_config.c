@@ -168,10 +168,12 @@ esp_err_t board_config_init(void) {
     return ESP_FAIL;
   } else {
     ESP_LOGI(TAG, "Pressure driver 1 initialized");
+    apply_pressure_calibration();
   }
 
   if (sd_task_init() != ESP_OK) {
     ESP_LOGE(TAG, "SD card task initialization failed");
+    play_buzzer_sound(SOUND_INIT_ERROR);
     // return ESP_FAIL;
   }
 

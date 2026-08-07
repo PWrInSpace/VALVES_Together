@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "ads1115.h"
+#include "flash.h"
 #include "max31856.h"
 
 #define PRESSURE_DRIVER_SENSOR_COUNT 4
@@ -140,21 +141,22 @@ float pressure_driver_read_pressure(pressure_driver_struct_t *pressure_driver,
 
 pressure_driver_status_t
 pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
-                               float *pressures, size_t measure_samples);
+                               float *pressures);
 
 pressure_driver_status_t
 measure_voltage_mean_from_samples(pressure_driver_struct_t *pressure_driver,
                                   pressure_driver_sensor_t sensor,
-                                  size_t samples, float *out_voltage);
+                                  float *out_voltage);
 
 pressure_driver_status_t
 calibrate_pressure_sensor(pressure_driver_struct_t *pressure_driver,
                           pressure_driver_sensor_t sensor, float pressure,
-                          float *measured_volt, size_t measure_samples);
+                          float *measured_volt);
 
 pressure_driver_status_t
 tare_pressure_sensor(pressure_driver_struct_t *pressure_driver,
-                     pressure_driver_sensor_t sensor, float *measured_volt,
-                     size_t measure_samples);
+                     pressure_driver_sensor_t sensor, float *measured_volt);
+
+void apply_pressure_calibration(void);
 
 #endif /* PWRINSPACE_PRESSURE_DRIVER_H_ */

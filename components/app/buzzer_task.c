@@ -11,7 +11,7 @@
 #define BUZZER_TASK_STACK_SIZE 4096
 #define BUZZER_TASK_PRIORITY 2
 #define BUZZER_QUEUE_LENGTH 8
-#define BACKGROUND_PERIOD_MS 3000
+#define TIME_BETWEEN_SOUNDS_MS 400
 
 static QueueHandle_t buzzer_queue = NULL;
 static TaskHandle_t buzzer_task_handle = NULL;
@@ -22,9 +22,10 @@ static void buzzer_task(void *arg) {
 
   while (true) {
     sound_id_t sound;
-    xQueueReceive(buzzer_queue, &sound,
-                  portMAX_DELAY); // śpisz aż coś przyjdzie
+    xQueueReceive(buzzer_queue, &sound, portMAX_DELAY);
     play_sound(sound);
+
+    vTaskDelay(pdMS_TO_TICKS(TIME_BETWEEN_SOUNDS_MS));
   }
 }
 

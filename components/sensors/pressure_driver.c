@@ -13,8 +13,10 @@
 #include "math.h"
 #include "mcu_i2c_config.h"
 #include "valve_board_config.h"
+#include <stddef.h>
 
 #define TAG "PRESSURE_DRIVER"
+#define PRESSURE_DRIVER_MAX_SAMPLES 15
 
 static ads1115_struct_t ads1115_config = {
     ._i2c_write = _mcu_i2c_write,
@@ -24,150 +26,6 @@ static ads1115_struct_t ads1115_config = {
 
 pressure_driver_struct_t pressure_driver_config =
     PRESSURE_DRIVER_TANWA_CONFIG(&ads1115_config);
-
-// pressure_driver_status_t pressure_driver_init(pressure_driver_struct_t
-// *pressure_driver) {
-
-// #ifdef SOL_N20_SERVO_ETH_CONFIG
-//   // prawy
-//   pressure_driver_config.sensors[0].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[0].pressure_max = 350.0f;
-//   pressure_driver_config.sensors[0].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[0].voltage_max = 4.096f;
-
-//   pressure_driver_config.sensors[1].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[1].pressure_max = 350.0f;
-//   pressure_driver_config.sensors[1].voltage_min = 0.0f;
-//   pressure_driver_config.sensors[1].voltage_max = 4.096f;
-
-//   // lewy
-//   pressure_driver_config.sensors[2].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[2].pressure_max = 80.0f;
-//   pressure_driver_config.sensors[2].voltage_min = 0.375386f;
-//   pressure_driver_config.sensors[2].voltage_max = 1.067033f;
-
-//   //Środkowy
-//   pressure_driver_config.sensors[3].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[3].pressure_max = 80.0f;
-//   pressure_driver_config.sensors[3].voltage_min = 0.375761f;
-//   pressure_driver_config.sensors[3].voltage_max = 1.063658f;
-
-// #elif defined(SOL_ETH_CONFIG)
-//   // prawy
-//   pressure_driver_config.sensors[0].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[0].pressure_max = 80.0f;
-//   pressure_driver_config.sensors[0].voltage_min = 0.368136f;
-//   pressure_driver_config.sensors[0].voltage_max = 1.035782f;
-
-//   pressure_driver_config.sensors[1].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[1].pressure_max = 350.0f;
-//   pressure_driver_config.sensors[1].voltage_min = 0.0f;
-//   pressure_driver_config.sensors[1].voltage_max = 4.096f;
-
-//   // lewy
-//   pressure_driver_config.sensors[2].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[2].pressure_max = 60.0f;
-//   pressure_driver_config.sensors[2].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[2].voltage_max = 0.884f;
-
-//   //Środkowy
-//   pressure_driver_config.sensors[3].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[3].pressure_max = 60.0f;
-//   pressure_driver_config.sensors[3].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[3].voltage_max = 0.884f;
-
-// #elif defined(SOL_N2_CONFIG)
-//   // prawy
-//   pressure_driver_config.sensors[0].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[0].pressure_max = 350.0f;
-//   pressure_driver_config.sensors[0].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[0].voltage_max = 4.096f;
-
-//   pressure_driver_config.sensors[1].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[1].pressure_max = 350.0f;
-//   pressure_driver_config.sensors[1].voltage_min = 0.0f;
-//   pressure_driver_config.sensors[1].voltage_max = 4.096f;
-
-//   // lewy
-//   pressure_driver_config.sensors[2].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[2].pressure_max = 80.0f;
-//   pressure_driver_config.sensors[2].voltage_min = 0.366f;
-//   pressure_driver_config.sensors[2].voltage_max = 1.051032f;
-
-//   //Środkowy
-//   pressure_driver_config.sensors[3].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[3].pressure_max = 60.0f;
-//   pressure_driver_config.sensors[3].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[3].voltage_max = 0.884f;
-
-// #else
-//   // prawy
-//   pressure_driver_config.sensors[0].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[0].pressure_max = 350.0f;
-//   pressure_driver_config.sensors[0].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[0].voltage_max = 4.096f;
-
-//   pressure_driver_config.sensors[1].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[1].pressure_max = 350.0f;
-//   pressure_driver_config.sensors[1].voltage_min = 0.0f;
-//   pressure_driver_config.sensors[1].voltage_max = 4.096f;
-
-//   // lewy
-//   pressure_driver_config.sensors[2].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[2].pressure_max = 60.0f;
-//   pressure_driver_config.sensors[2].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[2].voltage_max = 0.884f;
-
-//   //Środkowy
-//   pressure_driver_config.sensors[3].pressure_min = 0.0f;
-//   pressure_driver_config.sensors[3].pressure_max = 60.0f;
-//   pressure_driver_config.sensors[3].voltage_min = 0.371f;
-//   pressure_driver_config.sensors[3].voltage_max = 0.884f;
-
-// #endif
-
-//   calibration_mode = false;
-
-//   // pressure_driver_config.sensors[0].raw_min = 0;
-//   // pressure_driver_config.sensors[0].raw_max = 32767;
-//   // pressure_driver_config.sensors[0].pressure_min = 0.0f;
-//   // pressure_driver_config.sensors[0].pressure_max = 350.0f;
-
-//   // pressure_driver_config.sensors[1].raw_min = 0;
-//   // pressure_driver_config.sensors[1].raw_max = 32767;
-//   // pressure_driver_config.sensors[1].pressure_min = 0.0f;
-//   // pressure_driver_config.sensors[1].pressure_max = 350.0f;
-
-//   // pressure_driver_config.sensors[2].raw_min = 0;
-//   // pressure_driver_config.sensors[2].raw_max = 32767;
-//   // pressure_driver_config.sensors[2].pressure_min = 0.0f;
-//   // pressure_driver_config.sensors[2].pressure_max = 350.0f;
-
-//   // //UNUSED
-//   // pressure_driver_config.sensors[3].raw_min = 0;
-//   // pressure_driver_config.sensors[3].raw_max = 32767;
-//   // pressure_driver_config.sensors[3].pressure_min = 0.0f;
-//   // pressure_driver_config.sensors[3].pressure_max = 350.0f;
-
-//   if (pressure_driver == NULL) {
-//     return PRESSURE_DRIVER_FAIL;
-//   }
-//   ads1115_mode_t mode;
-//   ads1115_data_rate_t rate;
-//   ads1115_set_mode(pressure_driver->ads1115, ADS1115_MODE_CONTINUOUS);
-//   vTaskDelay(pdMS_TO_TICKS(50));
-//   ads1115_set_data_rate(pressure_driver->ads1115, ADS1115_DATA_RATE_860);
-//   vTaskDelay(pdMS_TO_TICKS(50));
-//   ads1115_set_gain(pressure_driver->ads1115, ADS1115_GAIN_4V096);
-//   vTaskDelay(pdMS_TO_TICKS(50));
-//   ads1115_get_mode(pressure_driver->ads1115, &mode);
-//   printf("MODE = %d", (bool)mode);
-//   ads1115_get_data_rate(pressure_driver->ads1115, &rate);
-//   printf("RATE = %d", (uint8_t)rate);
-//   // vTaskDelay(pdMS_TO_TICKS(2500));
-
-//   return PRESSURE_DRIVER_OK;
-// }
 
 pressure_driver_status_t
 pressure_driver_init(pressure_driver_struct_t *pressure_driver) {
@@ -263,8 +121,8 @@ float pressure_driver_read_pressure(pressure_driver_struct_t *pressure_driver,
 
 pressure_driver_status_t
 pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
-                               float *pressures, size_t measure_samples) {
-  if (pressure_driver == NULL || pressures == NULL || measure_samples == 0) {
+                               float *pressures) {
+  if (pressure_driver == NULL || pressures == NULL) {
     ESP_LOGE(TAG, "Invalid argument in pressure_driver_read_pressures");
     return PRESSURE_DRIVER_FAIL;
   }
@@ -272,8 +130,8 @@ pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
   for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
     // Read voltage for the current sensor
     float v_raw;
-    pressure_driver_status_t status = measure_voltage_mean_from_samples(
-        pressure_driver, i, measure_samples, &v_raw);
+    pressure_driver_status_t status =
+        measure_voltage_mean_from_samples(pressure_driver, i, &v_raw);
     if (status != PRESSURE_DRIVER_OK) {
       ESP_LOGE(TAG, "Failed to read voltage for sensor %d", i);
       return status;
@@ -289,9 +147,6 @@ pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
     } else {
       pressures[i] = (v_raw - v0) * (p1 / (v1 - v0));
     }
-
-    if (pressures[i] < 0)
-      pressures[i] = 0;
   }
 
   return PRESSURE_DRIVER_OK;
@@ -300,38 +155,54 @@ pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
 pressure_driver_status_t
 measure_voltage_mean_from_samples(pressure_driver_struct_t *pressure_driver,
                                   pressure_driver_sensor_t sensor,
-                                  size_t samples, float *out_voltage) {
-  if (pressure_driver == NULL || out_voltage == NULL || samples == 0) {
+                                  float *out_voltage) {
+  if (pressure_driver == NULL || out_voltage == NULL) {
     ESP_LOGE(TAG, "Invalid argument in measure_voltage_mean_from_samples");
     return PRESSURE_DRIVER_FAIL;
   }
 
-  float voltage, voltageSum = 0;
-  ;
+  float voltage = 0.0f;
+
+  float voltage_samples[PRESSURE_DRIVER_MAX_SAMPLES];
+  size_t samples = PRESSURE_DRIVER_MAX_SAMPLES;
   for (int i = 0; i < samples; i++) {
     pressure_driver_status_t ret =
         pressure_driver_read_voltage(pressure_driver, sensor, &voltage);
-    if (ret != PRESSURE_DRIVER_OK)
+    if (ret != PRESSURE_DRIVER_OK) {
       return ret;
-    voltageSum = voltage;
+    }
+    voltage_samples[i] = voltage;
   }
 
-  *out_voltage = (float)(voltageSum / samples);
+  for (size_t i = 1; i < samples; i++) {
+    float key = voltage_samples[i];
+    size_t j = i;
+    while (j > 0 && voltage_samples[j - 1] > key) {
+      voltage_samples[j] = voltage_samples[j - 1];
+      j--;
+    }
+    voltage_samples[j] = key;
+  }
+
+  *out_voltage =
+      (samples % 2 == 0)
+          ? (voltage_samples[samples / 2 - 1] + voltage_samples[samples / 2]) /
+                2.0f
+          : voltage_samples[samples / 2];
   return PRESSURE_DRIVER_OK;
 }
 
 pressure_driver_status_t
 calibrate_pressure_sensor(pressure_driver_struct_t *pressure_driver,
                           pressure_driver_sensor_t sensor, float pressure,
-                          float *measured_volt, size_t measure_samples) {
-  if (pressure_driver == NULL || measured_volt == NULL ||
-      measure_samples == 0) {
+                          float *measured_volt) {
+  if (pressure_driver == NULL || measured_volt == NULL) {
     ESP_LOGE(TAG, "Invalid argument in calibrate_pressure_sensor");
     return PRESSURE_DRIVER_FAIL;
   }
 
   if (measure_voltage_mean_from_samples(pressure_driver, sensor,
-                                        measure_samples,
+
                                         measured_volt) != PRESSURE_DRIVER_OK) {
     return PRESSURE_DRIVER_FAIL;
   }
@@ -345,16 +216,14 @@ calibrate_pressure_sensor(pressure_driver_struct_t *pressure_driver,
 
 pressure_driver_status_t
 tare_pressure_sensor(pressure_driver_struct_t *pressure_driver,
-                     pressure_driver_sensor_t sensor, float *measured_volt,
-                     size_t measure_samples) {
-  if (pressure_driver == NULL || measured_volt == NULL ||
-      measure_samples == 0) {
+                     pressure_driver_sensor_t sensor, float *measured_volt) {
+  if (pressure_driver == NULL || measured_volt == NULL) {
     ESP_LOGE(TAG, "Invalid argument in tare_pressure_sensor");
     return PRESSURE_DRIVER_FAIL;
   }
 
   if (measure_voltage_mean_from_samples(pressure_driver, sensor,
-                                        measure_samples,
+
                                         measured_volt) != PRESSURE_DRIVER_OK) {
     return PRESSURE_DRIVER_FAIL;
   }
@@ -363,4 +232,34 @@ tare_pressure_sensor(pressure_driver_struct_t *pressure_driver,
   pressure_driver_set_zero_voltage(pressure_driver, sensor, *measured_volt);
 
   return PRESSURE_DRIVER_OK;
+}
+
+void apply_pressure_calibration(void) {
+  data_config_t cfg;
+  if (flash_get_runtime_config(&cfg) != ESP_OK) {
+    ESP_LOGW(TAG, "Cannot read config, keeping default pressure calibration");
+    return;
+  }
+  const pressure_sensor_calibration_config_t
+      calibr[PRESSURE_DRIVER_SENSOR_COUNT] = {
+          {.voltage_zero = cfg.press_calibr.sensor_0_volt_0,
+           .voltage_1 = cfg.press_calibr.sensor_0_volt_1,
+           .pressure_1 = cfg.press_calibr.sensor_0_press_1},
+          {.voltage_zero = cfg.press_calibr.sensor_1_volt_0,
+           .voltage_1 = cfg.press_calibr.sensor_1_volt_1,
+           .pressure_1 = cfg.press_calibr.sensor_1_press_1},
+          {.voltage_zero = cfg.press_calibr.sensor_2_volt_0,
+           .voltage_1 = cfg.press_calibr.sensor_2_volt_1,
+           .pressure_1 = cfg.press_calibr.sensor_2_press_1},
+          {.voltage_zero = cfg.press_calibr.sensor_3_volt_0,
+           .voltage_1 = cfg.press_calibr.sensor_3_volt_1,
+           .pressure_1 = cfg.press_calibr.sensor_3_press_1},
+      };
+  for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
+    if (fabsf(calibr[i].voltage_1 - calibr[i].voltage_zero) < 0.0001f) {
+      ESP_LOGW(TAG, "Sensor %d calibration invalid, keeping defaults", i);
+      continue;
+    }
+    pressure_driver_config.sensors[i].calibr_cfg = calibr[i];
+  }
 }

@@ -159,10 +159,12 @@ typedef enum {
 typedef struct {
   float vbat;
   float vin;
+  float vout;
   float ibat;
   float iin;
+  float vin_supply;
+  float vext_supply;
   float die_temp;
-  float vout;
   int16_t system_status;
   bool charger_status;
   bool charger_state;

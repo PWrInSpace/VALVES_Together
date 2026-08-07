@@ -18,9 +18,11 @@ void pressure_task(void *arg) {
         pdTRUE) {
       float temp_pressures[4];
 
-      pressure_driver_read_pressures(&pressure_driver_config, temp_pressures,
-                                     5);
+      pressure_driver_read_pressures(&pressure_driver_config, temp_pressures);
       set_boardData_pressures(temp_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
+
+      // ESP_LOGI(TAG, "Pressure: L = %f, S = %f, P =%f", temp_pressures[2],
+      //          temp_pressures[3], temp_pressures[1]);
 
       xSemaphoreGive(mcu_i2c_mutex);
     }
@@ -49,7 +51,9 @@ void charger_task(void *arg) {
             .vout = charger_data.vout,
             .charger_status = charger_data.charger_status,
             .charger_state = charger_data.charger_state,
-            .system_status = charger_data.system_status};
+            .system_status = charger_data.system_status,
+            .vin_supply = 0.0f,
+            .vext_supply = 0.0f};
         xSemaphoreGive(mcu_i2c_mutex);
 
         // ESP_LOGI(TAG, "New system status raw: 0x%04X",
@@ -72,6 +76,22 @@ void charger_task(void *arg) {
 
         system_status_raw = new_charger_data.system_status;
 
+        switch (system_status_raw) {
+        case 0x00A3:
+          new_charger_data.vin_supply = new_charger_data.vin;
+          new_charger_data.vext_supply = new_charger_data.vout;
+          break;
+        case 0x00A1:
+          new_charger_data.vin_supply = new_charger_data.vout;
+          break;
+        case 0x0067:
+          new_charger_data.vext_supply = new_charger_data.vout;
+          new_charger_data.vin_supply = new_charger_data.vbat;
+          break;
+        default:
+          break;
+        }
+
         BoardData_t new_bd;
         if (get_board_data(&new_bd, BOARDDATA_MUTEX_TIMEOUT_MS) == ESP_OK) {
           new_bd.is_charging = charger_data.charger_state;
@@ -79,8 +99,9 @@ void charger_task(void *arg) {
 
           set_board_data(new_bd, BOARDDATA_MUTEX_TIMEOUT_MS);
         }
+      } else {
+        xSemaphoreGive(mcu_i2c_mutex);
       }
-
       // ltc4162_debug_monitor();
     }
 

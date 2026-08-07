@@ -17,6 +17,7 @@
 #include "ltc4162.h"
 #include "now.h"
 #include "pressure_driver.h"
+#include "servo_config.h"
 #include "valve_board_config.h"
 #include "valves_control.h"
 
@@ -303,25 +304,8 @@ int get_auto_vent_data(int argc, char **argv) {
 }
 #endif
 
-int print_board_data(int argc, char **argv) {
-  BoardData_t board_data;
-
-  if (get_board_data(&board_data, portMAX_DELAY) != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to get Board Data\n");
-    return 0;
-  }
-
-  ESP_LOGI(TAG, "-----------------------------------");
-  ESP_LOGI(TAG, "Board data:");
-  ESP_LOGI(TAG, "Power time: %llu", board_data.power_time);
-  ESP_LOGI(TAG, "Temperature: %f, %f, %f", board_data.temperature[0],
-           board_data.temperature[1], board_data.temperature[2]);
-  ESP_LOGI(TAG, "Pressure: %f, %f, %f", board_data.pressure[0],
-           board_data.pressure[1], board_data.pressure[2]);
-  ESP_LOGI(TAG, "Dump valve arm: %d", board_data.dump_valve_arm);
-  ESP_LOGI(TAG, "Dump valve continuity: %d", board_data.dump_valve_cont);
-  ESP_LOGI(TAG, "Is charging: %d", board_data.is_charging);
-  ESP_LOGI(TAG, "------------------------------------\n\n");
+int print_bd_data(int argc, char **argv) {
+  print_board_data();
   return 0;
 }
 
@@ -379,6 +363,8 @@ int save_flash(int argc, char **argv) {
   }
 
   printf("Successfully saved data to flash memory\n");
+  apply_pressure_calibration();
+  servo_apply_calibration();
   return 0;
 }
 
@@ -437,10 +423,11 @@ int edit_flash(int argc, char **argv) {
 // |--- Commands for pressure sensors calibration ---|
 
 const char *pressure_sensors_names[] = {
-    "P1",
     "P2",
     "L",
     "S",
+    "P1",
+
 };
 
 static esp_err_t parse_float(const char *value, float *out) {
@@ -484,7 +471,7 @@ int press_tare(int argc, char **argv) {
 
   if (sensor_num >= 0) {
     float mv;
-    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv, 5) !=
+    if (tare_pressure_sensor(&pressure_driver_config, sensor_num, &mv) !=
         PRESSURE_DRIVER_OK) {
       printf("Calibration failed while taring %s sensor.",
              pressure_sensors_names[sensor_num]);
@@ -494,7 +481,7 @@ int press_tare(int argc, char **argv) {
   } else {
     for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
       float mv;
-      if (tare_pressure_sensor(&pressure_driver_config, i, &mv, 5) !=
+      if (tare_pressure_sensor(&pressure_driver_config, i, &mv) !=
           PRESSURE_DRIVER_OK) {
         printf("Calibration failed while taring %s sensor.",
                pressure_sensors_names[i]);
@@ -582,7 +569,7 @@ int press_calibrate(int argc, char **argv) {
   }
 
   calibrate_pressure_sensor(&pressure_driver_config, sensor_num, pressure,
-                            voltage_1, 5);
+                            voltage_1);
   *pressure_1 = pressure;
 
   if (flash_edit_config(new_config) != ESP_OK) {
@@ -596,6 +583,69 @@ int press_calibrate(int argc, char **argv) {
   return 0;
 }
 
+int print_help(int argc, char **argv) {
+  printf("\n=== %s console ===\n", CONFIG_NAME);
+
+  printf("\n-- Data --\n");
+  printf("  print_board_data     Print current board data\n");
+  printf("  get_board_data       Same as print_board_data\n");
+  printf("  now_send_log         ESP-NOW debug log (on|off|toggle)\n");
+  printf(
+      "  obc_test_data        Test data in ESP-NOW packets (on|off|toggle)\n");
+
+  printf("\n-- Flash / config --\n");
+  printf("  flash_read           Show data saved in flash memory\n");
+  printf("  flash_display_config       Show runtime config (NOT flash "
+         "contents)\n");
+  printf("  flash_edit_config          <field> <value> - set field in runtime "
+         "config\n");
+  printf("  flash_save_config          Save runtime config to flash\n");
+  printf("  flash_restore_config       Load defaults into runtime config\n");
+  printf("  flash_erase          <Y> - erase config partition\n");
+  printf("\n-- Pressure calibration --\n");
+  printf(
+      "  tare                 [sensor] - calibrate for 0 bar (all if empty)\n");
+  printf(
+      "  calibrate            <sensor> <bar> - calibrate for given pressure\n");
+  printf("                       sensors: P1, P2, L, S\n");
+
+  printf("\n-- Debug --\n");
+  printf("  i2c_scan             Scan the I2C bus for devices\n");
+  printf("  init_i2c             Initialize the I2C bus\n");
+  printf("  deinit_i2c           Deinitialize the I2C bus\n");
+
+  printf("\n-- System --\n");
+  printf("  help                 Show this help\n");
+  printf("  reset                Reset the device\n");
+  printf("  ltc_monitor          Run LTC4162 debug monitor\n");
+  printf("  buzzer_play          Play a sound on the buzzer\n");
+
+  printf("\n-- Valves --\n");
+  printf(
+      "  open_angle           <angle> - open a valve to a specified angle\n");
+#ifdef SOL_N20_SERVO_ETH_CONFIG
+  printf("  open_sol_n2o         <ms> - open N2O solenoid\n");
+  printf("  close_sol_n2o        Close N2O solenoid\n");
+  printf("  open_servo_eth       <ms> - open ETH servo\n");
+  printf("  close_servo_eth      Close ETH servo\n");
+  printf("  auto_vent_on         <bar> - activate auto vent\n");
+  printf("  auto_vent_off        Deactivate auto vent\n");
+  printf("  get_auto_vent_data   Get auto vent data\n");
+#elif defined(SOL_ETH_CONFIG)
+  printf("  open_sol_eth         <ms> - open ETH solenoid\n");
+  printf("  close_sol_eth        Close ETH solenoid\n");
+#elif defined(SERVO_N20_CONFIG)
+  printf("  open_servo_n2o       <ms> - open N2O servo\n");
+  printf("  close_servo_n2o      Close N2O servo\n");
+#elif defined(SOL_N2_CONFIG)
+  printf("  open_sol_n2          <ms> - open N2 solenoid\n");
+  printf("  close_sol_n2         Close N2 solenoid\n");
+#endif
+
+  printf("\n");
+  return 0;
+}
+
 // Place for the console configuration
 
 // clang-format off
@@ -605,29 +655,27 @@ static esp_console_cmd_t cmd[] = {
     {"reset", "Reset the device", NULL, reset_device, NULL, NULL, NULL},
     {"i2c_scan", "Scan the I2C bus for devices", NULL, run_i2c_scan, NULL, NULL, NULL},
     {"ltc_monitor", "Run LTC4162 debug monitor", NULL, run_ltc4162_monitor, NULL, NULL, NULL},
-    {"igniter_continuity", "Check igniter continuity", NULL, run_igniter_continuity_check, NULL, NULL, NULL},
-    {"igniter_arm", "Arm the igniter", NULL, run_igniter_arm, NULL, NULL, NULL},
-    {"igniter_disarm", "Disarm the igniter", NULL, run_igniter_disarm, NULL, NULL, NULL},
-    {"igniter_fire", "Fire the igniter", NULL, run_igniter_fire, NULL, NULL, NULL},
+    // {"igniter_continuity", "Check igniter continuity", NULL, run_igniter_continuity_check, NULL, NULL, NULL},
+    // {"igniter_arm", "Arm the igniter", NULL, run_igniter_arm, NULL, NULL, NULL},
+    // {"igniter_disarm", "Disarm the igniter", NULL, run_igniter_disarm, NULL, NULL, NULL},
+    // {"igniter_fire", "Fire the igniter", NULL, run_igniter_fire, NULL, NULL, NULL},
     {"buzzer_play", "Play a sound on the buzzer", NULL, buzzer_play, NULL, NULL, NULL},
-    {"get_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
     {"now_send_log", "Enable/disable ESP-NOW data-to-OBC debug log (on|off or toggle)", NULL, set_now_send_log, NULL, NULL, NULL},
     {"obc_test_data", "Enable/disable test data in ESP-NOW packets to OBC (on|off or toggle)", NULL, set_obc_test_data, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
     {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
-    {"print_board_data", "Print current board data to console", NULL, print_board_data, NULL, NULL, NULL},
+    {"print_board_data", "Print current board data to console", NULL, print_bd_data, NULL, NULL, NULL},
 
-    {"read_flash", "Reads and displays saved data in flash memory.", NULL, read_flash, NULL, NULL, NULL},
-    {"display_config", "Displays current state of runtime config.\nThis command does NOT display flash memory contents, to see current flash memory contents use `read_flash`.", NULL, get_runtime_config, NULL, NULL, NULL},
-    {"save_config", "Saves runtime config edited by User to flash memory.", NULL, save_flash, NULL, NULL, NULL},
-    {"edit_config", "Sets the provided field in runtime config to provided value.", NULL, edit_flash, NULL, NULL, NULL},
-    {"restore_config", "Restores all default values and saves them into runtime config.\nUse `save_config` to save the runtime config to flash memory.", NULL, restore_defaults, NULL, NULL, NULL},
-    {"erase_flash", "Erases flash memory partition that is holding config data.\nTo erase stored data you need to type `erase_flash Y` to ensure that flash won't be erased by accident.\nThere is no need to run `save_flash` after this function finishes.", NULL, erase_flash, NULL, NULL, NULL},
+    {"flash_read", "Reads and displays saved data in flash memory.", NULL, read_flash, NULL, NULL, NULL},
+    {"flash_display_config", "Displays current state of runtime config.\nThis command does NOT display flash memory contents, to see current flash memory contents use `read_flash`.", NULL, get_runtime_config, NULL, NULL, NULL},
+    {"flash_save_config", "Saves runtime config edited by User to flash memory.", NULL, save_flash, NULL, NULL, NULL},
+    {"flash_edit_config", "Sets the provided field in runtime config to provided value.", NULL, edit_flash, NULL, NULL, NULL},
+    {"flash_restore_config", "Restores all default values and saves them into runtime config.\nUse `save_config` to save the runtime config to flash memory.", NULL, restore_defaults, NULL, NULL, NULL},
+    {"flash_erase", "Erases flash memory partition that is holding config data.\nTo erase stored data you need to type `erase_flash Y` to ensure that flash won't be erased by accident.\nThere is no need to run `save_flash` after this function finishes.", NULL, erase_flash, NULL, NULL, NULL},
 
     {"calibrate", "Calibrate specific sensor for provided pressure", NULL, press_calibrate, NULL, NULL, NULL},
     {"tare", "Calibrate all or chosen pressure sensors for 0 bar", NULL, press_tare, NULL, NULL, NULL},
-    
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG
     {"open_sol_n2o", "Open N2O solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
@@ -649,6 +697,7 @@ static esp_console_cmd_t cmd[] = {
     #else
     #error "No valve configuration defined!"
     #endif
+    {"help", "Show this help", NULL, print_help, NULL, NULL, NULL},
 };
 
 // clang-format on

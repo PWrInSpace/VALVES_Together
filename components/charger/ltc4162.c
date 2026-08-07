@@ -280,6 +280,7 @@ esp_err_t read_charger_data(ltc4162_charger_data_t *charger_data) {
   charger_data->charger_state =
       (charger_state_raw == 2) ? 1 : 0; // 1 for active charging, 0 otherwise
   charger_data->system_status = system_status_raw;
+  charger_data->vout = vout_raw * 1.653e-3f;
   return ESP_OK;
 }
 
