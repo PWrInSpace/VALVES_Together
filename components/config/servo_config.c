@@ -6,16 +6,16 @@
 
 #ifdef SERVO_N20_CONFIG
 Servo_t servos[SERVO_COUNT] = {
-    [N2O_FILL_SERVO] = SERVO_INIT(_VALVE1_GPIO),
+    [N2O_FILL_SERVO] = SERVO_INIT(_VALVE2_GPIO),
 };
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 Servo_t servos[SERVO_COUNT] = {
     [ETH_FILL_SERVO] = SERVO_INIT(_VALVE2_GPIO),
 };
-// #elif defined(SERVO_N2_CONFIG)
-// Servo_t servos[SERVO_COUNT] = {
-// [N2_FILL_SERVO] = SERVO_INIT(_VALVE2_GPIO),
-// };
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
+Servo_t servos[SERVO_COUNT] = {
+    [N2_FILL_SERVO] = SERVO_INIT(_VALVE2_GPIO),
+};
 #else
 Servo_t servos[SERVO_COUNT] = {};
 #endif

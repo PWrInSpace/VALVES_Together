@@ -51,7 +51,7 @@ esp_err_t nowInit() {
   // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x55};
   // #elif defined(SERVO_ETH_N2_CONFIG)
   // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x66};
-  // #elif defined(SOL_ETH_CONFIG)
+  // #elif defined(SOL_ETH_SERVO_N2_CONFIG)
   // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x77};
   // #elif defined(SOL_N2O_N2_CONFIG)
   // uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x88};
@@ -63,7 +63,7 @@ esp_err_t nowInit() {
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x66};
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x77};
-#elif defined(SOL_ETH_CONFIG)
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
   uint8_t custom_mac[6] = {0xBA, 0x11, 0x22, 0x33, 0x44, 0x88};
 #endif
 
@@ -216,7 +216,7 @@ static void now_send_data_to_obc(void *arg) {
     dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
     dataToObc.valve1_state = valve1_state;
     dataToObc.valve2_state = valve2_state;
-#ifdef SOL_ETH_CONFIG
+#ifdef SOL_ETH_SERVO_N2_CONFIG
     dataToObc.pressure1 = board_data_copy.pressure[0];
 #endif
 
@@ -239,37 +239,37 @@ static void now_send_data_to_obc(void *arg) {
     }
     // ESP_LOGI("NOW", "Valve states: valve1_state=%u, valve2_state=%u",
     // valve1_state, valve2_state);
-
-    // ESP_LOGI("NOW",
-    //          "Sending data to OBC:\n"
-    //          "  waken_up            = %d\n"
-    //          "  dump_valve_arm      = %d\n"
-    //          "  dump_valve_cont     = %d\n"
-    //          "  is_charging         = %d\n"
-    //          "  temperature1        = %d\n"
-    //          "  pressure1           = %.2f\n"
-    //          "  pressure2           = %.2f\n"
-    //          "  battery_voltage     = %.2f\n"
-    //          "  battery_consumption = %.2f\n"
-    //          "  charger_temperature = %.2f\n"
-    //          "  valve1_state        = %u\n"
-    //          "  valve2_state        = %u",
-    //          dataToObc.waken_up, dataToObc.dump_valve_arm,
-    //          dataToObc.dump_valve_cont, dataToObc.is_charging,
-    //          dataToObc.temperature1, dataToObc.pressure1,
-    //          dataToObc.pressure2, dataToObc.battery_voltage,
-    //          dataToObc.battery_consumption, dataToObc.charger_temperature,
-    //          (unsigned int)dataToObc.valve1_state,
-    //          (unsigned int)dataToObc.valve2_state);
+    if (now_send_data_log_enabled) {
+      ESP_LOGI("NOW",
+               "Sending data to OBC:\n"
+               "  waken_up            = %d\n"
+               "  dump_valve_arm      = %d\n"
+               "  dump_valve_cont     = %d\n"
+               "  is_charging         = %d\n"
+               "  temperature1        = %d\n"
+               "  pressure1           = %.2f\n"
+               "  pressure2           = %.2f\n"
+               "  battery_voltage     = %.2f\n"
+               "  battery_consumption = %.2f\n"
+               "  charger_temperature = %.2f\n"
+               "  valve1_state        = %u\n"
+               "  valve2_state        = %u",
+               dataToObc.waken_up, dataToObc.dump_valve_arm,
+               dataToObc.dump_valve_cont, dataToObc.is_charging,
+               dataToObc.temperature1, dataToObc.pressure1, dataToObc.pressure2,
+               dataToObc.battery_voltage, dataToObc.battery_consumption,
+               dataToObc.charger_temperature,
+               (unsigned int)dataToObc.valve1_state,
+               (unsigned int)dataToObc.valve2_state);
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-    ESP_LOGI("NOW",
-             "\n  auto_vent_activated = %d\n"
-             "  auto_vent_triggered = %d\n"
-             "  auto_vent_pressure = %d\n",
-             dataToObc.auto_vent_activated, dataToObc.auto_vent_triggered,
-             dataToObc.auto_vent_pressure);
+      ESP_LOGI("NOW",
+               "\n  auto_vent_activated = %d\n"
+               "  auto_vent_triggered = %d\n"
+               "  auto_vent_pressure = %d\n",
+               dataToObc.auto_vent_activated, dataToObc.auto_vent_triggered,
+               dataToObc.auto_vent_pressure);
 #endif
-
+    }
     if (esp_now_send(addressObc, (uint8_t *)&dataToObc, sizeof(DataToObc)) !=
         ESP_OK) {
       ESP_LOGE("NOW", "Error sending data to OBC");

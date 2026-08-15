@@ -96,11 +96,11 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
-  err = rgb_led_init();
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to initialize status LED (RGB)");
-    // return err;
-  }
+  // err = rgb_led_init();
+  // if (err != ESP_OK) {
+  //   ESP_LOGE(TAG, "Failed to initialize status LED (RGB)");
+  //   // return err;
+  // }
 
   if (nowInit() == ESP_OK) {
     nowAddPeer(addressObc, 1);

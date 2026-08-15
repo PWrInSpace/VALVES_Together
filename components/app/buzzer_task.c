@@ -6,6 +6,8 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 
+#include "valve_board_config.h"
+
 #define TAG "BUZZER_TASK"
 
 #define BUZZER_TASK_STACK_SIZE 4096
@@ -19,6 +21,18 @@ static volatile sound_id_t background_sound = SOUND_NONE;
 
 static void buzzer_task(void *arg) {
   (void)arg;
+
+  // #ifdef SOL_N20_SERVO_ETH_CONFIG
+  //   play_sound(SOUND_DOUBLE_BEEP);
+  // #elif defined(SOL_N2_CONFIG)
+  //   play_sound(SOUND_QUADRUPLE_BEEP);
+  // #elif defined(SOL_ETH_SERVO_N2_CONFIG)
+  //   play_sound(SOUND_TRIPLE_BEEP);
+  // #elif (SERVO_N20_CONFIG)
+  //   play_sound(SOUND_SINGLE_BEEP);
+  // #endif
+
+  // vTaskDelay(pdMS_TO_TICKS(1000));
 
   while (true) {
     sound_id_t sound;

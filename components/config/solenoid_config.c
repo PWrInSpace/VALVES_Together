@@ -5,21 +5,21 @@
 #ifdef SOL_N2_CONFIG
 
 Valve valves[NUM_OF_SOLENOIDS] = {
-    [N2_FILL_SOL] = {.name = N2_FILL_SOL, .type = VALVE_NO},
+    [N2_FILL_SOL] = {.name = N2_FILL_SOL, .type = VALVE_NC},
 
 };
 
-#elif defined(SOL_ETH_CONFIG)
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
 
 Valve valves[NUM_OF_SOLENOIDS] = {
-    [ETH_FILL_SOL] = {.name = ETH_FILL_SOL, .type = VALVE_NO},
+    [ETH_FILL_SOL] = {.name = ETH_FILL_SOL, .type = VALVE_NC},
 
 };
 
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 
 Valve valves[NUM_OF_SOLENOIDS] = {
-    [N20_FILL_SOL] = {.name = N20_FILL_SOL, .type = VALVE_NO},
+    [N20_FILL_SOL] = {.name = N20_FILL_SOL, .type = VALVE_NC},
 };
 
 #else

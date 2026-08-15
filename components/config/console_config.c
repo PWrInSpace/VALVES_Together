@@ -129,7 +129,7 @@ static int open_valve1(int argc, char **argv) {
   handle_valve_cmd(N2_SOL_OPEN, duration_ms);
 #elif defined(SERVO_N20_CONFIG)
   handle_valve_cmd(N20_VALVE_OPEN, duration_ms);
-#elif defined(SOL_ETH_CONFIG)
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
   handle_valve_cmd(ETH_SOL_OPEN, duration_ms);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
@@ -146,7 +146,7 @@ static int close_valve1(int argc, char **argv) {
   handle_valve_cmd(N2_SOL_CLOSE, 0);
 #elif defined(SERVO_N20_CONFIG)
   handle_valve_cmd(N20_VALVE_CLOSE, 0);
-#elif defined(SOL_ETH_CONFIG)
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
   handle_valve_cmd(ETH_SOL_CLOSE, 0);
 #else
   ESP_LOGE(TAG, "No valve configuration defined!");
@@ -164,8 +164,8 @@ static int open_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   handle_valve_cmd(ETH_VALVE_OPEN, duration_ms);
-#elif defined(SOL_ETH_CONFIG)
-  ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
+  handle_valve_cmd(N2_VALVE_OPEN, duration_ms);
 #elif defined(SERVO_N20_CONFIG)
   ESP_LOGI(TAG, "SERVO_N20_CONFIG does not have valve 2!");
 #elif defined(SOL_N2_CONFIG)
@@ -181,8 +181,8 @@ static int close_valve2(int argc, char **argv) {
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   handle_valve_cmd(ETH_VALVE_CLOSE, 0);
-#elif defined(SOL_ETH_CONFIG)
-  ESP_LOGI(TAG, "SOL_ETH_CONFIG does not have valve 2!");
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
+  handle_valve_cmd(N2_VALVE_CLOSE, 0);
 #elif defined(SERVO_N20_CONFIG)
   ESP_LOGI(TAG, "SERVO_N20_CONFIG does not have valve 2!");
 #elif defined(SOL_N2_CONFIG)
@@ -599,7 +599,7 @@ int print_help(int argc, char **argv) {
   printf("  auto_vent_on         <bar> - activate auto vent\n");
   printf("  auto_vent_off        Deactivate auto vent\n");
   printf("  get_auto_vent_data   Get auto vent data\n");
-#elif defined(SOL_ETH_CONFIG)
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
   printf("  open_sol_eth         <ms> - open ETH solenoid\n");
   printf("  close_sol_eth        Close ETH solenoid\n");
 #elif defined(SERVO_N20_CONFIG)
@@ -632,7 +632,6 @@ static esp_console_cmd_t cmd[] = {
     {"obc_test_data", "Enable/disable test data in ESP-NOW packets to OBC (on|off or toggle)", NULL, set_obc_test_data, NULL, NULL, NULL},
     {"deinit_i2c", "Deinitialize the I2C bus", NULL, deinit_i2c, NULL, NULL, NULL},
     {"init_i2c", "Initialize the I2C bus", NULL, init_i2c, NULL, NULL, NULL},
-    {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
     {"print_board_data", "Print current board data to console", NULL, print_bd_data, NULL, NULL, NULL},
 
     {"flash_read", "Reads and displays saved data in flash memory.", NULL, read_flash, NULL, NULL, NULL},
@@ -653,9 +652,11 @@ static esp_console_cmd_t cmd[] = {
     {"auto_vent_on", "Activate auto vent", NULL, auto_vent_on, NULL, NULL, NULL},
     {"auto_vent_off", "Deactivate auto vent", NULL, auto_vent_off, NULL, NULL, NULL},
     {"get_auto_vent_data", "Get auto vent data", NULL, get_auto_vent_data, NULL, NULL, NULL},
-    #elif defined(SOL_ETH_CONFIG)
+    #elif defined(SOL_ETH_SERVO_N2_CONFIG)
     {"open_sol_eth", "Open ETH solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
     {"close_sol_eth", "Close ETH solenoid", NULL, close_valve1, NULL, NULL, NULL},
+    {"open_servo_n2", "Open N2 servo for specified duration (ms)", NULL, open_valve2, NULL, NULL, NULL},
+    {"close_servo_n2", "Close N2 servo", NULL, close_valve2, NULL, NULL, NULL},
     #elif defined(SERVO_N20_CONFIG)
     {"open_servo_n2o", "Open N2O servo for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},
     {"close_servo_n2o", "Close N2O servo", NULL, close_valve1, NULL, NULL, NULL},
@@ -665,6 +666,8 @@ static esp_console_cmd_t cmd[] = {
     #else
     #error "No valve configuration defined!"
     #endif
+    {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
+
     {"help", "Show this help", NULL, print_help, NULL, NULL, NULL},
 };
 

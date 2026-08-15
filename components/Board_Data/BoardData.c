@@ -63,7 +63,7 @@ esp_err_t board_data_init(void) {
                                SD_ON_GROUND_PERIOD,
                                SD_HOLD_PERIOD,
                                SD_ABORT_PERIOD};
-  
+
   memcpy((uint8_t *)moduleData.sdStateTimes, (uint8_t *)sdStateTimes,
          sizeof(sdStateTimes));
 

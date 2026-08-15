@@ -5,7 +5,7 @@
 #include "mcu_pinout.h"
 #include "valve_board_config.h"
 
-#ifdef SOL_ETH_CONFIG
+#ifdef SOL_ETH_SERVO_N2_CONFIG
 
 typedef enum {
   ETH_FILL_SOL,
@@ -29,11 +29,7 @@ static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
 
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
 
-typedef enum {
-  // DUMMY_SOL, // Placeholder for index 0
-  N20_FILL_SOL,
-  NUM_OF_SOLENOIDS
-} ValveName;
+typedef enum { N20_FILL_SOL, NUM_OF_SOLENOIDS } ValveName;
 
 static const gpio_num_t VALVE_GPIO_PINS[NUM_OF_SOLENOIDS] = {
     [N20_FILL_SOL] = _VALVE1_GPIO,

@@ -109,32 +109,42 @@ static bool save_text(const char *path, BoardData_t *data) {
   for (uint32_t i = 0; i < BUFFER_SAMPLES; i++) {
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     fprintf(f,
-            "%llu,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%d"
-            ",%d,%d,%d\n",
+            "%llu,%f,%f,%f,%f,%f,%f,%f,"
+            "%d,%d,%d,%d,%d,"
+            "%f,%f,%f,%f,%f,%f,%f,%f,"
+            "%d,%d,%d,"
+            "%d,%d,%d,%ld\n",
             (unsigned long long)data[i].power_time, data[i].temperature[0],
             data[i].temperature[1], data[i].temperature[2], data[i].pressure[0],
             data[i].pressure[2], data[i].pressure[3], data[i].termistor,
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
-            valve2_state, data[i].chargerData.vbat, data[i].chargerData.vin,
-            data[i].chargerData.ibat, data[i].chargerData.iin,
-            data[i].chargerData.die_temp, data[i].chargerData.vout,
-            data[i].chargerData.charger_status,
-            data[i].chargerData.charger_state, moduleData.obcState,
+            valve2_state, data[i].is_charging, data[i].chargerData.vbat,
+            data[i].chargerData.vin, data[i].chargerData.vin_supply,
+            data[i].chargerData.vext_supply, data[i].chargerData.ibat,
+            data[i].chargerData.iin, data[i].chargerData.die_temp,
+            data[i].chargerData.vout, data[i].chargerData.charger_status,
+            data[i].chargerData.charger_state,
+            data[i].chargerData.system_status, moduleData.obcState,
             data[i].auto_vent_activated, data[i].auto_vent_triggered,
-            data[i].auto_vent_pressure);
+            (long)data[i].auto_vent_pressure);
 #else
     fprintf(f,
-            "%llu,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%d"
-            "\n",
+            "%llu,%f,%f,%f,%f,%f,%f,%f,"
+            "%d,%d,%d,%d,%d,"
+            "%f,%f,%f,%f,%f,%f,%f,%f,"
+            "%d,%d,%d,"
+            "%d\n",
             (unsigned long long)data[i].power_time, data[i].temperature[0],
             data[i].temperature[1], data[i].temperature[2], data[i].pressure[0],
             data[i].pressure[2], data[i].pressure[3], data[i].termistor,
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
-            valve2_state, data[i].chargerData.vbat, data[i].chargerData.vin,
-            data[i].chargerData.ibat, data[i].chargerData.iin,
-            data[i].chargerData.die_temp, data[i].chargerData.vout,
-            data[i].chargerData.charger_status,
-            data[i].chargerData.charger_state, moduleData.obcState);
+            valve2_state, data[i].is_charging, data[i].chargerData.vbat,
+            data[i].chargerData.vin, data[i].chargerData.vin_supply,
+            data[i].chargerData.vext_supply, data[i].chargerData.ibat,
+            data[i].chargerData.iin, data[i].chargerData.die_temp,
+            data[i].chargerData.vout, data[i].chargerData.charger_status,
+            data[i].chargerData.charger_state,
+            data[i].chargerData.system_status, moduleData.obcState);
 #endif
   }
 
@@ -151,13 +161,15 @@ static bool add_header(const char *path) {
   fprintf(f, "Log file for configuration: %s\n", CONFIG_NAME);
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
-             "DumpValveCont,DumpValveArm,Valve1State,Valve2State,"
-             "Vbat,Vin,Ibat,Iin,DieTemp,Vout,ChargerStatus,ChargerState,"
+             "DumpValveCont,DumpValveArm,Valve1State,Valve2State,IsCharging,"
+             "Vbat,Vin,VinSupply,VextSupply,Ibat,Iin,DieTemp,Vout,"
+             "ChargerStatus,ChargerState,SystemStatus,"
              "ObcState,AutoVentActivated,AutoVentTriggered,AutoVentPressure\n");
 #else
   fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
-             "DumpValveCont,DumpValveArm,Valve1State,Valve2State,"
-             "Vbat,Vin,Ibat,Iin,DieTemp,Vout,ChargerStatus,ChargerState,"
+             "DumpValveCont,DumpValveArm,Valve1State,Valve2State,IsCharging,"
+             "Vbat,Vin,VinSupply,VextSupply,Ibat,Iin,DieTemp,Vout,"
+             "ChargerStatus,ChargerState,SystemStatus,"
              "ObcState\n");
 #endif
 
@@ -216,7 +228,8 @@ void update_data_task(void *arg) {
       counter = 0;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(moduleData.sdStateTimes[moduleData.obcState]));
+    // vTaskDelay(pdMS_TO_TICKS(moduleData.sdStateTimes[moduleData.obcState]));
+    vTaskDelay(pdMS_TO_TICKS(9));
   }
 }
 
