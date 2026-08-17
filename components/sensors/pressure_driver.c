@@ -16,7 +16,7 @@
 #include <stddef.h>
 
 #define TAG "PRESSURE_DRIVER"
-#define PRESSURE_DRIVER_MAX_SAMPLES 15
+#define PRESSURE_DRIVER_MAX_SAMPLES 1
 
 static ads1115_struct_t ads1115_config = {
     ._i2c_write = _mcu_i2c_write,
@@ -95,7 +95,7 @@ pressure_driver_read_voltage(pressure_driver_struct_t *pressure_driver,
   ads1115_get_value(pressure_driver->ads1115, &raw);
   ads1115_set_input_mux(pressure_driver->ads1115,
                         pressure_driver->sensors[sensor].adc_pin);
-  vTaskDelay(pdMS_TO_TICKS(5));
+  esp_rom_delay_us(2000);
   ads1115_get_value(pressure_driver->ads1115, &raw);
   *voltage = ads1115_gain_values[ADS1115_GAIN_4V096] / ADS1115_MAX_VALUE * raw;
 
@@ -127,7 +127,9 @@ pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
     return PRESSURE_DRIVER_FAIL;
   }
 
-  for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
+  // for (int i = 0; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) { //press 0 -
+  // termistor jest unused
+  for (int i = 1; i < PRESSURE_DRIVER_SENSOR_COUNT; i++) {
     // Read voltage for the current sensor
     float v_raw;
     pressure_driver_status_t status =

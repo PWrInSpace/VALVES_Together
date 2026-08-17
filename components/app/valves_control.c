@@ -229,16 +229,16 @@ void handle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle) {
     }
 #endif
     break;
-      case N2_VALVE_OPEN:
-         #ifdef SOL_ETH_SERVO_N2_CONFIG
-           if (move_servo(N2_FILL_SERVO, angle, time_ms) != ESP_OK) {
-             ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SERVO");
-             valve2_state = 8;
-           } else {
-             valve2_state = 8;
-           }
-         #endif
-         break;
+  case N2_VALVE_OPEN:
+#ifdef SOL_ETH_SERVO_N2_CONFIG
+    if (move_servo(N2_FILL_SERVO, angle, time_ms) != ESP_OK) {
+      ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SERVO");
+      valve2_state = 8;
+    } else {
+      valve2_state = 8;
+    }
+#endif
+    break;
   default:
     ESP_LOGW("VALVES_CONTROL", "Unknown command: %lu",
              moduleData.dataFromObc.commandNum);

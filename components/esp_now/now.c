@@ -205,8 +205,8 @@ static void now_send_data_to_obc(void *arg) {
     dataToObc.dump_valve_cont = board_data_copy.dump_valve_cont;
     dataToObc.is_charging = board_data_copy.is_charging;
     dataToObc.temperature1 = board_data_copy.temperature[1];
-    dataToObc.pressure1 = board_data_copy.pressure[2];
-    dataToObc.pressure2 = board_data_copy.pressure[3];
+    dataToObc.pressure1 = board_data_copy.pressure[1];
+    dataToObc.pressure2 = board_data_copy.pressure[2];
     dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
     dataToObc.battery_consumption =
         (fabsf(board_data_copy.chargerData.ibat) >
@@ -217,7 +217,7 @@ static void now_send_data_to_obc(void *arg) {
     dataToObc.valve1_state = valve1_state;
     dataToObc.valve2_state = valve2_state;
 #ifdef SOL_ETH_SERVO_N2_CONFIG
-    dataToObc.pressure1 = board_data_copy.pressure[0];
+    dataToObc.pressure1 = board_data_copy.pressure[3];
 #endif
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG

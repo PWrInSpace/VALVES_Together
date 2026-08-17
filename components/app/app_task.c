@@ -59,6 +59,6 @@ void app_task(void *arg) {
   while (1) {
     set_boardData_power_time(power_time(), portMAX_DELAY);
 
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }

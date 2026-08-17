@@ -115,7 +115,7 @@ static bool save_text(const char *path, BoardData_t *data) {
             "%d,%d,%d,"
             "%d,%d,%d,%ld\n",
             (unsigned long long)data[i].power_time, data[i].temperature[0],
-            data[i].temperature[1], data[i].temperature[2], data[i].pressure[0],
+            data[i].temperature[1], data[i].temperature[2], data[i].pressure[1],
             data[i].pressure[2], data[i].pressure[3], data[i].termistor,
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
             valve2_state, data[i].is_charging, data[i].chargerData.vbat,
@@ -135,7 +135,7 @@ static bool save_text(const char *path, BoardData_t *data) {
             "%d,%d,%d,"
             "%d\n",
             (unsigned long long)data[i].power_time, data[i].temperature[0],
-            data[i].temperature[1], data[i].temperature[2], data[i].pressure[0],
+            data[i].temperature[1], data[i].temperature[2], data[i].pressure[1],
             data[i].pressure[2], data[i].pressure[3], data[i].termistor,
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
             valve2_state, data[i].is_charging, data[i].chargerData.vbat,
@@ -208,6 +208,7 @@ void update_data_task(void *arg) {
 #endif
 
     if (xSemaphoreTake(current_mutex, portMAX_DELAY) == pdTRUE) {
+      boardDataCopy.power_time = power_time();
       current_buffer[counter] = boardDataCopy;
       counter++;
       xSemaphoreGive(current_mutex);
@@ -229,7 +230,7 @@ void update_data_task(void *arg) {
     }
 
     // vTaskDelay(pdMS_TO_TICKS(moduleData.sdStateTimes[moduleData.obcState]));
-    vTaskDelay(pdMS_TO_TICKS(9));
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
 

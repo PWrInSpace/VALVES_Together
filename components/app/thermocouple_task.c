@@ -8,7 +8,7 @@
 #include "thermocouple_config.h"
 
 #define TAG "THERMOCOUPLE_TASK"
-#define THERMOCOUPLE_PERIOD_MS 1000
+#define THERMOCOUPLE_PERIOD_MS 100
 #define BOARDDATA_MUTEX_TIMEOUT_MS 10
 
 TaskHandle_t thermocouple_task_handle = NULL;

@@ -78,10 +78,10 @@ void print_board_data(void) {
 
   ESP_LOGI(TAG, "--------------------------------");
   ESP_LOGI(TAG, "Power time: %llu", bd_data.power_time);
-  // ESP_LOGI(TAG, "Temperature 1: %s", boardData.temperature[0]);
-  // ESP_LOGI(TAG, "Temperature 2: %s", boardData.temperature[1]);
-  // ESP_LOGI(TAG, "Temperature 3: %s", boardData.temperature[2]);
-  ESP_LOGI(TAG, "Pressure L = %f S = %f R1 = %f R2 = %f", bd_data.pressure[1],
+  ESP_LOGI(TAG, "Temperature 1: %f", boardData.temperature[0]);
+  ESP_LOGI(TAG, "Temperature 2: %f", boardData.temperature[1]);
+  ESP_LOGI(TAG, "Temperature 3: %f", boardData.temperature[2]);
+  ESP_LOGI(TAG, "Pressure L = %f S = %f P1 = %f P2 = %f", bd_data.pressure[1],
            bd_data.pressure[2], bd_data.pressure[3], bd_data.pressure[0]);
   ESP_LOGI(TAG, "valve1_state = %d valve2_state = %d", valve1_state,
            valve2_state);

@@ -14,20 +14,17 @@ TaskHandle_t charger_task_handle = NULL;
 
 static void pressure_task(void *arg) {
   while (1) {
+    float temp_pressures[4];
+    pressure_driver_read_pressures(&pressure_driver_config, temp_pressures);
+
     if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
         pdTRUE) {
-      float temp_pressures[4];
-
-      pressure_driver_read_pressures(&pressure_driver_config, temp_pressures);
       set_boardData_pressures(temp_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
-
-      // ESP_LOGI(TAG, "Pressure: L = %f, S = %f, P =%f", temp_pressures[2],
-      //          temp_pressures[3], temp_pressures[1]);
-
       xSemaphoreGive(mcu_i2c_mutex);
     }
 
-    vTaskDelay(pdMS_TO_TICKS(MEASURE_PERIOD_MS));
+    // vTaskDelay(pdMS_TO_TICKS(MEASURE_PERIOD_MS));
+    // //pressure_driver_read_pressures ma delaye
   }
 }
 
@@ -38,8 +35,6 @@ static void charger_task(void *arg) {
     if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
         pdTRUE) {
       ltc4162_charger_data_t charger_data = {0};
-
-      vTaskDelay(pdMS_TO_TICKS(10));
 
       if (read_charger_data(&charger_data) == ESP_OK) {
         ltc4162_charger_data_t new_charger_data = {
