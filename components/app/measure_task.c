@@ -32,9 +32,9 @@ static void charger_task(void *arg) {
   uint16_t system_status_raw = UINT16_MAX;
 
   while (1) {
+    ltc4162_charger_data_t charger_data = {0};
     if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
         pdTRUE) {
-      ltc4162_charger_data_t charger_data = {0};
 
       if (read_charger_data(&charger_data) == ESP_OK) {
         ltc4162_charger_data_t new_charger_data = {
@@ -100,7 +100,7 @@ static void charger_task(void *arg) {
       // ltc4162_debug_monitor();
     }
 
-    vTaskDelay(pdMS_TO_TICKS(150));
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
 

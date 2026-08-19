@@ -23,7 +23,7 @@ static float get_pressure_from_board() {
   if (get_boardData_pressures(pressures, portMAX_DELAY) != ESP_OK)
     return 0.0f;
 
-  return pressures[2]; // left pressure channel on N20 vent
+  return pressures[1]; // left pressure channel on N20 vent
                        // board with n2o pressure sensor
 }
 

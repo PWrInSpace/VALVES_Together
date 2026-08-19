@@ -207,12 +207,7 @@ static void now_send_data_to_obc(void *arg) {
     dataToObc.temperature1 = board_data_copy.temperature[1];
     dataToObc.pressure1 = board_data_copy.pressure[1];
     dataToObc.pressure2 = board_data_copy.pressure[2];
-    dataToObc.battery_voltage = board_data_copy.chargerData.vbat;
-    dataToObc.battery_consumption =
-        (fabsf(board_data_copy.chargerData.ibat) >
-         fabsf(board_data_copy.chargerData.iin))
-            ? fabsf(board_data_copy.chargerData.ibat)
-            : fabsf(board_data_copy.chargerData.iin);
+    dataToObc.battery_voltage = board_data_copy.chargerData.vin_supply;
     dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
     dataToObc.valve1_state = valve1_state;
     dataToObc.valve2_state = valve2_state;
