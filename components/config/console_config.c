@@ -615,7 +615,9 @@ int print_help(int argc, char **argv) {
       "  tare                 [sensor] - calibrate for 0 bar (all if empty)\n");
   printf(
       "  calibrate            <sensor> <bar> - calibrate for given pressure\n");
-  printf("                       sensors: P1, P2, L, S\n");
+  printf("                       sensors: R, L, S, TH\n");
+  printf(
+      "  calibrate_servo      <open|close> <angle> - calibrate servo open/close position for specified angle\n");
 
   printf("\n-- Debug --\n");
   printf("  i2c_scan             Scan the I2C bus for devices\n");
