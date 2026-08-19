@@ -347,7 +347,7 @@ int restore_defaults(int argc, char **argv) {
   }
 
   printf("Successfully restored config default values. Remember to use "
-         "`save_config` to save your changes\n");
+         "`flash_save_config` to save your changes\n");
   return 0;
 }
 
@@ -383,7 +383,7 @@ int edit_flash(int argc, char **argv) {
     return 0;
   }
 
-  printf("Successfully edited runtime config. Remember to use `save_config` to "
+  printf("Successfully edited runtime config. Remember to use `flash_save_config` to "
          "save your changes\n");
   return 0;
 }
@@ -391,10 +391,10 @@ int edit_flash(int argc, char **argv) {
 // |--- Commands for pressure sensors calibration ---|
 
 const char *pressure_sensors_names[] = {
-    "P2",
+    "TH",
     "L",
     "S",
-    "P1",
+    "R",
 
 };
 
@@ -466,11 +466,11 @@ int press_tare(int argc, char **argv) {
 
   if (sensor_num != -1) {
     printf("Successfully calibrated %s sensor for pressure of 0 bars. Remember "
-           "to use `save_config` to save your changes\n",
+           "to use `flash_save_config` to save your changes\n",
            pressure_sensors_names[sensor_num]);
   } else {
     printf("Successfully calibrated all sensors for pressure of 0 bars. "
-           "Remember to use `save_config` to save your changes\n");
+           "Remember to use `flash_save_config` to save your changes\n");
   }
   return 0;
 }
@@ -546,8 +546,48 @@ int press_calibrate(int argc, char **argv) {
   }
 
   printf("Successfully calibrated %s sensor for pressure of %g bars. Remember "
-         "to use `save_config` to save your changes\n",
+         "to use `flash_save_config` to save your changes\n",
          field, pressure);
+  return 0;
+}
+
+int calibrate_servo(int argc, char **argv) {
+  if (argc < 3) {
+    printf("Usage: calibrate_servo <open|close> <value>\n");
+    return 0;
+  }
+
+  int new_value = atoi(argv[2]);
+  if (new_value < 0 || new_value >= UINT8_MAX) {
+    printf("Exceeded limits of uint8_t, which is from 0 to %d\n", UINT8_MAX);
+    return 0;
+  }
+
+
+  data_config_t new_config;
+  if (flash_get_runtime_config(&new_config) != ESP_OK) {
+    printf("Couldn't retrieve runtime config\n");
+    return 0;
+  }
+
+  if (strcmp(argv[1], "open") == 0 || strcmp(argv[1], "-o") == 0) {
+    new_config.servo_calibr.open_pos = new_value;
+    printf("Successfully calibrated servo's open position for value of %d degrees. "
+           "Remember to use `flash_save_config` to save your changes\n", new_value);
+  } else if (strcmp(argv[1], "close") == 0 || strcmp(argv[1], "-c") == 0) {
+    new_config.servo_calibr.close_pos = new_value;
+    printf("Successfully calibrated servo's close position for value of %d degrees. " 
+           "Remember to use `flash_save_config` to save your changes\n", new_value);
+  } else {
+    printf("Couldn't parse provided argument\n");
+    return 0;
+  }
+
+  if (flash_edit_config(new_config) != ESP_OK) {
+    printf("Failed to save calibration values into runtime config\n");
+    return 0;
+  }
+
   return 0;
 }
 
@@ -638,11 +678,12 @@ static esp_console_cmd_t cmd[] = {
     {"flash_display_config", "Displays current state of runtime config.\nThis command does NOT display flash memory contents, to see current flash memory contents use `read_flash`.", NULL, get_runtime_config, NULL, NULL, NULL},
     {"flash_save_config", "Saves runtime config edited by User to flash memory.", NULL, save_flash, NULL, NULL, NULL},
     {"flash_edit_config", "Sets the provided field in runtime config to provided value.", NULL, edit_flash, NULL, NULL, NULL},
-    {"flash_restore_config", "Restores all default values and saves them into runtime config.\nUse `save_config` to save the runtime config to flash memory.", NULL, restore_defaults, NULL, NULL, NULL},
-    {"flash_erase", "Erases flash memory partition that is holding config data.\nTo erase stored data you need to type `erase_flash Y` to ensure that flash won't be erased by accident.\nThere is no need to run `save_flash` after this function finishes.", NULL, erase_flash, NULL, NULL, NULL},
+    {"flash_restore_config", "Restores all default values and saves them into runtime config.\nUse `flash_save_config` to save the runtime config to flash memory.", NULL, restore_defaults, NULL, NULL, NULL},
+    {"flash_erase", "Erases flash memory partition that is holding config data.\nTo erase stored data you need to type `erase_flash Y` to ensure that flash won't be erased by accident.\nThere is no need to run `flash_save_config` after this function finishes.", NULL, erase_flash, NULL, NULL, NULL},
 
     {"calibrate", "Calibrate specific sensor for provided pressure", NULL, press_calibrate, NULL, NULL, NULL},
     {"tare", "Calibrate all or chosen pressure sensors for 0 bar", NULL, press_tare, NULL, NULL, NULL},
+    {"calibrate_servo", "Calibrate servo's open/close position", NULL, calibrate_servo, NULL, NULL, NULL},
 
     #ifdef SOL_N20_SERVO_ETH_CONFIG
     {"open_sol_n2o", "Open N2O solenoid for specified duration (ms)", NULL, open_valve1, NULL, NULL, NULL},

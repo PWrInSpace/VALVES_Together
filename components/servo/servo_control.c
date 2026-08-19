@@ -156,6 +156,11 @@ esp_err_t move_servo(ServoId_t servo_id, uint8_t angle, uint16_t open_time_ms) {
     return ESP_LOG_ERROR;
   }
 
+  if (open_time_ms != 0 && open_time_ms < MIN_SERVO_TIMER_TIME_MS) {
+    ESP_LOGE(TAG, "Timer cannot be set in range of (0, %d)", MIN_SERVO_TIMER_TIME_MS);
+    return ESP_LOG_ERROR;
+  }
+
   Servo_t *servo_ptr = &servos[servo_id];
   ESP_LOGI(TAG, "Moving servo[%d] to angle: %d", servo_id, angle);
 

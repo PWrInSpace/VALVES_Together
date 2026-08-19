@@ -24,6 +24,7 @@
 
 #define DEFAULT_POS_ANGLE 90 // Angle of the default position for servos
 #define MOVE_WITHOUT_TIMER (uint16_t)0
+#define MIN_SERVO_TIMER_TIME_MS 400
 
 #include "driver/mcpwm_prelude.h"
 #include "esp_log.h"
