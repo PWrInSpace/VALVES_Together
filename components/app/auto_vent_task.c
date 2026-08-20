@@ -80,7 +80,7 @@ void auto_vent_task(void *arg) {
     float avg_pressure = 0.0f;
     float auto_vent_pressure_local = 0.0f;
     if (is_auto_vent_active) {
-      avg_pressure = get_avg_pressure(50); // 5 seconds to process 50 samples
+      avg_pressure = get_avg_pressure(25); // 2.5 seconds to process 25 samples
       get_auto_vent_pressure(&auto_vent_pressure_local);
       if (avg_pressure > auto_vent_pressure_local) {
         handle_valve_cmd(N20_SOL_OPEN, AUTO_VENT_OPEN_TIME_MS);

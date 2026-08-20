@@ -383,7 +383,8 @@ int edit_flash(int argc, char **argv) {
     return 0;
   }
 
-  printf("Successfully edited runtime config. Remember to use `flash_save_config` to "
+  printf("Successfully edited runtime config. Remember to use "
+         "`flash_save_config` to "
          "save your changes\n");
   return 0;
 }
@@ -563,7 +564,6 @@ int calibrate_servo(int argc, char **argv) {
     return 0;
   }
 
-
   data_config_t new_config;
   if (flash_get_runtime_config(&new_config) != ESP_OK) {
     printf("Couldn't retrieve runtime config\n");
@@ -572,12 +572,16 @@ int calibrate_servo(int argc, char **argv) {
 
   if (strcmp(argv[1], "open") == 0 || strcmp(argv[1], "-o") == 0) {
     new_config.servo_calibr.open_pos = new_value;
-    printf("Successfully calibrated servo's open position for value of %d degrees. "
-           "Remember to use `flash_save_config` to save your changes\n", new_value);
+    printf("Successfully calibrated servo's open position for value of %d "
+           "degrees. "
+           "Remember to use `flash_save_config` to save your changes\n",
+           new_value);
   } else if (strcmp(argv[1], "close") == 0 || strcmp(argv[1], "-c") == 0) {
     new_config.servo_calibr.close_pos = new_value;
-    printf("Successfully calibrated servo's close position for value of %d degrees. " 
-           "Remember to use `flash_save_config` to save your changes\n", new_value);
+    printf("Successfully calibrated servo's close position for value of %d "
+           "degrees. "
+           "Remember to use `flash_save_config` to save your changes\n",
+           new_value);
   } else {
     printf("Couldn't parse provided argument\n");
     return 0;
@@ -616,8 +620,8 @@ int print_help(int argc, char **argv) {
   printf(
       "  calibrate            <sensor> <bar> - calibrate for given pressure\n");
   printf("                       sensors: R, L, S, TH\n");
-  printf(
-      "  calibrate_servo      <open|close> <angle> - calibrate servo open/close position for specified angle\n");
+  printf("  calibrate_servo      <open|close> <angle> - calibrate servo "
+         "open/close position for specified angle\n");
 
   printf("\n-- Debug --\n");
   printf("  i2c_scan             Scan the I2C bus for devices\n");

@@ -13,8 +13,8 @@
 
 #define AUTO_VENT_OPEN_TIME_MS 3000 // open vent time
 #define AUTO_VENT_TRIGGERED_STATUS_MS                                          \
-  10000 // time to show that the vent was triggered
-#define AUTO_VENT_DEBOUNCE_TIME_MS 60000 // debounce time
+  1000 // time to show that the vent was triggered
+#define AUTO_VENT_DEBOUNCE_TIME_MS 5000 // debounce time
 
 extern volatile bool is_auto_vent_active;
 extern volatile bool is_triggered;

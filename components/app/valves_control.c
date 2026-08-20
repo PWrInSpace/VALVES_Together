@@ -15,12 +15,6 @@
 #include "system_timer.h"
 
 void handle_valve_cmd(uint8_t cmd, int time_ms) {
-  if (time_ms != 0 && time_ms < MIN_SERVO_TIMER_TIME_MS) {
-    ESP_LOGW("VALVES_CONTROL", "Timer cannot be set in range of (0, %d)", MIN_SERVO_TIMER_TIME_MS);
-    return;
-  }
-
-  ESP_LOGI("VALVES_CONTROL", "Handling valve command: %d with time: %d ms", cmd, time_ms);
 
   switch (cmd) {
   case N20_VALVE_OPEN:
@@ -204,14 +198,6 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
 }
 
 void handle_valve_cmd_angle(uint8_t cmd, int time_ms, int angle) {
-  if (time_ms != 0 && time_ms < MIN_SERVO_TIMER_TIME_MS) {
-    ESP_LOGW("VALVES_CONTROL", "Timer cannot be set in range of (0, %d)", MIN_SERVO_TIMER_TIME_MS);
-    return;
-  }
-
-  ESP_LOGI("VALVES_CONTROL",
-           "Handling valve command: %d with time: %d ms and angle: %d", cmd,
-           time_ms, angle);
 
   switch (cmd) {
   case N20_VALVE_OPEN:
