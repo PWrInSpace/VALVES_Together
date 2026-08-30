@@ -1,10 +1,10 @@
 #ifndef TIMERS_CONFIG_H
 #define TIMERS_CONFIG_H
 
-#include "stdbool.h"
+#include "esp_err.h"
 #include "system_timer.h"
 
-bool timers_init(void);
-bool start_test_timer(void);
+esp_err_t timers_init(void);
+esp_err_t start_test_timer(void);
 
 #endif

@@ -14,12 +14,16 @@ void igniter_task(void *arg) {
     if (status != IGNITER_OK) {
       ESP_LOGE(TAG, "Igniter continuity check failed with status %d", status);
     }
-    if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-      boardData.dump_valve_arm =
+
+    BoardData_t new_bd;
+    if (get_board_data(&new_bd, portMAX_DELAY) == ESP_OK) {
+      new_bd.dump_valve_arm =
           (igniter_cfg->state == IGNITER_STATE_ARMED) ? 1 : 0;
-      boardData.dump_valve_cont = (continuity == IGNITER_CONTINUITY_OK) ? 1 : 0;
-      xSemaphoreGive(BoardDataSemaphore);
+      new_bd.dump_valve_cont = (continuity == IGNITER_CONTINUITY_OK) ? 1 : 0;
+
+      set_board_data(new_bd, portMAX_DELAY);
     }
+
     vTaskDelay(pdMS_TO_TICKS(500));
   }
 }

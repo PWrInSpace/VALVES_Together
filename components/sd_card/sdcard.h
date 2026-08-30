@@ -1,4 +1,4 @@
-// Copyright 2023 PWrInSpace, Krzysztof Gliwiński, Kuba
+// Copyright 2026 PWrInSpace, Mateusz Kluczka
 
 #pragma once
 
@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/unistd.h>
 
+#include "driver/sdmmc_host.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
 
@@ -15,36 +16,25 @@
 // 8 is a placeholder for _number_.txt
 #define PATH_FLIE_SIZE(usr_path) sizeof(SD_CREATE_FILE_PREFIX(usr_path)) + 8
 
-/*!
- * \brief SD card struct
- * \param[in] card pointer to sdmmc_card_t struct
- * \param[in] spi_host spi_host device
- * \param[in] mount_point mounting point
- * \param[in] cs_pin chip select pin
- * \param[in] card_detect_pin card detect pin
- * \param[in] mounted is card mounted
- */
+#define SD_CLK_PIN 14
+#define SD_CMD_PIN 21
+#define SD_D0_PIN 13
+#define SD_D1_PIN 12
+#define SD_D2_PIN 48
+#define SD_D3_PIN 47
+#define SD_CD_PIN                                                              \
+  GPIO_NUM_NC // GPIO_NUM_NC oznacza brak pinu Card Detect (zawsze włożona)
+
 typedef struct {
   sdmmc_card_t *card;
-  spi_host_device_t spi_host;
   const char *mount_point;
-  uint8_t cs_pin;
-  uint8_t card_detect_pin;
+  int card_detect_pin;
   bool mounted;
 } sd_card_t;
 
-/*!
- * \brief SD card config struct
- * \param[in] spi_host spi_host device
- * \param[in] mount_point mounting point
- * \param[in] cs_pin chip select pin
- * \param[in] card_detect_pin card detect pin
- */
 typedef struct {
-  spi_host_device_t spi_host;
   const char *mount_point;
-  uint8_t cs_pin;
-  uint8_t cd_pin;
+  int cd_pin;
 } sd_card_config_t;
 
 /*!

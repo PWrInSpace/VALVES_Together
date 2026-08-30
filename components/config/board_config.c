@@ -20,9 +20,12 @@
 #include "esp_log.h"
 
 #include "BoardData.h"
+#include "RGB_led_driver.h"
 #include "auto_vent_task.h"
 #include "buzzer.h"
+#include "buzzer_task.h"
 #include "console_config.h"
+#include "flash.h"
 #include "igniter_driver.h"
 #include "igniter_task.h"
 #include "ltc4162.h"
@@ -43,12 +46,11 @@
 
 #define TAG "BOARD_CONFIG"
 
-void _led_delay(uint32_t _ms) { vTaskDelay(_ms / portTICK_PERIOD_MS); }
+static void _led_delay(uint32_t _ms) { vTaskDelay(_ms / portTICK_PERIOD_MS); }
 
 board_config_t config = {.board_name = CONFIG_NAME};
 
 esp_err_t board_config_init(void) {
-
   esp_err_t err;
 
   // Initialize board data structure and semaphore
@@ -64,11 +66,16 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
-  err = mcu_spi_init();
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "SPI initialization failed");
-    return err;
+  if (!run_buzzer_task()) {
+    ESP_LOGE(TAG, "Buzzer task initialization failed");
+    return ESP_FAIL;
   }
+
+  // err = mcu_spi_init();
+  // if (err != ESP_OK) {
+  //   ESP_LOGE(TAG, "SPI initialization failed");
+  //   return err;
+  // }
 #ifdef SERVO_N20_CONFIG
   err = thermocouple_config_init();
   if (err != ESP_OK) {
@@ -77,13 +84,26 @@ esp_err_t board_config_init(void) {
   }
 #endif
 
-  if (!timers_init()) {
+  err = timers_init();
+  if (err != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialize timers");
     return ESP_FAIL;
   }
 
-  if (nowInit()) {
-    nowAddPeer(adressObc, 1);
+  err = flash_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "NVS initialization failed");
+    return err;
+  }
+
+  // err = rgb_led_init();
+  // if (err != ESP_OK) {
+  //   ESP_LOGE(TAG, "Failed to initialize status LED (RGB)");
+  //   // return err;
+  // }
+
+  if (nowInit() == ESP_OK) {
+    nowAddPeer(addressObc, 1);
     uint8_t mac[6];
     esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
     ESP_LOGI("MAC address", "MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
@@ -117,7 +137,7 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  err = ltc4162_init();
+  err = ltc4162_init(&LTC4162_DEFAULT_CONFIG(GPIO_NUM_NC));
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "LTC4162 initialization failed");
     ESP_LOGW(TAG, "Connect vbat or vin");
@@ -129,7 +149,8 @@ esp_err_t board_config_init(void) {
     vTaskDelete(NULL);
   }
 
-  if (mcu_adc_init() != ESP_OK) {
+  err = mcu_adc_init();
+  if (err != ESP_OK) {
     ESP_LOGE(TAG, "ADC initialization failed");
     return ESP_FAIL;
   }
@@ -147,10 +168,12 @@ esp_err_t board_config_init(void) {
     return ESP_FAIL;
   } else {
     ESP_LOGI(TAG, "Pressure driver 1 initialized");
+    apply_pressure_calibration();
   }
 
   if (sd_task_init() != ESP_OK) {
     ESP_LOGE(TAG, "SD card task initialization failed");
+    play_buzzer_sound(SOUND_INIT_ERROR);
     // return ESP_FAIL;
   }
 

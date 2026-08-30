@@ -1,79 +1,62 @@
-// Copyright 2022 PWrInSpace. Kuba
+// Copyright 2026 PWrInSpace, Mateusz Kluczka
 
 #include "sdcard.h"
 
+#include "sd_test_io.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
-#include "sd_test_io.h"
-
+#include "driver/gpio.h"
 #include "esp_log.h"
 
 #define TAG "SDCARD"
 
-const char *names[] = {"CLK ", "MOSI", "MISO", "CS   "};
-const int pins[] = {
-    14, // CLK
-    21, // MOSI
-    13, // MISO
-    47  // CS
-};
-const int pin_count = sizeof(pins) / sizeof(pins[0]);
-
-pin_configuration_t pin_config = {
-    .names = names,
-    .pins = pins,
-};
-
 bool SD_init(sd_card_t *sd_card, sd_card_config_t *cfg) {
-  sd_card->spi_host = SDSPI_DEFAULT_HOST;
-  sd_card->cs_pin = pins[3];
-  sd_card->card_detect_pin = -1;
-  sd_card->mount_point = "/sdcard";
-
-  // Options for mounting the filesystem
-  if (SD_mount(sd_card) == false) {
+  if (sd_card == NULL || cfg == NULL)
     return false;
-  }
 
-  return true;
+  sd_card->card_detect_pin = cfg->cd_pin;
+  sd_card->mount_point =
+      cfg->mount_point ? cfg->mount_point : SDCARD_MOUNT_POINT;
+  sd_card->mounted = false;
+
+  return SD_mount(sd_card);
 }
 
 bool SD_file_exists(const char *file_name) {
   struct stat st;
-  if (stat(file_name, &st) == 0) {
-    return true;
-  }
-
-  return false;
+  return (stat(file_name, &st) == 0);
 }
 
 bool SD_mount(sd_card_t *sd_card) {
   esp_err_t res;
+
+  sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+  sdmmc_slot_config_t slot_config = {.clk = SD_CLK_PIN,
+                                     .cmd = SD_CMD_PIN,
+                                     .d0 = SD_D0_PIN,
+                                     .d1 = SD_D1_PIN,
+                                     .d2 = SD_D2_PIN,
+                                     .d3 = SD_D3_PIN,
+                                     .cd = SDMMC_SLOT_NO_CD,
+                                     .wp = SDMMC_SLOT_NO_WP,
+                                     .width = 4,
+                                     .flags = SDMMC_SLOT_FLAG_INTERNAL_PULLUP};
+
   esp_vfs_fat_sdmmc_mount_config_t mount_config = {
       .format_if_mount_failed = false,
       .max_files = 5,
       .allocation_unit_size = 16 * 1024};
 
-  sdmmc_host_t host = SDSPI_HOST_DEFAULT();
-
-  // host.slot = sd_card->spi_host;
-  // host.max_freq_khz = SDMMC_FREQ_PROBING;
-  sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
-  slot_config.gpio_cs = pins[3];
-  slot_config.host_id = SDSPI_DEFAULT_HOST;
-
-  // sdspi_dev_handle_t sd_handle;
-
-  // sdspi_host_init();
-
-  // sdspi_host_init_device(&slot_config, &sd_handle);
-
-  res = esp_vfs_fat_sdspi_mount(sd_card->mount_point, &host, &slot_config,
+  res = esp_vfs_fat_sdmmc_mount(sd_card->mount_point, &host, &slot_config,
                                 &mount_config, &sd_card->card);
+
   if (res != ESP_OK) {
     ESP_LOGE("SD_INIT", "esp_vfs_fat_sdspi_mount failed: %s (0x%x)",
              esp_err_to_name(res), res);
+
     if (res == ESP_FAIL) {
       ESP_LOGE(TAG, "Failed to mount filesystem. "
                     "If you want the card to be formatted, set the"
@@ -83,54 +66,49 @@ bool SD_mount(sd_card_t *sd_card) {
                "Failed to initialize the card (%s). "
                "Make sure SD card lines have pull-up resistors in place.",
                esp_err_to_name(res));
-      check_sd_card_pins(&pin_config, pin_count);
+      // check_sd_card_pins(&pin_config, pin_count);
     }
     return false;
   }
+
   ESP_LOGI(TAG, "SD card mounted");
   sd_card->mounted = true;
   return true;
 }
 
 bool SD_unmount(sd_card_t *sd_card) {
-  if (sd_card->mounted == false) {
+  if (!sd_card->mounted)
     return true;
-  }
 
-  esp_err_t res;
-  res = esp_vfs_fat_sdcard_unmount(sd_card->mount_point, sd_card->card);
+  esp_err_t res =
+      esp_vfs_fat_sdcard_unmount(sd_card->mount_point, sd_card->card);
   if (res != ESP_OK) {
-    ESP_LOGE(TAG, "UNMOUNT ERROR\n");
+    ESP_LOGE(TAG, "UNMOUNT ERROR (0x%x)\n", res);
     return false;
   }
+
   sd_card->mounted = false;
   return true;
 }
 
 bool SD_remount(sd_card_t *sd_card) {
-  bool res;
-  res = SD_unmount(sd_card);
-  if (res == false) {
+  if (!SD_unmount(sd_card))
     return false;
-  }
-
-  res = SD_mount(sd_card);
-  return res;
+  return SD_mount(sd_card);
 }
 
 bool SD_write(sd_card_t *sd_card, const char *path, const char *data,
               size_t length) {
   esp_err_t res;
 
-  if (sd_card->mounted == false) {
-    if (SD_mount(sd_card) == false) {
+  if (!sd_card->mounted) {
+    if (!SD_mount(sd_card))
       return false;
-    }
   }
 
   res = sdmmc_get_status(sd_card->card);
   if (res != ESP_OK) {
-    ESP_LOGE(TAG, "CARD ERROR, REMOOUNTING...");
+    ESP_LOGE(TAG, "CARD ERROR (0x%x), REMOUNTING...", res);
     SD_remount(sd_card);
   }
 
@@ -141,8 +119,7 @@ bool SD_write(sd_card_t *sd_card, const char *path, const char *data,
     return false;
   }
 
-  int written_bytes = 0;
-  written_bytes = fprintf(file, data, sd_card->card->cid.name);
+  int written_bytes = fprintf(file, data, sd_card->card->cid.name);
   fclose(file);
 
   if (written_bytes < 1) {
@@ -164,15 +141,16 @@ bool SD_is_ok(sd_card_t *sd_card) {
 }
 
 bool SD_card_detect(sd_card_t *sd_card) {
-  if (gpio_get_level(sd_card->card_detect_pin) == 0) {
-    return true;
-  }
-
-  return false;
+  if (sd_card->card_detect_pin == GPIO_NUM_NC)
+    return true; // Brak pinu CD = karta traktowana jako zawsze obecna
+  return (gpio_get_level(sd_card->card_detect_pin) == 0);
 }
 
 bool create_path_to_file(char *file_path, size_t size) {
   char *path = (char *)calloc(size, sizeof(char));
+  if (path == NULL)
+    return false;
+
   int ret = 0;
   for (int i = 0; i < 1000; ++i) {
     ret = snprintf(path, size, "%s%d.txt", file_path, i);

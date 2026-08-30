@@ -11,6 +11,7 @@
 
 #include "setup_task.h"
 
+#include "buzzer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -18,6 +19,9 @@
 
 #include "app_task.h"
 #include "board_config.h"
+#include "commands.h"
+#include "valve_board_config.h"
+#include "valves_control.h"
 
 #define SETUP_TASK_STACK_SIZE 8000
 #define SETUP_TASK_PRIORITY 9
@@ -27,15 +31,45 @@
 
 static TaskHandle_t setup_task_handle = NULL;
 
+static void valve_config_init(void) {
+  vTaskDelay(pdMS_TO_TICKS(1000));
+
+#ifdef SERVO_N20_CONFIG
+  ESP_LOGI("APP_TASK", "SERVO_N20_CONFIG defined");
+  play_sound(SOUND_SINGLE_BEEP);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+  handle_valve_cmd(N20_VALVE_CLOSE, 0);
+#elif defined(SOL_N2_CONFIG)
+  ESP_LOGI("APP_TASK", "SOL_N2_CONFIG defined");
+  play_sound(SOUND_QUADRUPLE_BEEP);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+  handle_valve_cmd(N2_SOL_CLOSE, 0);
+#elif defined(SOL_ETH_SERVO_N2_CONFIG)
+  play_sound(SOUND_TRIPLE_BEEP);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+  ESP_LOGI("APP_TASK", "SOL_ETH_SERVO_N2_CONFIG defined");
+  handle_valve_cmd(ETH_SOL_CLOSE, 0);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+  handle_valve_cmd(N20_VALVE_CLOSE, 0);
+#elif defined(SOL_N20_SERVO_ETH_CONFIG)
+  ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
+  play_sound(SOUND_DOUBLE_BEEP);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+  handle_valve_cmd(N20_SOL_CLOSE, 0);
+  handle_valve_cmd(ETH_VALVE_CLOSE, 0);
+  ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
+#endif
+
+  return;
+}
+
 void setup_task(void *arg) {
-  esp_err_t err;
-
-  err = board_config_init();
-
-  if (err != ESP_OK) {
+  if (board_config_init() != ESP_OK) {
     ESP_LOGE(TAG, "Board configuration failed");
     vTaskDelete(NULL);
   }
+
+  valve_config_init();
 
   // Start the app task
   if (app_task_init() != ESP_OK) {

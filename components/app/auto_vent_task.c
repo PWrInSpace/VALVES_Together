@@ -18,24 +18,44 @@ float auto_vent_pressure = 0;
 TaskHandle_t auto_vent_task_handle = NULL;
 #define TAG "AUTO_VENT_TASK"
 
-float get_pressure_from_board() {
-  if (xSemaphoreTake(BoardDataSemaphore, portMAX_DELAY) == pdTRUE) {
-    float pressure = boardData.pressure[2]; // left pressure channel on N20 vent
-                                            // board with n2o pressure sensor
-    xSemaphoreGive(BoardDataSemaphore);
-    return pressure;
-  }
-  return 0.0f;
+static float get_pressure_from_board() {
+  float pressures[4];
+  if (get_boardData_pressures(pressures, portMAX_DELAY) != ESP_OK)
+    return 0.0f;
+
+  return pressures[1]; // left pressure channel on N20 vent
+                       // board with n2o pressure sensor
 }
 
-float get_avg_pressure(int samples) {
-  // time to process n saples i n*100ms
-  float pressure = 0.0f;
-  for (int i = 0; i < samples; i++) {
-    pressure += get_pressure_from_board();
-    vTaskDelay(pdMS_TO_TICKS(100));
+static float get_median_pressure(int samples) {
+  // n samples at 50 ms each
+  if (samples <= 0) {
+    return 0.0f;
   }
-  return pressure / (float)samples;
+  if (samples > 32) {
+    samples = 32;
+  }
+
+  float buf[32];
+  for (int i = 0; i < samples; i++) {
+    buf[i] = get_pressure_from_board();
+    vTaskDelay(pdMS_TO_TICKS(50));
+  }
+
+  for (int i = 1; i < samples; i++) {
+    float key = buf[i];
+    int j = i - 1;
+    while (j >= 0 && buf[j] > key) {
+      buf[j + 1] = buf[j];
+      j--;
+    }
+    buf[j + 1] = key;
+  }
+
+  if (samples % 2 == 0) {
+    return (buf[samples / 2 - 1] + buf[samples / 2]) * 0.5f;
+  }
+  return buf[samples / 2];
 }
 
 bool set_auto_vent_pressure(float pressure) {
@@ -77,19 +97,22 @@ bool set_auto_vent_off() {
 }
 
 void auto_vent_task(void *arg) {
+  TickType_t triggered_at = 0;
   while (1) {
-    float avg_pressure = 0.0f;
+    float median_pressure = 0.0f;
     float auto_vent_pressure_local = 0.0f;
     if (is_auto_vent_active) {
-      avg_pressure = get_avg_pressure(50); // 5 seconds to process 50 samples
+      median_pressure = get_median_pressure(20); // ~1 s, 20 samples
       get_auto_vent_pressure(&auto_vent_pressure_local);
-      if (avg_pressure > auto_vent_pressure_local) {
-        chandle_valve_cmd(N20_SOL_OPEN, AUTO_VENT_OPEN_TIME_MS);
+      if (median_pressure > auto_vent_pressure_local && is_auto_vent_active) {
+        handle_valve_cmd(N20_SOL_OPEN, AUTO_VENT_OPEN_TIME_MS);
         is_triggered = true;
-        vTaskDelay(pdMS_TO_TICKS(AUTO_VENT_TRIGGERED_STATUS_MS));
+        triggered_at = xTaskGetTickCount();
+        vTaskDelay(pdMS_TO_TICKS(AUTO_VENT_DEBOUNCE_TIME_MS));
+      } else if (is_triggered &&
+                 (xTaskGetTickCount() - triggered_at) >=
+                     pdMS_TO_TICKS(AUTO_VENT_TRIGGERED_STATUS_MS)) {
         is_triggered = false;
-        vTaskDelay(pdMS_TO_TICKS(AUTO_VENT_DEBOUNCE_TIME_MS -
-                                 AUTO_VENT_TRIGGERED_STATUS_MS));
       }
     } else {
       vTaskDelay(pdMS_TO_TICKS(5000));

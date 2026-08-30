@@ -6,7 +6,7 @@
 
 esp_err_t valve_init(Valve *valve) {
   esp_err_t err = ESP_OK;
-  valve->state = VALVE_OFF;
+  valve->state = valve->type ? VALVE_OFF : VALVE_ON;
   valve->gpio_pin = VALVE_GPIO_PINS[valve->name];
   if (!GPIO_IS_VALID_OUTPUT_GPIO(valve->gpio_pin)) {
     return ESP_ERR_INVALID_ARG;
@@ -37,10 +37,13 @@ esp_err_t set_valve_state(int name, ValveState state) {
     return ESP_ERR_INVALID_ARG;
   }
 
+  if (valves[name].type == VALVE_NO)
+    state ^= 1;
   esp_err_t err = gpio_set_level(valves[name].gpio_pin, state);
 
   return err;
 }
+
 static void timer_callback(void *arg) {
   ValveName *valve_name = (ValveName *)arg;
   if (valve_name == NULL) {

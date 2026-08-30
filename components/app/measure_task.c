@@ -1,89 +1,148 @@
 #include "BoardData.h"
+#include "buzzer.h"
+#include "buzzer_task.h"
+#include "esp_log.h"
 #include "ltc4162.h"
 #include "mcu_i2c_config.h"
 #include "pressure_driver.h"
+#include <math.h>
 
 TaskHandle_t pressure_task_handle = NULL;
 TaskHandle_t charger_task_handle = NULL;
 
 #define TAG "MEASURE_TASK"
 #define MEASURE_PERIOD_MS 10
-#define I2C_MUTEX_TIMEOUT_MS 10
+#define I2C_MUTEX_TIMEOUT_MS 250
 #define BOARDDATA_MUTEX_TIMEOUT_MS 10
 
-void pressure_task(void *arg) {
+static bool charger_sample_ok(const ltc4162_charger_data_t *sample,
+                              const ltc4162_charger_data_t *prev,
+                              bool have_prev) {
+  if (have_prev && fabsf(sample->vbat - prev->vbat) > 3.0f) {
+    return false;
+  }
+  return true;
+}
+
+static void pressure_task(void *arg) {
   while (1) {
+    float temp_pressures[4];
     if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
         pdTRUE) {
-      if (xSemaphoreTake(BoardDataSemaphore,
-                         pdMS_TO_TICKS(BOARDDATA_MUTEX_TIMEOUT_MS)) == pdTRUE) {
-        pressure_driver_read_pressures(&pressure_driver_config,
-                                       boardData.pressure);
-        // ESP_LOGI(TAG, "Pressure readings: %f, %f, %f", boardData.pressure[0],
-        // boardData.pressure[1], boardData.pressure[2]);
-        xSemaphoreGive(BoardDataSemaphore);
-      }
+      pressure_driver_read_pressures(&pressure_driver_config, temp_pressures);
       xSemaphoreGive(mcu_i2c_mutex);
+      set_boardData_pressures(temp_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
     }
-
-    vTaskDelay(pdMS_TO_TICKS(MEASURE_PERIOD_MS));
   }
 }
 
-void charger_task(void *arg) {
+static void charger_task(void *arg) {
+  uint16_t system_status_raw = UINT16_MAX;
+  bool charging_notification_sent = false;
+  ltc4162_charger_data_t last_good = {0};
+  bool have_last_good = false;
+
+  vTaskDelay(pdMS_TO_TICKS(3000));
+
   while (1) {
+    ltc4162_charger_data_t charger_data = {0};
     if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
         pdTRUE) {
-      ltc4162_charger_data_t charger_data = {0};
-
-      if (mcu_i2c_deinit() != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to deinit I2C");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
-
-      if (mcu_i2c_init_with_pins(SDA_GPIO_ALT, SCL_GPIO_ALT) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to init I2C with alt pins");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
-
-      vTaskDelay(pdMS_TO_TICKS(10));
 
       if (read_charger_data(&charger_data) == ESP_OK) {
-        if (xSemaphoreTake(BoardDataSemaphore,
-                           pdMS_TO_TICKS(BOARDDATA_MUTEX_TIMEOUT_MS)) ==
-            pdTRUE) {
-          boardData.chargerData.vbat = charger_data.vbat;
-          boardData.chargerData.vin = charger_data.vin;
-          boardData.chargerData.ibat = charger_data.ibat;
-          boardData.chargerData.iin = charger_data.iin;
-          boardData.chargerData.die_temp = charger_data.die_temp;
-          boardData.chargerData.vout = charger_data.vout;
-          boardData.chargerData.charger_status = charger_data.charger_status;
-          boardData.chargerData.charger_state = charger_data.charger_state;
-          boardData.is_charging = charger_data.charger_state;
-          xSemaphoreGive(BoardDataSemaphore);
+        ltc4162_charger_data_t new_charger_data = {
+            .vbat = charger_data.vbat,
+            .vin = charger_data.vin,
+            .ibat = charger_data.ibat,
+            .iin = charger_data.iin,
+            .die_temp = charger_data.die_temp,
+            .vout = charger_data.vout,
+            .charger_status = charger_data.charger_status,
+            .charger_state = charger_data.charger_state,
+            .system_status = charger_data.system_status,
+            .vin_supply = 0.0f,
+            .vext_supply = 0.0f};
+        xSemaphoreGive(mcu_i2c_mutex);
+
+        // ESP_LOGI(TAG, "New system status raw: 0x%04X",
+        // new_charger_data.system_status); ESP_LOGI(TAG, "System status raw:
+        // 0x%04X", system_status_raw);
+
+        // TODO do naprawy
+        // if (system_status_raw == 0x00A1 &&
+        //     new_charger_data.system_status == 0x0067) {
+        //   play_buzzer_sound(SOUND_CHARGER_CONNECTED);
+        //   ESP_LOGI(TAG, "Charger connected");
+        // } else if (system_status_raw == 0x0067 &&
+        //            (new_charger_data.system_status == 0x0023 ||
+        //             new_charger_data.system_status == 0x00A3 ||
+        //             new_charger_data.system_status == 0x00A1)) {
+        //   // after disconnect, system status can be
+        //   // 0x0023 or 0x00A3 per one frame then 0x00A1
+        //   play_buzzer_sound(SOUND_CHARGER_DISCONNECTED);
+        //   ESP_LOGI(TAG, "Charger disconnected");
+        // }
+
+        system_status_raw = new_charger_data.system_status;
+
+        switch (system_status_raw) {
+        case 0x00A3:
+          new_charger_data.vin_supply = new_charger_data.vin;
+          new_charger_data.vext_supply = new_charger_data.vout;
+          break;
+        case 0x00A1:
+        case 0x0023:
+          new_charger_data.vin_supply = new_charger_data.vout;
+          break;
+        case 0x0067:
+          new_charger_data.vext_supply = new_charger_data.vout;
+          new_charger_data.vin_supply = new_charger_data.vbat;
+          break;
+        default:
+          break;
         }
-      }
 
+        if (false) { // TODO: remove this
+          ESP_LOGW(TAG,
+                   "Drop charger glitch status=0x%04X vbat=%.2f vin_s=%.2f",
+                   new_charger_data.system_status, new_charger_data.vbat,
+                   new_charger_data.vin_supply);
+        } else {
+          last_good = new_charger_data;
+          have_last_good = true;
+
+          const bool has_external = new_charger_data.vext_supply > 1.0f;
+          const bool is_charging_now =
+              has_external && ((!charging_notification_sent &&
+                                new_charger_data.vext_supply >
+                                    new_charger_data.vin_supply + 0.10f) ||
+                               (charging_notification_sent &&
+                                new_charger_data.vext_supply >
+                                    new_charger_data.vin_supply - 0.10f));
+
+          if (is_charging_now && !charging_notification_sent) {
+            play_buzzer_sound(SOUND_CHARGER_CONNECTED);
+          }
+          // else if (!is_charging_now && charging_notification_sent) {
+          //   play_buzzer_sound(SOUND_CHARGER_DISCONNECTED);
+          // }
+          charging_notification_sent = is_charging_now;
+
+          BoardData_t new_bd;
+          if (get_board_data(&new_bd, BOARDDATA_MUTEX_TIMEOUT_MS) == ESP_OK) {
+            new_bd.is_charging = is_charging_now;
+            new_bd.chargerData = new_charger_data;
+
+            set_board_data(new_bd, BOARDDATA_MUTEX_TIMEOUT_MS);
+          }
+        }
+      } else {
+        xSemaphoreGive(mcu_i2c_mutex);
+      }
       // ltc4162_debug_monitor();
-
-      if (mcu_i2c_deinit() != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to deinit I2C");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
-
-      if (mcu_i2c_init_with_pins(SDA_GPIO, SCL_GPIO) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to init I2C with default pins");
-        xSemaphoreGive(mcu_i2c_mutex);
-        continue;
-      }
-      xSemaphoreGive(mcu_i2c_mutex);
     }
 
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(200));
   }
 }
 

@@ -2,23 +2,12 @@
 #include "Solenoid.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "ltc4162.h"
 #include "servo_config.h"
 #include "solenoid_config.h"
 #include "stdbool.h"
 #include <inttypes.h>
 #include <stdint.h>
-
-typedef struct {
-  float vbat;
-  float vin;
-  float ibat;
-  float iin;
-  float die_temp;
-  float vout;
-  bool charger_status;
-  bool charger_state;
-
-} ChargerData_t;
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
 typedef struct {
@@ -31,7 +20,8 @@ typedef struct {
   bool is_charging;
   bool auto_vent_activated;
   bool auto_vent_triggered;
-  ChargerData_t chargerData;
+  int32_t auto_vent_pressure;
+  ltc4162_charger_data_t chargerData;
 } BoardData_t;
 #else
 
@@ -43,7 +33,7 @@ typedef struct {
   bool dump_valve_arm;
   bool dump_valve_cont;
   bool is_charging;
-  ChargerData_t chargerData;
+  ltc4162_charger_data_t chargerData;
 
 } BoardData_t;
 
@@ -51,8 +41,6 @@ typedef struct {
 
 extern volatile uint8_t valve1_state;
 extern volatile uint8_t valve2_state;
-extern BoardData_t boardData;
-extern SemaphoreHandle_t BoardDataSemaphore;
 
 typedef struct {
   uint32_t commandNum;
@@ -83,6 +71,25 @@ typedef enum {
   HOLD_PERIOD = 1000,
   ABORT_PERIOD = 4000,
 } Periods;
+
+typedef enum {
+  SD_INIT_PERIOD = 1000,
+  SD_IDLE_PERIOD = 1000,
+  SD_RECOVERY_ARM_PERIOD = 1000,
+  SD_FUELING_PERIOD = 10,
+  SD_PRESSURIZING_PERIOD = 10,
+  SD_ARMED_TO_LAUNCH_PERIOD = 10,
+  SD_RDY_TO_LAUNCH_PERIOD = 10,
+  SD_COUNTDOWN_PERIOD = 10,
+  SD_LIFT_OFF_PERIOD = 10,
+  SD_BURN_PERIOD = 10,
+  SD_FLIGHT_PERIOD = 10,
+  SD_FIRST_STAGE_REC_PERIOD = 50,
+  SD_SECOND_STAGE_REC_PERIOD = 50,
+  SD_ON_GROUND_PERIOD = 100,
+  SD_HOLD_PERIOD = 500,
+  SD_ABORT_PERIOD = 100,
+} SdPeriods;
 
 typedef enum {
   INIT = 0,
@@ -120,7 +127,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 
@@ -136,7 +143,7 @@ typedef struct DataToObc {
   float pressure1;
   float pressure2;
   float battery_voltage;
-  float bettery_consumption;
+  float battery_consumption;
   float charger_temperature;
 } DataToObc;
 #endif
@@ -146,9 +153,30 @@ typedef struct {
   DataToObc dataToObc;
   uint8_t obcState;
   uint16_t stateTimes[16];
+  uint16_t sdStateTimes[16];
 } ModuleData;
 
 esp_err_t board_data_init(void);
+void print_board_data(void);
 uint64_t power_time();
+
+esp_err_t get_board_data(BoardData_t *data, uint32_t mutexTimeout);
+esp_err_t set_board_data(BoardData_t data, uint32_t mutexTimeout);
+
+esp_err_t get_boardData_charger_data(ltc4162_charger_data_t *data,
+                                     uint32_t mutexTimeout);
+esp_err_t set_boardData_charger_data(ltc4162_charger_data_t data,
+                                     uint32_t mutexTimeout);
+
+esp_err_t get_boardData_pressures(float pressures[4], uint32_t mutexTimeout);
+esp_err_t set_boardData_pressures(float pressures[4], uint32_t mutexTimeout);
+
+esp_err_t get_boardData_temperatures(float temperatures[3],
+                                     uint32_t mutexTimeout);
+esp_err_t set_boardData_temperatures(float temperatures[3],
+                                     uint32_t mutexTimeout);
+
+esp_err_t get_boardData_power_time(uint64_t *power_time, uint32_t mutexTimeout);
+esp_err_t set_boardData_power_time(uint64_t power_time, uint32_t mutexTimeout);
 
 extern volatile ModuleData moduleData;
