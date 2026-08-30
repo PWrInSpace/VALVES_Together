@@ -7,6 +7,7 @@
 
 static ltc4162_config_t LTC_config = {0};
 static bool LTC_initialized = false;
+static uint8_t latched_cell_count = 0;
 
 #define RSNSI 0.01f // przykład: 10mΩ
 #define RSNSB 0.01f // przykład: 10mΩ
@@ -264,8 +265,11 @@ esp_err_t read_charger_data(ltc4162_charger_data_t *charger_data) {
     return ESP_FAIL;
 
   uint8_t cell_count = chem_cells & 0x0F;
-  if (cell_count == 0)
-    cell_count = 4;
+  if (cell_count < 2 || cell_count > 8) {
+    cell_count = (latched_cell_count >= 2) ? latched_cell_count : 4;
+  } else {
+    latched_cell_count = cell_count;
+  }
 
   charger_data->vbat =
       vbat_raw * (cell_count * 192.4e-6f);   // Battery voltage (V)

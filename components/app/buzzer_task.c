@@ -12,8 +12,8 @@
 
 #define BUZZER_TASK_STACK_SIZE 4096
 #define BUZZER_TASK_PRIORITY 2
-#define BUZZER_QUEUE_LENGTH 8
-#define TIME_BETWEEN_SOUNDS_MS 400
+#define BUZZER_QUEUE_LENGTH 3
+#define TIME_BETWEEN_SOUNDS_MS 3000
 
 static QueueHandle_t buzzer_queue = NULL;
 static TaskHandle_t buzzer_task_handle = NULL;
