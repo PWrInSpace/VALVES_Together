@@ -5,5 +5,6 @@
 #include <stdbool.h>
 
 bool run_measure_task();
+bool run_thermocouple_task(void);
 
 #endif /* MEASURE_TASK_H */

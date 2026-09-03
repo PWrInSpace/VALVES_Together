@@ -36,10 +36,10 @@
 //                                      | SERVO_N20_CONFIG
 //  SERVO N20                           | GPIO36    valve1_state
 
-// #define SERVO_N20_CONFIG // 1
+#define SERVO_N20_CONFIG // 1
 // #define SOL_N20_SERVO_ETH_CONFIG // 2
 // #define SOL_ETH_SERVO_N2_CONFIG // 3
-#define SOL_N2_CONFIG // 4
+// #define SOL_N2_CONFIG // 4
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
 #define CONFIG_NAME "SOL_N20_SERVO_ETH_CONFIG"
@@ -57,18 +57,3 @@
 // #define THERMISTOR_CALIBRATION
 
 #endif // VALVE_BOARD_CONFIG_H
-
-/*TODO
-Cli Napisane ale trzeba uzupelniac na bierzaco
-I2C scanner DONE
-Servo DONE
-Solenoid DONE
-Charging data dodac taska
-Dump Valve DONE
-SD DONE
-
-Buzzer
-Press
-Thermocouple
-RGB
-*/
