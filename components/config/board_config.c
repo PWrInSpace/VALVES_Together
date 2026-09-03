@@ -36,7 +36,7 @@
 #include "sd_task.h"
 #include "servo_config.h"
 #include "solenoid_config.h"
-#include "thermocouple_task.h"
+#include "thermocouple_config.h"
 #include "timers_config.h"
 #include "valve_board_config.h"
 

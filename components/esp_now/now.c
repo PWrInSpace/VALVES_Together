@@ -10,6 +10,7 @@
 /**************************  PRIVATE INCLUDES  ********************************/
 
 #include <math.h>
+#include <stdint.h>
 #include <string.h>
 
 /**************************  PRIVATE VARIABLES  *******************************/
@@ -19,6 +20,7 @@ const uint8_t addressObc[] = {0x04, 0x20, 0x04,
 
 bool now_send_data_log_enabled = false;
 bool obc_test_data_enabled = false;
+uint8_t obc_state = 0;
 
 static const float OBC_TEST_PRESSURE1 = 69.69f;
 static const float OBC_TEST_PRESSURE2 = 88.88f;
@@ -119,6 +121,10 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData,
       memcpy((void *)&moduleData.obcState, (uint16_t *)incomingData,
              sizeof(moduleData.obcState));
       // ESP_LOGI("NOW", "OBC State updated to: %d", moduleData.obcState);
+      if (moduleData.obcState != obc_state) {
+        obc_state = moduleData.obcState;
+        ESP_LOGI("NOW", "OBC State updated to: %d", obc_state);
+      }
     } else if (len == sizeof(DataFromObc) ||
                len == sizeof(DataFromObc2)) { // +1 for alignment{
       ESP_LOGI("NOW", "Data received from OBC");
