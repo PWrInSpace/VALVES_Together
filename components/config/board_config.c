@@ -173,6 +173,31 @@ esp_err_t board_config_init(void) {
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   run_auto_vent_task();
 #endif
+  
+  // ESP_LOGW(TAG, "DISCO MODE!!!");
+  // while (true) {
+  //   rgb_led_set_color(RGB_RED);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_ORANGE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_YELLOW);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_GREEN);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_CYAN);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_BLUE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_MAGENTA);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_PURPLE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_WHITE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_turn_off();
+  //   vTaskDelay(pdMS_TO_TICKS(2000));
+  // }
+
   return ESP_OK;
 
   //*********** ADD HARDWARE CONFIGURATION HERE ***********//
