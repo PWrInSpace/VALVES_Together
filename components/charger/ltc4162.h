@@ -27,8 +27,7 @@ typedef struct {
 typedef enum {
   LTC4162_ALERT_LIMIT_NONE = 0x0000,
   LTC4162_ALERT_TELEMETRY_VALID =
-      (1
-       << 15), // Telemetry system initialization complete and ADC data is valid
+      (1 << 15), // Telemetry system initialization complete and ADC data is valid
   LTC4162_ALERT_BSR_DONE = (1 << 14), // Battery internal resistance measurement
                                       // cycle (BSR) has completed
   LTC4162_ALERT_VBAT_LO =
@@ -40,11 +39,9 @@ typedef enum {
   LTC4162_ALERT_VIN_HI =
       (1 << 8), // Input supply voltage exceeded the high threshold limit
   LTC4162_ALERT_VOUT_LO =
-      (1
-       << 7), // System output voltage (VOUT) fell below the low threshold limit
+      (1 << 7), // System output voltage (VOUT) fell below the low threshold limit
   LTC4162_ALERT_VOUT_HI =
-      (1
-       << 6), // System output voltage (VOUT) exceeded the high threshold limit
+      (1 << 6), // System output voltage (VOUT) exceeded the high threshold limit
   LTC4162_ALERT_IIN_HI = (1 << 5),      // Input current drawn from the supply
                                         // exceeded the high threshold limit
   LTC4162_ALERT_IBAT_LO = (1 << 4),     // Battery current fell below the low
@@ -66,8 +63,7 @@ typedef enum {
   LTC4162_ALERT_BAT_DETECT_FAILED =
       (1 << 12), // Battery detection test failed to determine battery presence
   LTC4162_ALERT_BATTERY_DETECTION =
-      (1
-       << 11), // Charger has initiated the battery presence detection sequence
+      (1 << 11), // Charger has initiated the battery presence detection sequence
   LTC4162_ALERT_CHARGER_SUSPENDED =
       (1 << 8), // Charging has been suspended programmatically or due to safety
                 // triggers
@@ -113,8 +109,7 @@ typedef enum {
   LTC4162_CHARGER_BAT_DETECT_FAILED =
       (1 << 12), // Battery detection test failed to determine battery presence
   LTC4162_CHARGER_BATTERY_DETECTION =
-      (1
-       << 11), // Charger has initiated the battery presence detection sequence
+      (1 << 11), // Charger has initiated the battery presence detection sequence
   LTC4162_CHARGER_SUSPENDED =
       (1 << 8), // Charging has been suspended programmatically or due to safety
                 // triggers
