@@ -1,100 +1,60 @@
 #include "RGB_led_driver.h"
-#include "driver/ledc.h"
 #include "esp_log.h"
+#include "led_strip.h"
 
-static const char *TAG = "RGB_LED";
-
-#define TIMER LEDC_TIMER_1
-#define MODE LEDC_LOW_SPEED_MODE
-
-#define CHANNEL_R LEDC_CHANNEL_0
-#define CHANNEL_G LEDC_CHANNEL_1
-#define CHANNEL_B LEDC_CHANNEL_2
+static const char *TAG = "ARGB_LED";
+static led_strip_handle_t s_led_strip = NULL;
 
 esp_err_t rgb_led_init(void) {
-  esp_err_t err;
+  led_strip_config_t strip_config = {
+    .strip_gpio_num = ARGB_DIN_GPIO,
+    .max_leds = 1, // only one ARGB led on pcb
+    .led_pixel_format = LED_PIXEL_FORMAT_GRB,
+    .led_model = LED_MODEL_WS2812,
+    .flags.invert_out = false,
+  };
 
-  ledc_timer_config_t ledc_timer = {.speed_mode = MODE,
-                                    .duty_resolution = LEDC_TIMER_8_BIT,
-                                    .timer_num = TIMER,
-                                    .freq_hz = 5000,
-                                    .clk_cfg = LEDC_AUTO_CLK};
+  led_strip_rmt_config_t rmt_config = {
+    .clk_src = RMT_CLK_SRC_DEFAULT,
+    .resolution_hz = 1e7, // 10 MHz
+    .mem_block_symbols = 64,
+    .flags.with_dma = false,
+  };
 
-  err = ledc_timer_config(&ledc_timer);
+  esp_err_t err = led_strip_new_rmt_device(&strip_config, &rmt_config, &s_led_strip);
   if (err != ESP_OK) {
-    ESP_LOGE(TAG, "Timer config failed");
+    ESP_LOGE(TAG, "init failed: %s", esp_err_to_name(err));
     return err;
   }
 
-  ledc_channel_config_t ledc_channel[3] = {{.gpio_num = LED_R_GPIO,
-                                            .speed_mode = MODE,
-                                            .channel = CHANNEL_R,
-                                            .intr_type = LEDC_INTR_DISABLE,
-                                            .timer_sel = TIMER,
-                                            .duty = 0,
-                                            .hpoint = 0},
-                                           {.gpio_num = LED_G_GPIO,
-                                            .speed_mode = MODE,
-                                            .channel = CHANNEL_G,
-                                            .intr_type = LEDC_INTR_DISABLE,
-                                            .timer_sel = TIMER,
-                                            .duty = 0,
-                                            .hpoint = 0},
-                                           {.gpio_num = LED_B_GPIO,
-                                            .speed_mode = MODE,
-                                            .channel = CHANNEL_B,
-                                            .intr_type = LEDC_INTR_DISABLE,
-                                            .timer_sel = TIMER,
-                                            .duty = 0,
-                                            .hpoint = 0}};
-
-  for (int i = 0; i < 3; i++) {
-    err = ledc_channel_config(&ledc_channel[i]);
-    if (err != ESP_OK) {
-      ESP_LOGE(TAG, "Channel config failed for pin %d",
-               ledc_channel[i].gpio_num);
-      return err;
-    }
+  err = led_strip_clear(s_led_strip);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "clear failed: %s", esp_err_to_name(err));
+    return err;
   }
 
-  ESP_LOGI(TAG, "RGB LED initialized successfully");
+  ESP_LOGI(TAG, "initialized on GPIO %d", ARGB_DIN_GPIO);
   return ESP_OK;
 }
 
-esp_err_t rgb_led_set_channels(uint8_t channel_r, uint8_t channel_g,
-                               uint8_t channel_b) {
-  esp_err_t err;
+esp_err_t rgb_led_set_channels(uint8_t channel_r, uint8_t channel_g, uint8_t channel_b) {
+  if (s_led_strip == NULL) return ESP_ERR_INVALID_STATE;
 
-  err = ledc_set_duty(MODE, CHANNEL_R, (255 - channel_r));
-  if (err != ESP_OK)
-    return err;
-  err = ledc_update_duty(MODE, CHANNEL_R);
-  if (err != ESP_OK)
-    return err;
+  esp_err_t err = led_strip_set_pixel(s_led_strip, 0, channel_r, channel_g, channel_b); // only one ARGB led on pcb
+  if (err != ESP_OK) return err;
 
-  err = ledc_set_duty(MODE, CHANNEL_G, (255 - channel_g));
-  if (err != ESP_OK)
-    return err;
-  err = ledc_update_duty(MODE, CHANNEL_G);
-  if (err != ESP_OK)
-    return err;
-
-  err = ledc_set_duty(MODE, CHANNEL_B, (255 - channel_b));
-  if (err != ESP_OK)
-    return err;
-  err = ledc_update_duty(MODE, CHANNEL_B);
-  if (err != ESP_OK)
-    return err;
-
-  return ESP_OK;
+  return led_strip_refresh(s_led_strip);
 }
 
-esp_err_t rgb_led_set_hex_color(led_color_t hex_color) {
-  uint8_t r = (hex_color >> 16) & 0xFF;
-  uint8_t g = (hex_color >> 8) & 0xFF;
-  uint8_t b = hex_color & 0xFF;
+esp_err_t rgb_led_set_color(led_color_t color) {
+  uint8_t r = (color >> 16) & 0xFF;
+  uint8_t g = (color >> 8) & 0xFF;
+  uint8_t b = color & 0xFF;
 
   return rgb_led_set_channels(r, g, b);
 }
 
-esp_err_t rgb_turn_off(void) { return rgb_led_set_channels(0, 0, 0); }
+esp_err_t rgb_turn_off(void) {
+  if (s_led_strip == NULL) return ESP_ERR_INVALID_STATE;
+  return led_strip_clear(s_led_strip);
+}

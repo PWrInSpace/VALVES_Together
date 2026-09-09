@@ -4,9 +4,7 @@
 #include "esp_err.h"
 #include <stdint.h>
 
-#define LED_R_GPIO 39
-#define LED_G_GPIO 40
-#define LED_B_GPIO 41
+#define ARGB_DIN_GPIO 11
 
 typedef enum {
   RGB_WHITE = 0xFFFFFF,
@@ -22,8 +20,7 @@ typedef enum {
 
 esp_err_t rgb_led_init(void);
 
-esp_err_t rgb_led_set_channels(uint8_t channel_r, uint8_t channel_g,
-                               uint8_t channel_b);
+esp_err_t rgb_led_set_channels(uint8_t channel_r, uint8_t channel_g, uint8_t channel_b);
 
 esp_err_t rgb_led_set_color(led_color_t color);
 
