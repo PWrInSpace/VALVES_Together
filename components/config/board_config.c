@@ -62,6 +62,11 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
+  err = rgb_led_init();
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "RGB LED initialization failed");
+  }
+
   if (!run_buzzer_task()) {
     ESP_LOGE(TAG, "Buzzer task initialization failed");
     return ESP_FAIL;
