@@ -93,9 +93,11 @@ pressure_driver_read_voltage(pressure_driver_struct_t *pressure_driver,
 
   ads1115_set_input_mux(pressure_driver->ads1115,
                         pressure_driver->sensors[sensor].adc_pin);
-  esp_rom_delay_us(
-      2400); // one conversion time is 1/860 seconds (1.16 ms) after mux change
-             // in worst case ads1115 takes time of two conversions (2.32 ms)
+  // esp_rom_delay_us(
+  // 2400); // one conversion time is 1/860 seconds (1.16 ms) after mux change
+  //  in worst case ads1115 takes time of two conversions (2.32 ms)
+
+  vTaskDelay(pdMS_TO_TICKS(3)); // to unblock the cpu
   ads1115_get_value(pressure_driver->ads1115, &raw);
   *voltage = ads1115_gain_values[ADS1115_GAIN_4V096] / ADS1115_MAX_VALUE * raw;
 

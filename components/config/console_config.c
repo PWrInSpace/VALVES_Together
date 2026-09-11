@@ -15,6 +15,7 @@
 #include "i2c_scan.h"
 #include "igniter_driver.h"
 #include "ltc4162.h"
+#include "mcu_i2c_config.h"
 #include "now.h"
 #include "pressure_driver.h"
 #include "servo_config.h"
@@ -35,7 +36,12 @@ static int run_i2c_scan(int argc, char **argv) {
 }
 
 static int run_ltc4162_monitor(int argc, char **argv) {
+  if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(500)) != pdTRUE) {
+    ESP_LOGE(TAG, "I2C mutex timeout — cannot run ltc_monitor");
+    return -1;
+  }
   ltc4162_debug_monitor();
+  xSemaphoreGive(mcu_i2c_mutex);
   return 0;
 }
 
