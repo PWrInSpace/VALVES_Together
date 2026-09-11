@@ -118,15 +118,10 @@ static bool save_text(const char *path, BoardData_t *data) {
             data[i].temperature[1], data[i].temperature[2], data[i].pressure[1],
             data[i].pressure[2], data[i].pressure[3], data[i].termistor,
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
-            valve2_state, data[i].is_charging, data[i].chargerData.vbat,
-            data[i].chargerData.vin, data[i].chargerData.vin_supply,
-            data[i].chargerData.vext_supply, data[i].chargerData.ibat,
-            data[i].chargerData.iin, data[i].chargerData.die_temp,
-            data[i].chargerData.vout, data[i].chargerData.charger_status,
-            data[i].chargerData.charger_state,
-            data[i].chargerData.system_status, moduleData.obcState,
-            data[i].auto_vent_activated, data[i].auto_vent_triggered,
-            (long)data[i].auto_vent_pressure);
+            valve2_state, data[i].is_charging, data[i].chargerData.vin_supply,
+            data[i].chargerData.vext_supply, data[i].chargerData.die_temp,
+            moduleData.obcState, data[i].auto_vent_activated,
+            data[i].auto_vent_triggered, (long)data[i].auto_vent_pressure);
 #else
     fprintf(f,
             "%llu,%f,%f,%f,%f,%f,%f,%f,"
@@ -138,13 +133,9 @@ static bool save_text(const char *path, BoardData_t *data) {
             data[i].temperature[1], data[i].temperature[2], data[i].pressure[1],
             data[i].pressure[2], data[i].pressure[3], data[i].termistor,
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
-            valve2_state, data[i].is_charging, data[i].chargerData.vbat,
-            data[i].chargerData.vin, data[i].chargerData.vin_supply,
-            data[i].chargerData.vext_supply, data[i].chargerData.ibat,
-            data[i].chargerData.iin, data[i].chargerData.die_temp,
-            data[i].chargerData.vout, data[i].chargerData.charger_status,
-            data[i].chargerData.charger_state,
-            data[i].chargerData.system_status, moduleData.obcState);
+            valve2_state, data[i].is_charging, data[i].chargerData.vin_supply,
+            data[i].chargerData.vext_supply, data[i].chargerData.die_temp,
+            moduleData.obcState);
 #endif
   }
 
@@ -162,14 +153,12 @@ static bool add_header(const char *path) {
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
              "DumpValveCont,DumpValveArm,Valve1State,Valve2State,IsCharging,"
-             "Vbat,Vin,VinSupply,VextSupply,Ibat,Iin,DieTemp,Vout,"
-             "ChargerStatus,ChargerState,SystemStatus,"
+             "VinSupply,VextSupply,DieTemp,"
              "ObcState,AutoVentActivated,AutoVentTriggered,AutoVentPressure\n");
 #else
   fprintf(f, "PowerTime,Temp1,Temp2,Temp3,Press1,Press2,Press3,Termistor,"
              "DumpValveCont,DumpValveArm,Valve1State,Valve2State,IsCharging,"
-             "Vbat,Vin,VinSupply,VextSupply,Ibat,Iin,DieTemp,Vout,"
-             "ChargerStatus,ChargerState,SystemStatus,"
+             "VinSupply,VextSupply,DieTemp,"
              "ObcState\n");
 #endif
 
