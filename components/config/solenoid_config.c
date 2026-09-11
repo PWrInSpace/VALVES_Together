@@ -1,6 +1,13 @@
 #include "solenoid_config.h"
+#include "BoardData.h"
 #include "Solenoid.h"
 #include "esp_log.h"
+#include "esp_timer.h"
+
+#define TAG_IDLE "SOLENOID_IDLE"
+
+#define IDLE_OPEN_DELAY_MS 5000
+#define IDLE_OPEN_MAX_OBC_STATE 1
 
 #ifdef SOL_N2_CONFIG
 
@@ -34,4 +41,40 @@ esp_err_t valves_init() {
     ret |= valve_init(&valves[i]);
   }
   return ret;
+}
+
+static void idle_open_timer_cb(void *arg) {
+  (void)arg;
+  uint8_t obc_state = moduleData.obcState;
+
+  if (obc_state > IDLE_OPEN_MAX_OBC_STATE) {
+    ESP_LOGI(TAG_IDLE, "Idle timeout reached but obcState=%d, keeping solenoids closed", obc_state);
+    return;
+  }
+
+  ESP_LOGI(TAG_IDLE, "Idle timeout reached (obcState=%d), opening solenoids to save battery", obc_state);
+
+  for (int i = 0; i < NUM_OF_SOLENOIDS; i++) {
+    esp_err_t err = set_valve_state(valves[i].name, VALVE_ON);
+    if (err != ESP_OK) {
+      ESP_LOGE(TAG_IDLE, "Failed to open solenoid %d: %s", valves[i].name, esp_err_to_name(err));
+    }
+  }
+}
+
+esp_err_t schedule_idle_solenoid_open(void) {
+  if (NUM_OF_SOLENOIDS == 0) return ESP_OK;
+
+  const esp_timer_create_args_t timer_args = {
+    .callback = idle_open_timer_cb, .name = "idle_sol_open"
+  };
+
+  esp_timer_handle_t timer_handle;
+  esp_err_t err = esp_timer_create(&timer_args, &timer_handle);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG_IDLE, "Failed to create idle-open timer: %s", esp_err_to_name(err));
+    return err;
+  }
+
+  return esp_timer_start_once(timer_handle, IDLE_OPEN_DELAY_MS * 1000ULL);
 }

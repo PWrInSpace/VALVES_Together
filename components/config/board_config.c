@@ -170,6 +170,11 @@ esp_err_t board_config_init(void) {
   createNowSendTask();
   run_measure_task();
 
+  err = schedule_idle_solenoid_open();
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "Failed to schedule idle solenoid open");
+  }
+
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   run_auto_vent_task();
 #endif
