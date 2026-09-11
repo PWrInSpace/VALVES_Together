@@ -18,6 +18,7 @@ typedef struct {
   bool dump_valve_arm;
   bool dump_valve_cont;
   bool is_charging;
+  uint8_t obcState;
   bool auto_vent_activated;
   bool auto_vent_triggered;
   int32_t auto_vent_pressure;
@@ -33,6 +34,7 @@ typedef struct {
   bool dump_valve_arm;
   bool dump_valve_cont;
   bool is_charging;
+  uint8_t obcState;
   ltc4162_charger_data_t chargerData;
 
 } BoardData_t;

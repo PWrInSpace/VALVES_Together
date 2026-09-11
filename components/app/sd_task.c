@@ -120,7 +120,7 @@ static bool save_text(const char *path, BoardData_t *data) {
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
             valve2_state, data[i].is_charging, data[i].chargerData.vin_supply,
             data[i].chargerData.vext_supply, data[i].chargerData.die_temp,
-            moduleData.obcState, data[i].auto_vent_activated,
+            data[i].obcState, data[i].auto_vent_activated,
             data[i].auto_vent_triggered, (long)data[i].auto_vent_pressure);
 #else
     fprintf(f,
@@ -135,7 +135,7 @@ static bool save_text(const char *path, BoardData_t *data) {
             data[i].dump_valve_cont, data[i].dump_valve_arm, valve1_state,
             valve2_state, data[i].is_charging, data[i].chargerData.vin_supply,
             data[i].chargerData.vext_supply, data[i].chargerData.die_temp,
-            moduleData.obcState);
+            data[i].obcState);
 #endif
   }
 
@@ -198,6 +198,7 @@ void update_data_task(void *arg) {
 
     if (xSemaphoreTake(current_mutex, portMAX_DELAY) == pdTRUE) {
       boardDataCopy.power_time = power_time();
+      boardDataCopy.obcState = moduleData.obcState;
       current_buffer[counter] = boardDataCopy;
       counter++;
       xSemaphoreGive(current_mutex);
