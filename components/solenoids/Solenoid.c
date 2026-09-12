@@ -6,7 +6,7 @@
 
 esp_err_t valve_init(Valve *valve) {
   esp_err_t err = ESP_OK;
-  valve->state = valve->type ? VALVE_OFF : VALVE_ON;
+  valve->state = valve->type = VALVE_OFF;
   valve->gpio_pin = VALVE_GPIO_PINS[valve->name];
   if (!GPIO_IS_VALID_OUTPUT_GPIO(valve->gpio_pin)) {
     return ESP_ERR_INVALID_ARG;
@@ -83,9 +83,9 @@ static void timer_open_callback(void *arg) {
   }
 
   if (*valve_name == 0)
-    valve1_state = 0;
+    valve1_state = 1;
   else if (*valve_name == 1)
-    valve2_state = 0;
+    valve2_state = 1;
 
   free(valve_name); // Zwolnij pamięć
 }

@@ -181,4 +181,7 @@ esp_err_t set_boardData_temperatures(float temperatures[3],
 esp_err_t get_boardData_power_time(uint64_t *power_time, uint32_t mutexTimeout);
 esp_err_t set_boardData_power_time(uint64_t power_time, uint32_t mutexTimeout);
 
+esp_err_t get_obcState(uint8_t *obcState, uint32_t mutexTimeout);
+esp_err_t set_obcState(uint8_t obcState, uint32_t mutexTimeout);
+
 extern volatile ModuleData moduleData;

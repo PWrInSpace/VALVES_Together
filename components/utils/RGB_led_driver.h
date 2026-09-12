@@ -20,7 +20,8 @@ typedef enum {
 
 esp_err_t rgb_led_init(void);
 
-esp_err_t rgb_led_set_channels(uint8_t channel_r, uint8_t channel_g, uint8_t channel_b);
+esp_err_t rgb_led_set_channels(uint8_t channel_r, uint8_t channel_g,
+                               uint8_t channel_b);
 
 esp_err_t rgb_led_set_color(led_color_t color);
 

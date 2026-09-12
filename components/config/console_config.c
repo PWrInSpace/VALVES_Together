@@ -601,6 +601,17 @@ int calibrate_servo(int argc, char **argv) {
   return 0;
 }
 
+int set_obc_state(int argc, char **argv) {
+  if (argc < 2) {
+    printf("Usage: set_obc_state <state>\n");
+    return 0;
+  }
+
+  uint8_t obc_state = atoi(argv[1]);
+  set_obcState(obc_state, portMAX_DELAY);
+  return 0;
+}
+
 int print_help(int argc, char **argv) {
   printf("\n=== %s console ===\n", CONFIG_NAME);
 
@@ -639,6 +650,7 @@ int print_help(int argc, char **argv) {
   printf("  reset                Reset the device\n");
   printf("  ltc_monitor          Run LTC4162 debug monitor\n");
   printf("  buzzer_play          Play a sound on the buzzer\n");
+  printf("  set_obc_state         Set OBC state\n");
 
   printf("\n-- Valves --\n");
   printf(
@@ -720,6 +732,7 @@ static esp_console_cmd_t cmd[] = {
     #error "No valve configuration defined!"
     #endif
     {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
+    {"set_obc_state", "Set OBC state", NULL, set_obc_state, NULL, NULL, NULL},
 
     {"help", "Show this help", NULL, print_help, NULL, NULL, NULL},
 };

@@ -123,6 +123,7 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingData,
       // ESP_LOGI("NOW", "OBC State updated to: %d", moduleData.obcState);
       if (moduleData.obcState != obc_state) {
         obc_state = moduleData.obcState;
+        set_obcState(obc_state, portMAX_DELAY);
         ESP_LOGI("NOW", "OBC State updated to: %d", obc_state);
       }
     } else if (len == sizeof(DataFromObc) ||

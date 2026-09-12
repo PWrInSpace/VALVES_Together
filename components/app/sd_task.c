@@ -198,7 +198,6 @@ void update_data_task(void *arg) {
 
     if (xSemaphoreTake(current_mutex, portMAX_DELAY) == pdTRUE) {
       boardDataCopy.power_time = power_time();
-      boardDataCopy.obcState = moduleData.obcState;
       current_buffer[counter] = boardDataCopy;
       counter++;
       xSemaphoreGive(current_mutex);

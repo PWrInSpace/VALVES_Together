@@ -2,6 +2,7 @@
 #include "buzzer.h"
 #include "buzzer_task.h"
 #include "esp_log.h"
+#include "freertos/idf_additions.h"
 #include "ltc4162.h"
 #include "max31856.h"
 #include "mcu_i2c_config.h"
@@ -31,6 +32,7 @@ static void pressure_task(void *arg) {
       set_boardData_pressures(temp_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
     }
   }
+  vTaskDelay(pdMS_TO_TICKS(10));
 }
 
 static void charger_task(void *arg) {
