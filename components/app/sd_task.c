@@ -111,8 +111,7 @@ static bool save_text(const char *path, BoardData_t *data) {
     fprintf(f,
             "%llu,%f,%f,%f,%f,%f,%f,%f,"
             "%d,%d,%d,%d,%d,"
-            "%f,%f,%f,%f,%f,%f,%f,%f,"
-            "%d,%d,%d,"
+            "%f,%f,%f,"
             "%d,%d,%d,%ld\n",
             (unsigned long long)data[i].power_time, data[i].temperature[0],
             data[i].temperature[1], data[i].temperature[2], data[i].pressure[1],
@@ -126,8 +125,7 @@ static bool save_text(const char *path, BoardData_t *data) {
     fprintf(f,
             "%llu,%f,%f,%f,%f,%f,%f,%f,"
             "%d,%d,%d,%d,%d,"
-            "%f,%f,%f,%f,%f,%f,%f,%f,"
-            "%d,%d,%d,"
+            "%f,%f,%f,"
             "%d\n",
             (unsigned long long)data[i].power_time, data[i].temperature[0],
             data[i].temperature[1], data[i].temperature[2], data[i].pressure[1],

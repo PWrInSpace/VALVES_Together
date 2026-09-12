@@ -6,7 +6,7 @@
 
 esp_err_t valve_init(Valve *valve) {
   esp_err_t err = ESP_OK;
-  valve->state = valve->type = VALVE_OFF;
+  valve->state = VALVE_OFF;
   valve->gpio_pin = VALVE_GPIO_PINS[valve->name];
   if (!GPIO_IS_VALID_OUTPUT_GPIO(valve->gpio_pin)) {
     return ESP_ERR_INVALID_ARG;
