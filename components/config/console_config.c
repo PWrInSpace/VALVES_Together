@@ -612,6 +612,17 @@ int set_obc_state(int argc, char **argv) {
   return 0;
 }
 
+int close_solenoid_time(int argc, char **argv) {
+  if (argc < 2) {
+    printf("Usage: close_solenoid_time <time>\n");
+    return 0;
+  }
+
+  uint32_t time = atoi(argv[1]);
+  close_sol_time(valves[0].name, time);
+  return 0;
+}
+
 int print_help(int argc, char **argv) {
   printf("\n=== %s console ===\n", CONFIG_NAME);
 
@@ -674,6 +685,7 @@ int print_help(int argc, char **argv) {
   printf("  close_sol_n2         Close N2 solenoid\n");
 #endif
 
+  printf("  close_solenoid_time  <ms> - close solenoid for specified time\n");
   printf("\n");
   return 0;
 }
@@ -730,6 +742,11 @@ static esp_console_cmd_t cmd[] = {
     {"close_sol_n2", "Close N2 solenoid", NULL, close_valve1, NULL, NULL, NULL},
     #else
     #error "No valve configuration defined!"
+    
+    #endif
+    
+    #ifndef SERVO_N20_CONFIG
+    {"close_solenoid_time", "Close solenoid for specified time (ms)", NULL, close_solenoid_time, NULL, NULL, NULL},
     #endif
     {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
     {"set_obc_state", "Set OBC state", NULL, set_obc_state, NULL, NULL, NULL},

@@ -32,7 +32,7 @@ static void pressure_task(void *arg) {
       set_boardData_pressures(temp_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
     }
   }
-  vTaskDelay(pdMS_TO_TICKS(10));
+  // vTaskDelay(pdMS_TO_TICKS(10));
 }
 
 static void charger_task(void *arg) {
