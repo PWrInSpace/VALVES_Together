@@ -8,9 +8,10 @@
 #include "mcu_spi_config.h"
 #include "sdcard.h"
 #include <dirent.h>
+#include <unistd.h>
 
 #define TAG "SD_TASK"
-#define BUFFER_SAMPLES 250
+#define BUFFER_SAMPLES 10
 static sd_card_t sd_card;
 TaskHandle_t sd_task = NULL;
 TaskHandle_t sd_data_task = NULL;
@@ -99,10 +100,9 @@ esp_err_t sd_task_init(void) {
   return ESP_OK;
 }
 
-static bool save_text(const char *path, BoardData_t *data) {
-  FILE *f = fopen(path, "a"); // append text
+static bool save_text(FILE *f, BoardData_t *data) {
   if (!f) {
-    ESP_LOGE("SDCARD", "Failed to open %s for writing", path);
+    ESP_LOGE("SDCARD", "Log file is not open");
     return false;
   }
 
@@ -137,7 +137,8 @@ static bool save_text(const char *path, BoardData_t *data) {
 #endif
   }
 
-  fclose(f);
+  fflush(f);
+  fsync(fileno(f));
   return true;
 }
 
@@ -165,9 +166,9 @@ static bool add_header(const char *path) {
   return true;
 }
 
-static void save_buffer(const char *path, BoardData_t *data) {
+static void save_buffer(FILE *f, BoardData_t *data) {
   if (sd_card.mounted) {
-    if (!save_text(path, data)) {
+    if (!save_text(f, data)) {
       ESP_LOGE(TAG, "Failed to save data to SD card");
     }
   } else {
@@ -227,18 +228,25 @@ static void save_data_task(void *arg) {
   ESP_LOGI(TAG, "Saving to %s", file_path);
   add_header(file_path);
 
+  FILE *log_file = fopen(file_path, "a");
+  if (!log_file) {
+    ESP_LOGE(TAG, "Failed to open log file %s, aborting SD task", file_path);
+    vTaskDelete(NULL);
+    return;
+  }
+
   ESP_LOGI(TAG, "Starting SD card save task");
 
   while (1) {
     if (xSemaphoreTake(buffer_A_ready, portMAX_DELAY) == pdTRUE) {
       if (xSemaphoreTake(mutex_A, portMAX_DELAY) == pdTRUE) {
-        save_buffer(file_path, buffer_A);
+        save_buffer(log_file, buffer_A);
         xSemaphoreGive(mutex_A);
       }
     }
     if (xSemaphoreTake(buffer_B_ready, portMAX_DELAY) == pdTRUE) {
       if (xSemaphoreTake(mutex_B, portMAX_DELAY) == pdTRUE) {
-        save_buffer(file_path, buffer_B);
+        save_buffer(log_file, buffer_B);
         xSemaphoreGive(mutex_B);
       }
     }

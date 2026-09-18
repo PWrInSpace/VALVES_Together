@@ -14,7 +14,7 @@
 #include "servo_control.h"
 #include "system_timer.h"
 
-#define FIRE_TIME_MS 3000 // "0" means infinite time (valve doesn't close)
+#define FIRE_TIME_MS 6000 // "0" means infinite time (valve doesn't close)
 #define TIME_BETWEEN_VALVES_MS 60
 #define OPEN_SOL_AFTER_FIRE_MS 0 // 0 means infinite time (valve doesn't open)
 

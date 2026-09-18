@@ -105,11 +105,11 @@ static void charger_task(void *arg) {
 
         const bool is_charging_now = ext_latched;
 
-        if (is_charging_now && !charging_notification_sent) {
-          play_buzzer_sound(SOUND_CHARGER_CONNECTED);
-        } else if (!is_charging_now && charging_notification_sent) {
-          play_buzzer_sound(SOUND_CHARGER_DISCONNECTED);
-        }
+        // if (is_charging_now && !charging_notification_sent) {
+        //   play_buzzer_sound(SOUND_CHARGER_CONNECTED);
+        // } else if (!is_charging_now && charging_notification_sent) {
+        //   play_buzzer_sound(SOUND_CHARGER_DISCONNECTED);
+        // }
 
         charging_notification_sent = is_charging_now;
 
