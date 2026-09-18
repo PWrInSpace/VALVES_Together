@@ -12,8 +12,6 @@
 
 #include "board_config.h"
 
-#include "driver/gpio.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -32,7 +30,6 @@
 #include "mcu_adc_config.h"
 #include "mcu_gpio_config.h"
 #include "mcu_i2c_config.h"
-#include "mcu_spi_config.h"
 #include "measure_task.h"
 #include "now.h"
 #include "pressure_driver.h"
@@ -40,7 +37,6 @@
 #include "servo_config.h"
 #include "solenoid_config.h"
 #include "thermocouple_config.h"
-#include "thermocouple_task.h"
 #include "timers_config.h"
 #include "valve_board_config.h"
 
@@ -66,16 +62,16 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
+  err = rgb_led_init();
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "RGB LED initialization failed");
+  }
+
   if (!run_buzzer_task()) {
     ESP_LOGE(TAG, "Buzzer task initialization failed");
     return ESP_FAIL;
   }
 
-  // err = mcu_spi_init();
-  // if (err != ESP_OK) {
-  //   ESP_LOGE(TAG, "SPI initialization failed");
-  //   return err;
-  // }
 #ifdef SERVO_N20_CONFIG
   err = thermocouple_config_init();
   if (err != ESP_OK) {
@@ -95,12 +91,6 @@ esp_err_t board_config_init(void) {
     ESP_LOGE(TAG, "NVS initialization failed");
     return err;
   }
-
-  // err = rgb_led_init();
-  // if (err != ESP_OK) {
-  //   ESP_LOGE(TAG, "Failed to initialize status LED (RGB)");
-  //   // return err;
-  // }
 
   if (nowInit() == ESP_OK) {
     nowAddPeer(addressObc, 1);
@@ -178,19 +168,41 @@ esp_err_t board_config_init(void) {
   }
 
   createNowSendTask();
-#ifdef SERVO_N20_CONFIG
-  run_igniter_task();
-#endif
   run_measure_task();
-#ifdef SERVO_N20_CONFIG
-  if (!run_thermocouple_task()) {
-    ESP_LOGE(TAG, "Failed to start thermocouple task");
-    return ESP_FAIL;
+
+  err = schedule_idle_solenoid_open();
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "Failed to schedule idle solenoid open");
   }
-#endif
+
 #ifdef SOL_N20_SERVO_ETH_CONFIG
   run_auto_vent_task();
 #endif
+
+  // ESP_LOGW(TAG, "DISCO MODE!!!");
+  // while (true) {
+  //   rgb_led_set_color(RGB_RED);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_ORANGE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_YELLOW);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_GREEN);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_CYAN);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_BLUE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_MAGENTA);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_PURPLE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_led_set_color(RGB_WHITE);
+  //   vTaskDelay(pdMS_TO_TICKS(1000));
+  //   rgb_turn_off();
+  //   vTaskDelay(pdMS_TO_TICKS(2000));
+  // }
+
   return ESP_OK;
 
   //*********** ADD HARDWARE CONFIGURATION HERE ***********//
