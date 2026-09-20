@@ -178,8 +178,12 @@ esp_err_t power_off_solenoid(int valve_name) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  uint8_t state = (valves[name].type == VALVE_NO ? VALVE_OPEN : VALVE_CLOSE);
-  err = set_valve_state(valve->name, state);
+  uint8_t state = (valves[valve_name].type == VALVE_NO ? VALVE_OPEN : VALVE_CLOSE);
+  esp_err_t err = set_valve_state(valve_name, state);
+  if (err != ESP_OK) {
+    ESP_LOGE("Solenoid", "Failed to power off solenoid %d.", valve_name);
+    return err;
+  }
 
-  return err;
+  return ESP_OK;
 }
