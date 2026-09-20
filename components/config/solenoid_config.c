@@ -6,7 +6,7 @@
 
 #define TAG_IDLE "SOLENOID_IDLE"
 
-#define IDLE_OPEN_DELAY_MS 5000
+#define IDLE_POWER_OFF_DELAY_MS 5000
 #define IDLE_OPEN_MAX_OBC_STATE 1
 
 #ifdef SOL_N2_CONFIG
@@ -43,9 +43,10 @@ esp_err_t valves_init() {
   return ret;
 }
 
-static void idle_open_timer_cb(void *arg) {
+static void idle_power_off_timer_cb(void *arg) {
   (void)arg;
-  uint8_t obc_state = moduleData.obcState;
+  uint8_t obc_state;
+  get_obcState(&obc_state, portMAX_DELAY);
 
   if (obc_state > IDLE_OPEN_MAX_OBC_STATE) {
     ESP_LOGI(TAG_IDLE,
@@ -56,24 +57,24 @@ static void idle_open_timer_cb(void *arg) {
 
   ESP_LOGI(
       TAG_IDLE,
-      "Idle timeout reached (obcState=%d), opening solenoids to save battery",
+      "Idle timeout reached (obcState=%d), turning off power to solenoids",
       obc_state);
 
   for (int i = 0; i < NUM_OF_SOLENOIDS; i++) {
-    esp_err_t err = set_valve_state(valves[i].name, VALVE_ON);
+    esp_err_t err = power_off_solenoid(valves[i].name);
     if (err != ESP_OK) {
-      ESP_LOGE(TAG_IDLE, "Failed to open solenoid %d: %s", valves[i].name,
-               esp_err_to_name(err));
+      ESP_LOGE(TAG_IDLE, "Failed to power off solenoid %d: %s", 
+        valves[i].name, esp_err_to_name(err));
     }
   }
 }
 
-esp_err_t schedule_idle_solenoid_open(void) {
+esp_err_t schedule_idle_solenoid_power_off(void) {
   if (NUM_OF_SOLENOIDS == 0)
     return ESP_OK;
 
-  const esp_timer_create_args_t timer_args = {.callback = idle_open_timer_cb,
-                                              .name = "idle_sol_open"};
+  const esp_timer_create_args_t timer_args = {.callback = idle_power_off_timer_cb,
+                                              .name = "idle_sol_off"};
 
   esp_timer_handle_t timer_handle;
   esp_err_t err = esp_timer_create(&timer_args, &timer_handle);
@@ -83,5 +84,5 @@ esp_err_t schedule_idle_solenoid_open(void) {
     return err;
   }
 
-  return esp_timer_start_once(timer_handle, IDLE_OPEN_DELAY_MS * 1000ULL);
+  return esp_timer_start_once(timer_handle, IDLE_POWER_OFF_DELAY_MS * 1000ULL);
 }
