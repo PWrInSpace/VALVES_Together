@@ -43,19 +43,19 @@ static void valve_config_init(void) {
   ESP_LOGI("APP_TASK", "SOL_N2_CONFIG defined");
   play_sound(SOUND_QUADRUPLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
-  handle_valve_cmd(N2_SOL_CLOSE, 0);
+  // handle_valve_cmd(N2_SOL_CLOSE, 0);
 #elif defined(SOL_ETH_SERVO_N2_CONFIG)
   play_sound(SOUND_TRIPLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
   ESP_LOGI("APP_TASK", "SOL_ETH_SERVO_N2_CONFIG defined");
   handle_valve_cmd(ETH_SOL_CLOSE, 0);
   vTaskDelay(pdMS_TO_TICKS(1000));
-  handle_valve_cmd(N20_VALVE_CLOSE, 0);
+  // handle_valve_cmd(N20_VALVE_CLOSE, 0);
 #elif defined(SOL_N20_SERVO_ETH_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_N20_SERVO_ETH_CONFIG defined");
   play_sound(SOUND_DOUBLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
-  handle_valve_cmd(N20_SOL_CLOSE, 0);
+  // handle_valve_cmd(N20_SOL_CLOSE, 0);
   handle_valve_cmd(ETH_VALVE_CLOSE, 0);
   ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
 #endif
