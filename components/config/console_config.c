@@ -619,7 +619,7 @@ int close_solenoid_time(int argc, char **argv) {
   }
 
   uint32_t time = atoi(argv[1]);
-  close_sol_time(valves[0].name, time);
+  close_solenoid(valves[0].name, time);
   return 0;
 }
 

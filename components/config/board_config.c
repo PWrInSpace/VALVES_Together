@@ -62,6 +62,12 @@ esp_err_t board_config_init(void) {
     return err;
   }
 
+  err = valves_init();
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Valves initialization failed");
+    return err;
+  }
+
   err = rgb_led_init();
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "RGB LED initialization failed");
@@ -101,12 +107,6 @@ esp_err_t board_config_init(void) {
   } else {
     ESP_LOGE(TAG, "ESP-NOW initialization failed");
     return ESP_FAIL;
-  }
-
-  err = valves_init();
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "Valves initialization failed");
-    return err;
   }
 
   err = init_multiple_servos();
@@ -170,7 +170,7 @@ esp_err_t board_config_init(void) {
   createNowSendTask();
   run_measure_task();
 
-  err = schedule_idle_solenoid_open();
+  err = schedule_idle_solenoid_power_off();
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "Failed to schedule idle solenoid open");
   }

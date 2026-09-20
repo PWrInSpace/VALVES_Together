@@ -3,7 +3,7 @@
 
 #include <driver/gpio.h>
 
-typedef enum { VALVE_OFF = 0, VALVE_ON = 1 } ValveState;
+typedef enum { VALVE_CLOSE = 0, VALVE_OPEN = 1 } ValveState;
 typedef enum { VALVE_NO = 0, VALVE_NC = 1 } ValveType;
 
 typedef struct {
@@ -16,7 +16,7 @@ typedef struct {
 esp_err_t valve_init(Valve *valve);
 esp_err_t set_valve_state(int name, ValveState state);
 esp_err_t open_solenoid(int name, uint16_t time_ms);
-esp_err_t close_sol(int name);
-esp_err_t close_sol_time(int name, uint16_t time_ms);
+esp_err_t close_solenoid(int name, uint16_t time_ms);
+esp_err_t power_off_solenoid(int name);
 
 #endif // SOLENOID_H

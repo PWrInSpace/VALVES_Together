@@ -89,20 +89,14 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     if (open_solenoid(valves[N20_FILL_SOL].name, time_ms) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to open N20_FILL_SOL");
-      valve1_state = 0;
-    } else {
-      valve1_state = 1;
     }
 #endif
     break;
 
   case N20_SOL_CLOSE:
 #ifdef SOL_N20_SERVO_ETH_CONFIG
-    if (close_sol_time(valves[N20_FILL_SOL].name, 0) != ESP_OK) {
+    if (close_solenoid(valves[N20_FILL_SOL].name, 0) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to close N20_FILL_SOL");
-      valve1_state = 1;
-    } else {
-      valve1_state = 0;
     }
 #endif
     break;
@@ -111,20 +105,14 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
 #ifdef SOL_ETH_SERVO_N2_CONFIG
     if (open_solenoid(valves[ETH_FILL_SOL].name, time_ms) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to open ETH_FILL_SOL");
-      valve1_state = 0;
-    } else {
-      valve1_state = 1;
     }
 #endif
     break;
 
   case ETH_SOL_CLOSE:
 #ifdef SOL_ETH_SERVO_N2_CONFIG
-    if (close_sol_time(valves[ETH_FILL_SOL].name, 0) != ESP_OK) {
+    if (close_solenoid(valves[ETH_FILL_SOL].name, 0) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to close ETH_FILL_SOL");
-      valve1_state = 1;
-    } else {
-      valve1_state = 0;
     }
 #endif
     break;
@@ -133,20 +121,14 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
 #ifdef SOL_N2_CONFIG
     if (open_solenoid(valves[N2_FILL_SOL].name, time_ms) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to open N2_FILL_SOL");
-      valve1_state = 0;
-    } else {
-      valve1_state = 1;
     }
 #endif
     break;
 
   case N2_SOL_CLOSE:
 #ifdef SOL_N2_CONFIG
-    if (close_sol_time(valves[N2_FILL_SOL].name, 0) != ESP_OK) {
+    if (close_solenoid(valves[N2_FILL_SOL].name, 0) != ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to close N2_FILL_SOL");
-      valve1_state = 1;
-    } else {
-      valve1_state = 0;
     }
 #endif
     break;
@@ -164,31 +146,25 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     handle_valve_cmd(ETH_VALVE_OPEN, FIRE_TIME_MS);
 
     // opens after OPEN_SOL_AFTER_FIRE_MS
-    if (close_sol_time(valves[N20_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
+    if (close_solenoid(valves[N20_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
         ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to close N20_FILL_SOL");
-    } else {
-      valve1_state = 0;
     }
 #endif
 
 #ifdef SOL_N2_CONFIG
     // opens after OPEN_SOL_AFTER_FIRE_MS
-    if (close_sol_time(valves[N2_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
+    if (close_solenoid(valves[N2_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
         ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to close N2_FILL_SOL");
-    } else {
-      valve1_state = 0;
     }
 #endif
 
 #ifdef SOL_ETH_SERVO_N2_CONFIG
     // opens after OPEN_SOL_AFTER_FIRE_MS
-    if (close_sol_time(valves[ETH_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
+    if (close_solenoid(valves[ETH_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
         ESP_OK) {
       ESP_LOGE("VALVES_CONTROL", "Failed to close ETH_FILL_SOL");
-    } else {
-      valve1_state = 0;
     }
 #endif
     break;
