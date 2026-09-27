@@ -34,17 +34,17 @@ static void get_next_log_filename(char *out_name, size_t max_len) {
   DIR *dir = opendir(MOUNT_POINT);
   struct dirent *entry;
   int max_index = 0;
-
   if (dir == NULL) {
     printf("Failed to open dir\n");
-    snprintf(out_name, max_len, "%s/log_001.csv", MOUNT_POINT);
+    snprintf(out_name, max_len, "%s/%s_001.txt", MOUNT_POINT, SD_FILE_PREFIX);
     return;
   }
-
+  char scan_format[64];
+  snprintf(scan_format, sizeof(scan_format), "%s_%%03d.txt", SD_FILE_PREFIX);
   while ((entry = readdir(dir)) != NULL) {
     if (entry->d_type == DT_REG) {
       int index;
-      if (sscanf(entry->d_name, "LOG_%03d.csv", &index) == 1) {
+      if (sscanf(entry->d_name, scan_format, &index) == 1) {
         if (index > max_index) {
           max_index = index;
         }
@@ -52,9 +52,9 @@ static void get_next_log_filename(char *out_name, size_t max_len) {
     }
   }
   closedir(dir);
-
-  snprintf(out_name, max_len, "%s/log_%03d.csv", MOUNT_POINT, max_index + 1);
+  snprintf(out_name, max_len, "%s/%s_%03d.txt", MOUNT_POINT, SD_FILE_PREFIX, max_index + 1);
 }
+
 
 esp_err_t sd_task_init(void) {
 
@@ -223,7 +223,7 @@ void update_data_task(void *arg) {
 }
 
 static void save_data_task(void *arg) {
-  char file_path[64];
+  char file_path[128];
   get_next_log_filename(file_path, sizeof(file_path));
   ESP_LOGI(TAG, "Saving to %s", file_path);
   add_header(file_path);

@@ -36,10 +36,23 @@
 //                                      | SERVO_N20_CONFIG
 //  SERVO N20                           | GPIO36    valve1_state
 
-// #define SERVO_N20_CONFIG // 1
-// #define SOL_N20_SERVO_ETH_CONFIG // 2
-// #define SOL_ETH_SERVO_N2_CONFIG // 3
-#define SOL_N2_CONFIG // 4
+#include "sdkconfig.h"
+
+#if defined(CONFIG_VALVE_SERVO_N20_CONFIG)
+#define SERVO_N20_CONFIG
+#elif defined(CONFIG_VALVE_SOL_N20_SERVO_ETH_CONFIG)
+#define SOL_N20_SERVO_ETH_CONFIG
+#elif defined(CONFIG_VALVE_SOL_ETH_SERVO_N2_CONFIG)
+#define SOL_ETH_SERVO_N2_CONFIG
+#elif defined(CONFIG_VALVE_SOL_N2_CONFIG)
+#define SOL_N2_CONFIG
+#else
+// Fallback for manual defines if not configured via Kconfig
+// #define SERVO_N20_CONFIG
+// #define SOL_N20_SERVO_ETH_CONFIG
+// #define SOL_ETH_SERVO_N2_CONFIG
+#define SOL_N2_CONFIG
+#endif
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
 #define CONFIG_NAME "SOL_N20_SERVO_ETH_CONFIG"

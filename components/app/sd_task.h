@@ -5,7 +5,14 @@
 #include "freertos/task.h"
 
 #include "esp_log.h"
+#include "sdkconfig.h"
 #define MOUNT_POINT "/sdcard"
+
+#ifndef CONFIG_SD_FILE_PREFIX
+#define SD_FILE_PREFIX "log"
+#else
+#define SD_FILE_PREFIX CONFIG_SD_FILE_PREFIX
+#endif
 
 extern TaskHandle_t sd_task;
 extern volatile bool new_filename_flag;
