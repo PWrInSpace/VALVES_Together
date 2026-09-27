@@ -1,5 +1,35 @@
 menu "VALVES BOARD CONFIGURATION"
-        
+
+    choice VALVE_BOARD_TYPE
+        prompt "Valve Board Hardware Configuration"
+        default VALVE_SOL_N2_CONFIG
+        help
+            Select the valve hardware configuration scenario for this board.
+
+        config VALVE_SERVO_N20_CONFIG
+            bool "N2O Bottle - SERVO N2O CONFIG"
+
+        config VALVE_SOL_N20_SERVO_ETH_CONFIG
+            bool "ETH Bottle - SOL N2O + SERVO ETH CONFIG"
+
+        config VALVE_SOL_ETH_SERVO_N2_CONFIG
+            bool "N2 Bottle Scenario 1 - SOL ETH + SERVO N2 CONFIG"
+
+        config VALVE_SOL_N2_CONFIG
+            bool "N2 Bottle Scenario 1 - SOL N2 CONFIG"
+
+    endchoice
+
+    config SD_FILE_PREFIX
+        string "SD Card log file prefix"
+        default "oxi_main" if VALVE_SERVO_N20_CONFIG
+        default "oxi_sol_eth_main" if VALVE_SOL_N20_SERVO_ETH_CONFIG
+        default "eth_servo_n2_main" if VALVE_SOL_ETH_SERVO_N2_CONFIG
+        default "sol_n2_main" if VALVE_SOL_N2_CONFIG
+        default "log"
+        help
+            Prefix for SD card log files (e.g. prefix_001.txt).
+            Must not exceed FatFS limits.
 
     menu "SPI CONFIGURATION"
 
