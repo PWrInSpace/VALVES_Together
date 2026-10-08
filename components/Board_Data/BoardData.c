@@ -202,3 +202,23 @@ esp_err_t set_boardData_power_time(uint64_t power_time, uint32_t mutexTimeout) {
 
   return ESP_OK;
 }
+
+esp_err_t get_obcState(uint8_t *obcState, uint32_t mutexTimeout) {
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
+  *obcState = boardData.obcState;
+  xSemaphoreGive(BoardDataSemaphore);
+
+  return ESP_OK;
+}
+
+esp_err_t set_obcState(uint8_t obcState, uint32_t mutexTimeout) {
+  if (xSemaphoreTake(BoardDataSemaphore, mutexTimeout) != pdTRUE)
+    return ESP_ERR_TIMEOUT;
+
+  boardData.obcState = obcState;
+  xSemaphoreGive(BoardDataSemaphore);
+
+  return ESP_OK;
+}

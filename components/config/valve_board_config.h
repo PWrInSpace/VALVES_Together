@@ -57,18 +57,3 @@
 // #define THERMISTOR_CALIBRATION
 
 #endif // VALVE_BOARD_CONFIG_H
-
-/*TODO
-Cli Napisane ale trzeba uzupelniac na bierzaco
-I2C scanner DONE
-Servo DONE
-Solenoid DONE
-Charging data dodac taska
-Dump Valve DONE
-SD DONE
-
-Buzzer
-Press
-Thermocouple
-RGB
-*/

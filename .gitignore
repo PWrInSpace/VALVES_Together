@@ -54,6 +54,7 @@ dkms.conf
 .vscode
 .devcontainer
 build
+managed_components
 sdkconfig
 sdkconfig.old
 wykresy/data/LOG_*.CSV

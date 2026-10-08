@@ -6,6 +6,11 @@
 #include "stdbool.h"
 
 #define LTC4162_I2C_ADDRESS 0x68
+
+#ifndef LTC4162_CELL_COUNT
+#define LTC4162_CELL_COUNT 4
+#endif
+
 #define LTC4162_DEFAULT_CONFIG(INT_PIN)                                        \
   (ltc4162_config_t) {                                                         \
     .i2c_address = LTC4162_I2C_ADDRESS, .i2c_read = _mcu_i2c_read,             \
@@ -156,6 +161,19 @@ typedef enum {
       (1 << 5) // Output current limit loop is active
 } ltc4162_charge_status_t;
 
+// SYSTEM_STATUS (0x39) bits — live PowerPath / UVLO comparators
+typedef enum {
+  LTC4162_SYS_STATUS_INTVCC_GT_2P8V = (1 << 0),
+  LTC4162_SYS_STATUS_VIN_GT_4P2V = (1 << 1),
+  LTC4162_SYS_STATUS_VIN_GT_VBAT = (1 << 2), // external > battery (~+150 mV)
+  LTC4162_SYS_STATUS_VIN_OVLO = (1 << 3),
+  LTC4162_SYS_STATUS_THERMAL_SHUTDOWN = (1 << 4),
+  LTC4162_SYS_STATUS_NO_RT = (1 << 5), // also sticky when charger disabled
+  LTC4162_SYS_STATUS_CELL_COUNT_ERROR =
+      (1 << 7), // also sticky when charger off
+  LTC4162_SYS_STATUS_CHARGER_ENABLED = (1 << 8),
+} ltc4162_system_status_t;
+
 typedef struct {
   float vbat;
   float vin;
@@ -168,6 +186,7 @@ typedef struct {
   int16_t system_status;
   bool charger_status;
   bool charger_state;
+  bool ext_power_present; // SYSTEM_STATUS.vin_gt_vbat
 } ltc4162_charger_data_t;
 
 /**
@@ -223,6 +242,11 @@ esp_err_t read_charger_data(ltc4162_charger_data_t *data);
  * @return `ESP_OK` on success.
  */
 esp_err_t ltc4162_set_suspend(bool suspend);
+
+/**
+ * @brief True when VIN > VBAT (external supply driving PowerPath).
+ */
+bool ltc4162_is_external_power_present(void);
 
 // |--- OTHER ---|
 

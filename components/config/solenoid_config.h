@@ -50,4 +50,6 @@ extern Valve valves[NUM_OF_SOLENOIDS];
 
 esp_err_t valves_init(void);
 
+esp_err_t schedule_idle_solenoid_power_off(void);
+
 #endif // SOLENOID_CONFIG_H
