@@ -9,6 +9,8 @@
 #include "pressure_driver.h"
 #include "thermocouple_config.h"
 
+#include <stdlib.h>
+
 TaskHandle_t pressure_task_handle = NULL;
 TaskHandle_t charger_task_handle = NULL;
 TaskHandle_t thermocouple_task_handle = NULL;
@@ -21,18 +23,44 @@ TaskHandle_t thermocouple_task_handle = NULL;
 #define BOARDDATA_MUTEX_TIMEOUT_MS 10
 #define EXT_PRESENT_CONFIRM_COUNT 5
 #define EXT_ABSENT_CONFIRM_COUNT 5
+#define PRESSURE_SAMPLES_COUNT 5
+
+void pressure_get_sample(float *pressures) {
+  if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) == pdTRUE) {
+    pressure_driver_read_pressures(&pressure_driver_config, pressures);
+    xSemaphoreGive(mcu_i2c_mutex);
+  }
+}
+
+static int compare_floats(const void *a, const void *b) {
+  float fa = *(const float*)a;
+  float fb = *(const float*)b;
+  return (fa > fb) - (fa < fb); 
+}
 
 static void pressure_task(void *arg) {
+  float samples[PRESSURE_DRIVER_SENSOR_COUNT][PRESSURE_SAMPLES_COUNT];
+
   while (1) {
-    float temp_pressures[4];
-    if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(I2C_MUTEX_TIMEOUT_MS)) ==
-        pdTRUE) {
-      pressure_driver_read_pressures(&pressure_driver_config, temp_pressures);
-      xSemaphoreGive(mcu_i2c_mutex);
-      set_boardData_pressures(temp_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
+    float median_pressures[PRESSURE_DRIVER_SENSOR_COUNT];
+
+    for (int ch = 0; ch < PRESSURE_SAMPLES_COUNT; ch++) {
+      float temp_pressures[PRESSURE_DRIVER_SENSOR_COUNT];
+      pressure_get_sample(temp_pressures);
+      
+      for (int ch = 0; ch < PRESSURE_DRIVER_SENSOR_COUNT; ch++) {
+        samples[ch][i] = temp_pressures[ch];
+      }
     }
+
+    for (int ch = 0; ch < PRESSURE_DRIVER_SENSOR_COUNT; ch++) {
+      qsort(samples[ch], PRESSURE_SAMPLES_COUNT, sizeof(float), compare_floats);
+      median_pressures[ch] = samples[ch][2]; // middle of 5-element array
+    }
+
+    set_boardData_pressures(median_pressures, BOARDDATA_MUTEX_TIMEOUT_MS);
+    // vTaskDelay(pdMS_TO_TICKS(MEASURE_PERIOD_MS));
   }
-  // vTaskDelay(pdMS_TO_TICKS(10));
 }
 
 static void charger_task(void *arg) {
