@@ -15,6 +15,7 @@
 #include "i2c_scan.h"
 #include "igniter_driver.h"
 #include "ltc4162.h"
+#include "mcu_i2c_config.h"
 #include "now.h"
 #include "pressure_driver.h"
 #include "servo_config.h"
@@ -35,7 +36,12 @@ static int run_i2c_scan(int argc, char **argv) {
 }
 
 static int run_ltc4162_monitor(int argc, char **argv) {
+  if (xSemaphoreTake(mcu_i2c_mutex, pdMS_TO_TICKS(500)) != pdTRUE) {
+    ESP_LOGE(TAG, "I2C mutex timeout — cannot run ltc_monitor");
+    return -1;
+  }
   ltc4162_debug_monitor();
+  xSemaphoreGive(mcu_i2c_mutex);
   return 0;
 }
 
@@ -595,6 +601,28 @@ int calibrate_servo(int argc, char **argv) {
   return 0;
 }
 
+int set_obc_state(int argc, char **argv) {
+  if (argc < 2) {
+    printf("Usage: set_obc_state <state>\n");
+    return 0;
+  }
+
+  uint8_t obc_state = atoi(argv[1]);
+  set_obcState(obc_state, portMAX_DELAY);
+  return 0;
+}
+
+int close_solenoid_time(int argc, char **argv) {
+  if (argc < 2) {
+    printf("Usage: close_solenoid_time <time>\n");
+    return 0;
+  }
+
+  uint32_t time = atoi(argv[1]);
+  close_sol_time(valves[0].name, time);
+  return 0;
+}
+
 int print_help(int argc, char **argv) {
   printf("\n=== %s console ===\n", CONFIG_NAME);
 
@@ -633,6 +661,7 @@ int print_help(int argc, char **argv) {
   printf("  reset                Reset the device\n");
   printf("  ltc_monitor          Run LTC4162 debug monitor\n");
   printf("  buzzer_play          Play a sound on the buzzer\n");
+  printf("  set_obc_state         Set OBC state\n");
 
   printf("\n-- Valves --\n");
   printf(
@@ -656,6 +685,7 @@ int print_help(int argc, char **argv) {
   printf("  close_sol_n2         Close N2 solenoid\n");
 #endif
 
+  printf("  close_solenoid_time  <ms> - close solenoid for specified time\n");
   printf("\n");
   return 0;
 }
@@ -712,8 +742,14 @@ static esp_console_cmd_t cmd[] = {
     {"close_sol_n2", "Close N2 solenoid", NULL, close_valve1, NULL, NULL, NULL},
     #else
     #error "No valve configuration defined!"
+    
+    #endif
+    
+    #ifndef SERVO_N20_CONFIG
+    {"close_solenoid_time", "Close solenoid for specified time (ms)", NULL, close_solenoid_time, NULL, NULL, NULL},
     #endif
     {"open_angle", "Open a valve to a specified angle", NULL, open_angle, NULL, NULL, NULL},
+    {"set_obc_state", "Set OBC state", NULL, set_obc_state, NULL, NULL, NULL},
 
     {"help", "Show this help", NULL, print_help, NULL, NULL, NULL},
 };

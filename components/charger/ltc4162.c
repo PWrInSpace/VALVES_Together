@@ -7,7 +7,6 @@
 
 static ltc4162_config_t LTC_config = {0};
 static bool LTC_initialized = false;
-static uint8_t latched_cell_count = 0;
 
 #define RSNSI 0.01f // przykład: 10mΩ
 #define RSNSB 0.01f // przykład: 10mΩ
@@ -23,6 +22,14 @@ static uint8_t latched_cell_count = 0;
 #define LTC4162_REG_LIMIT_ALERTS 0x36
 #define LTC4162_REG_CHARGER_STATE_ALERTS 0x37
 #define LTC4162_REG_CHARGE_STATUS_ALERTS 0x38
+#define LTC4162_REG_SYSTEM_STATUS 0x39
+#define LTC4162_REG_VBAT 0x3A
+#define LTC4162_REG_VIN 0x3B
+#define LTC4162_REG_VOUT 0x3C
+#define LTC4162_REG_IIN 0x3D
+#define LTC4162_REG_IBAT 0x3E
+#define LTC4162_REG_DIE_TEMP 0x3F
+#define LTC4162_REG_CHEM_CELLS 0x43
 
 // |--- I2C FUNCTIONS ---|
 
@@ -228,7 +235,6 @@ esp_err_t read_charger_data(ltc4162_charger_data_t *charger_data) {
   if (charger_data == NULL)
     return ESP_ERR_INVALID_ARG;
   if (!LTC_initialized) {
-    //   ESP_LOGE(TAG, "LTC4162 not initialized");
     return ESP_ERR_INVALID_STATE;
   }
 
@@ -238,38 +244,29 @@ esp_err_t read_charger_data(ltc4162_charger_data_t *charger_data) {
   int16_t iin_raw = 0;
   int16_t ibat_raw = 0;
   int16_t die_raw = 0;
-  int16_t sys_raw = 0;
   int16_t charger_state_raw = 0;
-  int16_t chem_cells = 0;
   int16_t system_status_raw = 0;
 
-  if (read_reg16_checked(0x3A, &vbat_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_VBAT, &vbat_raw) != ESP_OK)
     return ESP_FAIL;
-  if (read_reg16_checked(0x3B, &vin_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_VIN, &vin_raw) != ESP_OK)
     return ESP_FAIL;
-  if (read_reg16_checked(0x3C, &vout_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_VOUT, &vout_raw) != ESP_OK)
     return ESP_FAIL;
-  if (read_reg16_checked(0x3D, &iin_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_IIN, &iin_raw) != ESP_OK)
     return ESP_FAIL;
-  if (read_reg16_checked(0x3E, &ibat_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_IBAT, &ibat_raw) != ESP_OK)
     return ESP_FAIL;
-  if (read_reg16_checked(0x3F, &die_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_DIE_TEMP, &die_raw) != ESP_OK)
     return ESP_FAIL;
-  if (read_reg16_checked(0x39, &sys_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_CHARGER_STATE, &charger_state_raw) !=
+      ESP_OK)
     return ESP_FAIL;
-  if (read_reg16_checked(0x34, &charger_state_raw) != ESP_OK)
-    return ESP_FAIL;
-  if (read_reg16_checked(0x43, &chem_cells) != ESP_OK)
-    return ESP_FAIL;
-  if (read_reg16_checked(0x39, &system_status_raw) != ESP_OK)
+  if (read_reg16_checked(LTC4162_REG_SYSTEM_STATUS, &system_status_raw) !=
+      ESP_OK)
     return ESP_FAIL;
 
-  uint8_t cell_count = chem_cells & 0x0F;
-  if (cell_count < 2 || cell_count > 8) {
-    cell_count = (latched_cell_count >= 2) ? latched_cell_count : 4;
-  } else {
-    latched_cell_count = cell_count;
-  }
+  const uint8_t cell_count = LTC4162_CELL_COUNT;
 
   charger_data->vbat =
       vbat_raw * (cell_count * 192.4e-6f);   // Battery voltage (V)
@@ -280,12 +277,27 @@ esp_err_t read_charger_data(ltc4162_charger_data_t *charger_data) {
   charger_data->die_temp =
       die_raw * 0.0215f - 264.4f; // IC die temperature (°C)
   charger_data->charger_status =
-      (sys_raw & (1 << 8)) != 0; // If charger is actively power pathing/running
+      (system_status_raw & LTC4162_SYS_STATUS_CHARGER_ENABLED) != 0;
   charger_data->charger_state =
       (charger_state_raw == 2) ? 1 : 0; // 1 for active charging, 0 otherwise
   charger_data->system_status = system_status_raw;
-  charger_data->vout = vout_raw * 1.653e-3f;
+  charger_data->ext_power_present =
+      (system_status_raw & LTC4162_SYS_STATUS_VIN_GT_VBAT) != 0;
+  charger_data->vin_supply = 0.0f;
+  charger_data->vext_supply = 0.0f;
   return ESP_OK;
+}
+
+bool ltc4162_is_external_power_present(void) {
+  if (!LTC_initialized)
+    return false;
+
+  int16_t system_status_raw = 0;
+  if (read_reg16_checked(LTC4162_REG_SYSTEM_STATUS, &system_status_raw) !=
+      ESP_OK)
+    return false;
+
+  return (system_status_raw & LTC4162_SYS_STATUS_VIN_GT_VBAT) != 0;
 }
 
 esp_err_t ltc4162_debug_monitor(void) {
@@ -333,11 +345,13 @@ esp_err_t ltc4162_debug_monitor(void) {
 
   /* ---------- CHEM + CELL COUNT ---------- */
 
-  int16_t chem_cells = read_reg16(0x43);
-  uint8_t cell_count = chem_cells & 0x0F;
+  int16_t chem_cells = read_reg16(LTC4162_REG_CHEM_CELLS);
+  uint8_t cell_count_chip = chem_cells & 0x0F;
   uint8_t chem = (chem_cells >> 8) & 0x0F;
+  const uint8_t cell_count = LTC4162_CELL_COUNT;
 
-  ESP_LOGI(TAG, "Cell count: %u", cell_count);
+  ESP_LOGI(TAG, "Cell count chip=%u (using fixed scale=%u)", cell_count_chip,
+           cell_count);
   ESP_LOGI(TAG, "Chemistry enum: %u", chem);
 
   /* ---------- KONWERSJE FIZYCZNE ---------- */
@@ -349,7 +363,7 @@ esp_err_t ltc4162_debug_monitor(void) {
   float ibat = (ibat_raw * 1.466e-6f) / RSNSB;
   float die_temp = die_raw * 0.0215f - 264.4f;
 
-  ESP_LOGI(TAG, "VBAT: %.3f V", vbat);
+  ESP_LOGI(TAG, "VBAT: %.3f V (raw=%d)", vbat, vbat_raw);
   ESP_LOGI(TAG, "VIN : %.3f V", vin);
   ESP_LOGI(TAG, "VOUT: %.3f V", vout);
   ESP_LOGI(TAG, "IIN : %.3f A", iin);
@@ -358,26 +372,37 @@ esp_err_t ltc4162_debug_monitor(void) {
 
   /* ---------- SYSTEM STATUS ---------- */
 
-  int16_t sys = read_reg16(0x39);
+  int16_t sys = read_reg16(LTC4162_REG_SYSTEM_STATUS);
 
   ESP_LOGI(TAG, "System Status raw: 0x%04X", sys);
+  ESP_LOGI(
+      TAG,
+      "  en_chg=%d vin_gt_vbat=%d vin_gt_4p2v=%d cell_count_err=%d no_rt=%d",
+      (sys & LTC4162_SYS_STATUS_CHARGER_ENABLED) != 0,
+      (sys & LTC4162_SYS_STATUS_VIN_GT_VBAT) != 0,
+      (sys & LTC4162_SYS_STATUS_VIN_GT_4P2V) != 0,
+      (sys & LTC4162_SYS_STATUS_CELL_COUNT_ERROR) != 0,
+      (sys & LTC4162_SYS_STATUS_NO_RT) != 0);
 
-  if (sys & (1 << 8))
-    ESP_LOGW(TAG, "Charging active");
-  if (sys & (1 << 7))
-    ESP_LOGE(TAG, "Cell count error");
-  if (sys & (1 << 5))
+  if (sys & LTC4162_SYS_STATUS_CHARGER_ENABLED)
+    ESP_LOGI(TAG, "Charger active (en_chg)");
+  // cell_count_err / no_rt are sticky-true while charger is not enabled.
+  if ((sys & LTC4162_SYS_STATUS_CELL_COUNT_ERROR) &&
+      (sys & LTC4162_SYS_STATUS_VIN_GT_VBAT))
+    ESP_LOGE(TAG, "Cell count error while VIN>VBAT — check CELLS0/CELLS1");
+  if ((sys & LTC4162_SYS_STATUS_NO_RT) &&
+      (sys & LTC4162_SYS_STATUS_VIN_GT_VBAT))
     ESP_LOGW(TAG, "No RT resistor");
-  if (sys & (1 << 4))
+  if (sys & LTC4162_SYS_STATUS_THERMAL_SHUTDOWN)
     ESP_LOGE(TAG, "Thermal shutdown!");
-  if (sys & (1 << 3))
+  if (sys & LTC4162_SYS_STATUS_VIN_OVLO)
     ESP_LOGE(TAG, "VIN overvoltage!");
-  if (sys & (1 << 2))
-    ESP_LOGI(TAG, "VIN > VBAT");
-  if (sys & (1 << 1))
-    ESP_LOGI(TAG, "VIN > 4.2V");
-  if (sys & (1 << 0))
-    ESP_LOGI(TAG, "INTVCC OK");
+  if (sys & LTC4162_SYS_STATUS_VIN_GT_VBAT)
+    ESP_LOGI(TAG, "VIN > VBAT (external on PowerPath)");
+  if (sys & LTC4162_SYS_STATUS_VIN_GT_4P2V)
+    ESP_LOGI(TAG, "VIN > 4.2 V");
+  if (sys & LTC4162_SYS_STATUS_INTVCC_GT_2P8V)
+    ESP_LOGI(TAG, "INTVCC > 2.8 V");
 
   /* ---------- CHARGER STATE & STATUS---------- */
 

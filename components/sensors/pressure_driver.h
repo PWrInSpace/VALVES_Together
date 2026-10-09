@@ -144,11 +144,6 @@ pressure_driver_read_pressures(pressure_driver_struct_t *pressure_driver,
                                float *pressures);
 
 pressure_driver_status_t
-measure_voltage_mean_from_samples(pressure_driver_struct_t *pressure_driver,
-                                  pressure_driver_sensor_t sensor,
-                                  float *out_voltage);
-
-pressure_driver_status_t
 calibrate_pressure_sensor(pressure_driver_struct_t *pressure_driver,
                           pressure_driver_sensor_t sensor, float pressure,
                           float *measured_volt);
