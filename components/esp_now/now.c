@@ -218,9 +218,6 @@ static void now_send_data_to_obc(void *arg) {
     dataToObc.charger_temperature = board_data_copy.chargerData.die_temp;
     dataToObc.valve1_state = valve1_state;
     dataToObc.valve2_state = valve2_state;
-#ifdef SOL_ETH_SERVO_N2_CONFIG
-    dataToObc.pressure1 = board_data_copy.pressure[3];
-#endif
 
 #ifdef SOL_N20_SERVO_ETH_CONFIG
     dataToObc.auto_vent_activated = is_auto_vent_active;

@@ -44,7 +44,7 @@ static void pressure_task(void *arg) {
   while (1) {
     float median_pressures[PRESSURE_DRIVER_SENSOR_COUNT];
 
-    for (int ch = 0; ch < PRESSURE_SAMPLES_COUNT; ch++) {
+    for (int i = 0; i < PRESSURE_SAMPLES_COUNT; i++) {
       float temp_pressures[PRESSURE_DRIVER_SENSOR_COUNT];
       pressure_get_sample(temp_pressures);
       
