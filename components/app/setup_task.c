@@ -58,7 +58,6 @@ static void valve_config_init(void) {
   vTaskDelay(pdMS_TO_TICKS(1000));
   // handle_valve_cmd(N20_SOL_CLOSE, 0);
   handle_valve_cmd(ETH_VALVE_CLOSE, 0);
-  ESP_LOGI("APP_TASK", "SOL_N2O_N2_CONFIG defined");
 #endif
 
   return;
