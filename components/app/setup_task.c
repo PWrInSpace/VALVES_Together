@@ -41,6 +41,7 @@ static void valve_config_init(void) {
   handle_valve_cmd(N20_VALVE_CLOSE, 0);
 #elif defined(SOL_N2_CONFIG)
   ESP_LOGI("APP_TASK", "SOL_N2_CONFIG defined");
+  vTaskDelay(pdMS_TO_TICKS(1500));
   play_sound(SOUND_QUADRUPLE_BEEP);
   vTaskDelay(pdMS_TO_TICKS(1000));
   // handle_valve_cmd(N2_SOL_CLOSE, 0);
