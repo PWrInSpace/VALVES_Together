@@ -23,6 +23,9 @@
 #include "valve_board_config.h"
 #include "valves_control.h"
 
+#include "BoardData.h"
+#include "RGB_led_driver.h"
+
 #define SETUP_TASK_STACK_SIZE 8000
 #define SETUP_TASK_PRIORITY 9
 #define SETUP_TASK_CORE_ID 0
@@ -75,6 +78,21 @@ void setup_task(void *arg) {
   if (app_task_init() != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialize app task");
     vTaskDelete(NULL);
+  }
+
+  uint8_t obc_state;
+  get_obcState(&obc_state, portMAX_DELAY);
+
+  #ifdef SOL_N2_CONFIG
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  #endif
+
+  while (obc_state < FUELING) {
+    rgb_led_set_color(RGB_GREEN);
+    vTaskDelay(pdMS_TO_TICKS(200));
+    rgb_turn_off();
+    vTaskDelay(pdMS_TO_TICKS(1800));
+    get_obcState(&obc_state, pdMS_TO_TICKS(100));
   }
 
   // Delete the setup task
