@@ -14,7 +14,7 @@
 #include "servo_control.h"
 #include "system_timer.h"
 
-#define FIRE_TIME_MS 6000 // "0" means infinite time (valve doesn't close)
+#define FIRE_TIME_MS 0 // "0" means infinite time (valve doesn't close)
 #define TIME_BETWEEN_VALVES_MS 60
 #define OPEN_SOL_AFTER_FIRE_MS 0 // 0 means infinite time (valve doesn't open)
 
@@ -146,27 +146,27 @@ void handle_valve_cmd(uint8_t cmd, int time_ms) {
     handle_valve_cmd(ETH_VALVE_OPEN, FIRE_TIME_MS);
 
     // opens after OPEN_SOL_AFTER_FIRE_MS
-    if (close_solenoid(valves[N20_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
-        ESP_OK) {
-      ESP_LOGE("VALVES_CONTROL", "Failed to close N20_FILL_SOL");
-    }
+    // if (close_solenoid(valves[N20_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
+    //     ESP_OK) {
+    //   ESP_LOGE("VALVES_CONTROL", "Failed to close N20_FILL_SOL");
+    // }
 #endif
 
-#ifdef SOL_N2_CONFIG
-    // opens after OPEN_SOL_AFTER_FIRE_MS
-    if (close_solenoid(valves[N2_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
-        ESP_OK) {
-      ESP_LOGE("VALVES_CONTROL", "Failed to close N2_FILL_SOL");
-    }
-#endif
+// #ifdef SOL_N2_CONFIG
+//     // opens after OPEN_SOL_AFTER_FIRE_MS
+//     if (close_solenoid(valves[N2_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
+//         ESP_OK) {
+//       ESP_LOGE("VALVES_CONTROL", "Failed to close N2_FILL_SOL");
+//     }
+// #endif
 
-#ifdef SOL_ETH_SERVO_N2_CONFIG
-    // opens after OPEN_SOL_AFTER_FIRE_MS
-    if (close_solenoid(valves[ETH_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
-        ESP_OK) {
-      ESP_LOGE("VALVES_CONTROL", "Failed to close ETH_FILL_SOL");
-    }
-#endif
+// #ifdef SOL_ETH_SERVO_N2_CONFIG
+//     // opens after OPEN_SOL_AFTER_FIRE_MS
+//     if (close_solenoid(valves[ETH_FILL_SOL].name, OPEN_SOL_AFTER_FIRE_MS) !=
+//         ESP_OK) {
+//       ESP_LOGE("VALVES_CONTROL", "Failed to close ETH_FILL_SOL");
+//     }
+// #endif
     break;
 
   case DUMP_VALVE_FIRE:
